@@ -38,25 +38,27 @@ jobs:
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-1.4.1
-          path: build/libs/PVPSE-1.4.1.jar
+          name: PVPSE-1.5.0
+          path: build/libs/PVPSE-1.5.0.jar
           if-no-files-found: error
 
       - name: Publish GitHub release
-        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.4.1'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.5.0'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.4.1
-          name: PVPSE Client v1.4.1
+          tag_name: v1.5.0
+          name: PVPSE Client v1.5.0
           body: |
-            PVPSE Client crosshair scrolling update for Fabric 1.21.11 and Java 21.
+            PVPSE Client waypoint and keybind release for Fabric 1.21.11 and Java 21.
 
-            Fixed in v1.4.1:
-            - Crosshair scrollbar can be grabbed and dragged
-            - Clicking the scrollbar track jumps to that position
-            - Mouse-wheel scrolling remains supported
-            - Includes all v1.4.0 modules and settings
+            New in v1.5.0:
+            - Dedicated Waypoints GUI
+            - Named waypoints with add, rename, delete, and clear controls
+            - Labeled on-screen markers with name and distance
+            - Rotating waypoint minimap
+            - Click-to-listen keybind settings for utility modules
+            - Includes all v1.4.1 modules, PvP HUDs, themes, and crosshair tools
 
-          files: build/libs/PVPSE-1.4.1.jar
+          files: build/libs/PVPSE-1.5.0.jar
           draft: false
           prerelease: false
