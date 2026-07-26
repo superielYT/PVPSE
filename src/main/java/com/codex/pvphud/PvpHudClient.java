@@ -29,6 +29,7 @@ public final class PvpHudClient implements ClientModInitializer {
     private KeyBinding toggleHudKey;
     private KeyBinding openConfigKey;
     private int profileSaveTicks;
+    private boolean damageTiltDisabled;
 
     @Override
     public void onInitializeClient() {
@@ -66,6 +67,11 @@ public final class PvpHudClient implements ClientModInitializer {
     private void tick(MinecraftClient client) {
         cps.tick(client);
         combatFeedback.tick(client, config);
+        PvpStats.getInstance().tick(client);
+        if (!damageTiltDisabled) {
+            client.options.getDamageTiltStrength().setValue(0.0D);
+            damageTiltDisabled = true;
+        }
         if (++profileSaveTicks >= 100) {
             profileSaveTicks = 0;
             profileManager.save(hudManager);
