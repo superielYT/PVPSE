@@ -26,9 +26,11 @@ public final class ModuleButton {
         this.element = element;
         if (element instanceof FeatureModule feature) {
             this.settings = feature.adjustable()
-                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.FeatureValue(feature))
+                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.FeatureValue(feature),
+                    new SettingComponent.Keybind(feature))
                     : feature.type() == FeatureModule.Type.WAYPOINT
-                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element))
+                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element),
+                    new SettingComponent.Keybind(feature))
                     : List.of(new SettingComponent.Toggle(element));
         } else {
             this.settings = List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element));
