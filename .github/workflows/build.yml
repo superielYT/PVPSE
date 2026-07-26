@@ -38,20 +38,25 @@ jobs:
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-1.0.0
-          path: build/libs/PVPSE-1.0.0.jar
+          name: PVPSE-1.0.1
+          path: build/libs/PVPSE-1.0.1.jar
           if-no-files-found: error
 
       - name: Publish GitHub release
-        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.0.0'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.0.1'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: PVPSE Client v1.0.0
+          tag_name: v1.0.1
+          name: PVPSE Client v1.0.1
           body: |
-            First premium PVPSE Client release for Fabric 1.21.11 and Java 21.
+            PVPSE Client update for Fabric 1.21.11 and Java 21.
 
-            Includes the customizable HUD, ClickGUI, themes, animation/render framework, configuration profiles, custom crosshair, combat feedback, and PVPSE branding.
-          files: build/libs/PVPSE-1.0.0.jar
+            Changes:
+            - Custom PVPSE controls replace vanilla-looking editor buttons
+            - Scrollable and clipped main ClickGUI with scrollbar
+            - Corner resize handles and live scale display in the HUD editor
+            - Added Cyberpunk, Arctic Frost, and Sakura Night themes
+            - Includes the existing premium HUD, profiles, crosshair, feedback, and branding
+          files: build/libs/PVPSE-1.0.1.jar
           draft: false
           prerelease: false
