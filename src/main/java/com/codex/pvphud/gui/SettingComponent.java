@@ -2,6 +2,7 @@ package com.codex.pvphud.gui;
 
 import com.codex.pvphud.hud.HudElement;
 import com.codex.pvphud.hud.FeatureModule;
+import com.codex.pvphud.FeatureKeybinds;
 import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.theme.Theme;
 import net.minecraft.client.MinecraftClient;
@@ -84,6 +85,29 @@ public abstract class SettingComponent {
             double normalized = Math.clamp((mx - (x + 92)) / Math.max(20.0, width - 98.0), 0.0, 1.0);
             feature.setValue(feature.minimum() + normalized * (feature.maximum() - feature.minimum()));
             return true;
+        }
+    }
+
+    public static final class Keybind extends SettingComponent {
+        private final FeatureModule feature;
+        public Keybind(FeatureModule feature) { super(feature); this.feature = feature; }
+        public void render(DrawContext c, MinecraftClient mc, Theme t, int mx, int my) {
+            c.drawText(mc.textRenderer, Text.literal("Keybind"), x, y + 6, t.text(), false);
+            var binding = FeatureKeybinds.key(feature.type());
+            String label = FeatureKeybinds.listening(feature.type()) ? "LISTENING..."
+                    : binding == null ? "NONE" : binding.getBoundKeyLocalizedText().getString();
+            int buttonWidth = Math.max(68, mc.textRenderer.getWidth(label) + 12);
+            RoundedRenderer.fill(c, x + width - buttonWidth, y + 2, buttonWidth, 16, 4,
+                    FeatureKeybinds.listening(feature.type()) ? t.accent() : t.panelHeader());
+            c.drawCenteredTextWithShadow(mc.textRenderer, Text.literal(label),
+                    x + width - buttonWidth / 2, y + 6, t.text());
+        }
+        public boolean click(double mx, double my, int button) {
+            if (button == 0 && inside(mx, my)) {
+                FeatureKeybinds.begin(feature.type());
+                return true;
+            }
+            return false;
         }
     }
 
