@@ -6,6 +6,7 @@ import com.codex.pvphud.hud.HudEditor;
 import com.codex.pvphud.hud.HudManager;
 import com.codex.pvphud.theme.Theme;
 import com.codex.pvphud.theme.ThemeManager;
+import com.codex.pvphud.theme.ThemeEditorScreen;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -59,6 +60,11 @@ public final class ClickGuiScreen extends Screen {
         hudPanel.render(context, client, theme, 18, 48, 220, height - 66, mouseX, mouseY,
                 search == null ? "" : search.getText());
         themeSelector.render(context, client, width - 210, 48, 192, mouseX, mouseY);
+        boolean themeEditHover = mouseX >= width - 210 && mouseX < width - 18 && mouseY >= 86 && mouseY < 110;
+        com.codex.pvphud.render.RoundedRenderer.fill(context, width - 210, 86, 192, 24, 6,
+                themeEditHover ? theme.accentSecondary() : theme.panelHeader());
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("EDIT CUSTOM THEME"),
+                width - 114, 94, theme.text());
         context.getMatrices().popMatrix();
         super.render(context, mouseX, mouseY, delta);
     }
@@ -77,12 +83,27 @@ public final class ClickGuiScreen extends Screen {
         String query = search == null ? "" : search.getText();
         if (hudPanel.click(click.x(), click.y(), click.button(), query)) return true;
         if (themeSelector.click(click.x(), click.y(), click.button())) return true;
+        if (click.button() == 0 && click.x() >= width - 210 && click.x() < width - 18
+                && click.y() >= 86 && click.y() < 110) {
+            if (client != null) client.setScreen(new ThemeEditorScreen(this));
+            return true;
+        }
         return super.mouseClicked(click, doubled);
     }
 
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (hudPanel.scroll(mouseX, mouseY, verticalAmount, search == null ? "" : search.getText())) return true;
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+        if (hudPanel.drag(click.x(), click.y(), search == null ? "" : search.getText())) return true;
+        return super.mouseDragged(click, deltaX, deltaY);
+    }
+
+    public boolean mouseReleased(Click click) {
+        hudPanel.release();
+        return super.mouseReleased(click);
     }
 
     public boolean shouldPause() { return false; }
