@@ -201,10 +201,10 @@ final class HudConfigScreen extends Screen {
 
         context.fill(0, 0, width, height, 0xBB000000);
 
-        context.getMatrices().push();
-        context.getMatrices().translate(0, slideOffset, 0);
+        context.getMatrices().pushMatrix();
+        context.getMatrices().translate(0, slideOffset);
 
-        // ── PVPES logo header ──
+        // ── PVPSE logo header ──
         drawLogo(context, panelX, panelW, ease);
 
         // ── card background for content area ──
@@ -225,7 +225,7 @@ final class HudConfigScreen extends Screen {
         }
 
         super.render(context, mouseX, mouseY, delta);
-        context.getMatrices().pop();
+        context.getMatrices().popMatrix();
     }
 
     private void drawLogo(DrawContext context, int panelX, int panelW, float ease) {
@@ -233,11 +233,11 @@ final class HudConfigScreen extends Screen {
         int lineW = (int) (panelW * ease);
         context.fill(panelX, 0, panelX + lineW, 2, config.accentColor());
 
-        context.getMatrices().push();
-        context.getMatrices().translate(panelX + panelW / 2.0F, 7, 0);
-        context.getMatrices().scale(1.65F, 1.65F, 1.0F);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("PVPES"), 0, 0, config.accentColor());
-        context.getMatrices().pop();
+        context.getMatrices().pushMatrix();
+        context.getMatrices().translate(panelX + panelW / 2.0F, 7);
+        context.getMatrices().scale(1.65F, 1.65F);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("PVPSE"), 0, 0, config.accentColor());
+        context.getMatrices().popMatrix();
 
         context.drawCenteredTextWithShadow(textRenderer,
             Text.literal("PVP CLIENT  •  1.21"), panelX + panelW / 2, LOGO_H - 12, config.mutedColor());
