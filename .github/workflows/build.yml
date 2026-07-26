@@ -38,28 +38,25 @@ jobs:
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-1.4.0
-          path: build/libs/PVPSE-1.4.0.jar
+          name: PVPSE-1.4.1
+          path: build/libs/PVPSE-1.4.1.jar
           if-no-files-found: error
 
       - name: Publish GitHub release
-        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.4.0'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.4.1'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.4.0
-          name: PVPSE Client v1.4.0
+          tag_name: v1.4.1
+          name: PVPSE Client v1.4.1
           body: |
-            PVPSE Client utility modules release for Fabric 1.21.11 and Java 21.
+            PVPSE Client crosshair scrolling update for Fabric 1.21.11 and Java 21.
 
-            New in v1.4.0:
-            - Right-click modules for their own settings
-            - Waypoint HUD with distance and coordinates (B)
-            - Hold-to-zoom with adjustable FOV (Z)
-            - No Pumpkin overlay module
-            - Fullbright with adjustable brightness (V)
-            - Settings persist in configuration profiles
-            - Includes all v1.3.1 PvP, HUD, theme, and crosshair features
+            Fixed in v1.4.1:
+            - Crosshair scrollbar can be grabbed and dragged
+            - Clicking the scrollbar track jumps to that position
+            - Mouse-wheel scrolling remains supported
+            - Includes all v1.4.0 modules and settings
 
-          files: build/libs/PVPSE-1.4.0.jar
+          files: build/libs/PVPSE-1.4.1.jar
           draft: false
           prerelease: false
