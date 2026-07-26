@@ -24,6 +24,8 @@ public final class HudManager {
         register(new TargetHUD());
         register(new SessionHUD());
         register(new PotionHUD());
+        register(new ComboHUD());
+        register(new ReachHUD());
     }
 
     public void register(HudElement element) {
