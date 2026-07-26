@@ -6,13 +6,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class ThemeManager {
     private static final ThemeManager INSTANCE = new ThemeManager();
+    private final CustomTheme customTheme = CustomTheme.load();
     private final List<Theme> themes = List.of(
             new IgniteTheme(),
             new MidnightTheme(),
             new NeonTheme(),
             new CyberpunkTheme(),
             new FrostTheme(),
-            new SakuraTheme()
+            new SakuraTheme(),
+            customTheme
     );
     private final AtomicReference<Theme> current = new AtomicReference<>(themes.getFirst());
 
@@ -48,5 +50,9 @@ public final class ThemeManager {
         Theme selected = themes.get(next);
         current.set(selected);
         return selected;
+    }
+
+    public CustomTheme customTheme() {
+        return customTheme;
     }
 }
