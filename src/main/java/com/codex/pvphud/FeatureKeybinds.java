@@ -3,6 +3,7 @@ package com.codex.pvphud;
 import com.codex.pvphud.hud.FeatureModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
@@ -27,10 +28,9 @@ public final class FeatureKeybinds {
 
     public static void tick(MinecraftClient client) {
         if (listening == null || client.currentScreen == null) return;
-        long window = client.getWindow().getHandle();
         boolean anyDown = false;
         for (int key = GLFW.GLFW_KEY_SPACE; key <= GLFW.GLFW_KEY_LAST; key++) {
-            if (!InputUtil.isKeyPressed(window, key)) continue;
+            if (!InputUtil.isKeyPressed(client.getWindow(), key)) continue;
             anyDown = true;
             if (waitForRelease) continue;
             if (key == GLFW.GLFW_KEY_ESCAPE) {
@@ -39,7 +39,7 @@ public final class FeatureKeybinds {
             }
             KeyBinding binding = KEYS.get(listening);
             if (binding != null) {
-                binding.setBoundKey(InputUtil.fromKeyCode(key, 0));
+                binding.setBoundKey(InputUtil.fromKeyCode(new KeyInput(key, 0, 0)));
                 KeyBinding.updateKeysByCode();
             }
             listening = null;
