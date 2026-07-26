@@ -1,5 +1,7 @@
 package com.codex.pvphud;
 
+import com.codex.pvphud.crosshair.CustomCrosshair;
+import com.codex.pvphud.theme.ThemeManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.hit.EntityHitResult;
@@ -17,6 +19,12 @@ final class CrosshairRenderer {
         int size = Math.max(HudConfig.MIN_CROSSHAIR_SIZE, config.crosshairSize);
         int color = useTargetColor && isTargetingPlayer() ? config.dangerColor() : config.accentColor();
         int shadow = 0xAA000000;
+        CustomCrosshair custom = CustomCrosshair.getInstance();
+        if (custom.enabled()) {
+            drawCustom(context, cx, cy, custom, useTargetColor && isTargetingPlayer() ? config.dangerColor() :
+                    (custom.useThemeColor() ? ThemeManager.getInstance().getTheme().accent() : custom.color()));
+            return;
+        }
 
         switch (config.crosshairStyle) {
             case DOT -> {
@@ -72,5 +80,17 @@ final class CrosshairRenderer {
 
     private static void line(DrawContext context, int x1, int y1, int x2, int y2, int color) {
         context.fill(x1, y1, x2, y2, color);
+    }
+
+    private static void drawCustom(DrawContext context, int cx, int cy, CustomCrosshair custom, int color) {
+        int center = CustomCrosshair.GRID_SIZE / 2;
+        for (int y = 0; y < CustomCrosshair.GRID_SIZE; y++) {
+            for (int x = 0; x < CustomCrosshair.GRID_SIZE; x++) {
+                if (!custom.pixel(x, y)) continue;
+                int px = cx + x - center;
+                int py = cy + y - center;
+                context.fill(px, py, px + 1, py + 1, color);
+            }
+        }
     }
 }
