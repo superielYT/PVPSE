@@ -3,6 +3,7 @@ package com.codex.pvphud;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import com.codex.pvphud.theme.ThemeManager;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -136,11 +137,11 @@ final class HudConfig {
         save();
     }
 
-    int accentColor() { return animatedColor(ColorSlot.ACCENT); }
-    int textColor() { return animatedColor(ColorSlot.TEXT); }
-    int mutedColor() { return animatedColor(ColorSlot.MUTED); }
-    int dangerColor() { return animatedColor(ColorSlot.DANGER); }
-    int glowColor() { return animatedColor(ColorSlot.GLOW); }
+    int accentColor() { return ThemeManager.getInstance().getTheme().accent(); }
+    int textColor() { return ThemeManager.getInstance().getTheme().text(); }
+    int mutedColor() { return ThemeManager.getInstance().getTheme().mutedText(); }
+    int dangerColor() { return ThemeManager.getInstance().getTheme().danger(); }
+    int glowColor() { return ThemeManager.getInstance().getTheme().glow(); }
 
     private int animatedColor(ColorSlot slot) {
         int target = slot.get(theme);
@@ -171,7 +172,8 @@ final class HudConfig {
 
     int backgroundColor() {
         int alpha = Math.clamp(panelOpacity, MIN_OPACITY, MAX_OPACITY);
-        return (alpha << 24) | 0x121418;
+        int themeBackground = ThemeManager.getInstance().getTheme().panel();
+        return (alpha << 24) | (themeBackground & 0xFFFFFF);
     }
 
     enum Corner {
