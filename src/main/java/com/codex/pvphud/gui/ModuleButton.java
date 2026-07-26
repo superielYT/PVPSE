@@ -3,6 +3,7 @@ package com.codex.pvphud.gui;
 import com.codex.pvphud.animation.Animation;
 import com.codex.pvphud.animation.Easing;
 import com.codex.pvphud.hud.HudElement;
+import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.render.RenderUtil;
 import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.theme.Theme;
@@ -23,7 +24,15 @@ public final class ModuleButton {
 
     public ModuleButton(HudElement element) {
         this.element = element;
-        this.settings = List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element));
+        if (element instanceof FeatureModule feature) {
+            this.settings = feature.adjustable()
+                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.FeatureValue(feature))
+                    : feature.type() == FeatureModule.Type.WAYPOINT
+                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element))
+                    : List.of(new SettingComponent.Toggle(element));
+        } else {
+            this.settings = List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element));
+        }
     }
 
     public void render(DrawContext context, MinecraftClient client, Theme theme, int x, int y, int width, int mouseX, int mouseY) {

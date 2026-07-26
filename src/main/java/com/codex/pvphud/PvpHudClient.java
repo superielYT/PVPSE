@@ -3,6 +3,7 @@ package com.codex.pvphud;
 import com.codex.pvphud.config.ConfigManager;
 import com.codex.pvphud.gui.ClickGuiScreen;
 import com.codex.pvphud.hud.HudManager;
+import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.notification.NotificationManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -28,8 +29,13 @@ public final class PvpHudClient implements ClientModInitializer {
     private HudConfig config;
     private KeyBinding toggleHudKey;
     private KeyBinding openConfigKey;
+    private KeyBinding zoomKey;
+    private KeyBinding waypointKey;
+    private KeyBinding fullbrightKey;
     private int profileSaveTicks;
     private boolean damageTiltDisabled;
+    private Integer previousFov;
+    private Double previousGamma;
 
     @Override
     public void onInitializeClient() {
@@ -47,6 +53,9 @@ public final class PvpHudClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_RIGHT_SHIFT,
                 CATEGORY
         ));
+        zoomKey = registerKey("key.pvp_hud_client.zoom", GLFW.GLFW_KEY_Z);
+        waypointKey = registerKey("key.pvp_hud_client.waypoint", GLFW.GLFW_KEY_B);
+        fullbrightKey = registerKey("key.pvp_hud_client.fullbright", GLFW.GLFW_KEY_V);
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
         registerHudElements();
@@ -60,6 +69,15 @@ public final class PvpHudClient implements ClientModInitializer {
             }
             original.render(context, tickCounter);
         });
+        HudElementRegistry.replaceElement(VanillaHudElements.MISC_OVERLAYS, original -> (context, tickCounter) -> {
+            MinecraftClient client = MinecraftClient.getInstance();
+            boolean hidePumpkin = hudManager.feature(FeatureModule.Type.NO_PUMPKIN)
+                    .map(FeatureModule::enabled).orElse(false)
+                    && client.player != null
+                    && client.player.getEquippedStack(net.minecraft.entity.EquipmentSlot.HEAD)
+                    .isOf(net.minecraft.item.Items.CARVED_PUMPKIN);
+            if (!hidePumpkin) original.render(context, tickCounter);
+        });
 
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, HUD_ID, this::renderHud);
     }
@@ -72,6 +90,7 @@ public final class PvpHudClient implements ClientModInitializer {
             client.options.getDamageTiltStrength().setValue(0.0D);
             damageTiltDisabled = true;
         }
+        updateUtilityFeatures(client);
         if (++profileSaveTicks >= 100) {
             profileSaveTicks = 0;
             profileManager.save(hudManager);
@@ -85,6 +104,44 @@ public final class PvpHudClient implements ClientModInitializer {
             if (client.player != null && client.currentScreen == null) {
                 client.setScreen(new ClickGuiScreen(hudManager));
             }
+        }
+    }
+
+    private KeyBinding registerKey(String translation, int key) {
+        return KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                translation, InputUtil.Type.KEYSYM, key, CATEGORY
+        ));
+    }
+
+    private void updateUtilityFeatures(MinecraftClient client) {
+        FeatureModule zoom = hudManager.feature(FeatureModule.Type.ZOOM).orElse(null);
+        boolean zooming = zoom != null && zoom.enabled() && zoomKey.isPressed();
+        if (zooming && previousFov == null) {
+            previousFov = client.options.getFov().getValue();
+            client.options.getFov().setValue((int) Math.round(zoom.value()));
+        } else if (!zooming && previousFov != null) {
+            client.options.getFov().setValue(previousFov);
+            previousFov = null;
+        }
+
+        while (waypointKey.wasPressed()) {
+            hudManager.feature(FeatureModule.Type.WAYPOINT).filter(FeatureModule::enabled).ifPresent(feature -> {
+                if (client.player != null) {
+                    feature.setWaypoint(client.player.getBlockPos());
+                    NotificationManager.getInstance().push("Waypoint set", client.player.getBlockPos().toShortString());
+                }
+            });
+        }
+        while (fullbrightKey.wasPressed()) {
+            hudManager.feature(FeatureModule.Type.FULLBRIGHT).ifPresent(feature -> feature.setEnabled(!feature.enabled()));
+        }
+        FeatureModule fullbright = hudManager.feature(FeatureModule.Type.FULLBRIGHT).orElse(null);
+        if (fullbright != null && fullbright.enabled()) {
+            if (previousGamma == null) previousGamma = client.options.getGamma().getValue();
+            client.options.getGamma().setValue(fullbright.value());
+        } else if (previousGamma != null) {
+            client.options.getGamma().setValue(previousGamma);
+            previousGamma = null;
         }
     }
 

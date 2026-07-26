@@ -1,6 +1,7 @@
 package com.codex.pvphud.gui;
 
 import com.codex.pvphud.hud.HudElement;
+import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.theme.Theme;
 import net.minecraft.client.MinecraftClient;
@@ -63,6 +64,26 @@ public abstract class SettingComponent {
                 return true;
             }
             return false;
+        }
+    }
+
+    public static final class FeatureValue extends SettingComponent {
+        private final FeatureModule feature;
+        public FeatureValue(FeatureModule feature) { super(feature); this.feature = feature; }
+        public void render(DrawContext c, MinecraftClient mc, Theme t, int mx, int my) {
+            c.drawText(mc.textRenderer, Text.literal(feature.valueName() + " " + Math.round(feature.value())), x, y + 4, t.text(), false);
+            int sx = x + 92;
+            int sw = Math.max(20, width - 98);
+            c.fill(sx, y + 9, sx + sw, y + 11, 0xFF343B45);
+            double range = feature.maximum() - feature.minimum();
+            int fill = (int) Math.round((feature.value() - feature.minimum()) / range * sw);
+            c.fill(sx, y + 8, sx + fill, y + 12, t.accent());
+        }
+        public boolean click(double mx, double my, int button) {
+            if (button != 0 || !inside(mx, my)) return false;
+            double normalized = Math.clamp((mx - (x + 92)) / Math.max(20.0, width - 98.0), 0.0, 1.0);
+            feature.setValue(feature.minimum() + normalized * (feature.maximum() - feature.minimum()));
+            return true;
         }
     }
 

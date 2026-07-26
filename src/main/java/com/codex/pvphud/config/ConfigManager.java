@@ -2,6 +2,7 @@ package com.codex.pvphud.config;
 
 import com.codex.pvphud.hud.HudElement;
 import com.codex.pvphud.hud.HudManager;
+import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.theme.ThemeManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,6 +35,7 @@ public final class ConfigManager {
             element.setEnabled(state.enabled);
             element.setPosition(state.x, state.y);
             element.setScale(state.scale);
+            if (element instanceof FeatureModule feature && state.value > 0) feature.setValue(state.value);
         }
     }
 
@@ -41,8 +43,10 @@ public final class ConfigManager {
         ConfigProfile profile = new ConfigProfile(activeProfile);
         profile.theme = ThemeManager.getInstance().getTheme().id();
         for (HudElement element : hudManager.elements()) {
-            profile.hud.put(element.id(), new ConfigProfile.HudState(
-                    element.enabled(), element.x(), element.y(), element.scale()));
+            ConfigProfile.HudState state = new ConfigProfile.HudState(
+                    element.enabled(), element.x(), element.y(), element.scale());
+            if (element instanceof FeatureModule feature) state.value = feature.value();
+            profile.hud.put(element.id(), state);
         }
         write(profile);
     }

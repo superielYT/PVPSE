@@ -26,6 +26,10 @@ public final class HudManager {
         register(new PotionHUD());
         register(new ComboHUD());
         register(new ReachHUD());
+        register(new FeatureModule(FeatureModule.Type.WAYPOINT, "Waypoint", 198, 250, 0));
+        register(new FeatureModule(FeatureModule.Type.ZOOM, "Zoom", 10, 292, 30));
+        register(new FeatureModule(FeatureModule.Type.NO_PUMPKIN, "No Pumpkin", 10, 318, 0));
+        register(new FeatureModule(FeatureModule.Type.FULLBRIGHT, "Fullbright", 10, 344, 12));
     }
 
     public void register(HudElement element) {
@@ -38,6 +42,11 @@ public final class HudManager {
 
     public Optional<HudElement> find(String id) {
         return elements.stream().filter(element -> element.id().equals(id)).findFirst();
+    }
+
+    public Optional<FeatureModule> feature(FeatureModule.Type type) {
+        return elements.stream().filter(FeatureModule.class::isInstance).map(FeatureModule.class::cast)
+                .filter(feature -> feature.type() == type).findFirst();
     }
 
     public void render(DrawContext context, MinecraftClient client, boolean editorMode) {
