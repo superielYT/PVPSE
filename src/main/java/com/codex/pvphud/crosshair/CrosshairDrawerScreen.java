@@ -22,6 +22,9 @@ public final class CrosshairDrawerScreen extends Screen {
     private final CustomCrosshair crosshair = CustomCrosshair.getInstance();
     private int gridX;
     private int gridY;
+    private int scrollOffset;
+    private static final int CONTENT_TOP = 54;
+    private static final int CONTENT_HEIGHT = GRID * CELL + 85;
 
     public CrosshairDrawerScreen(Screen parent) {
         super(Text.literal("PVPSE Crosshair Drawer"));
@@ -30,10 +33,11 @@ public final class CrosshairDrawerScreen extends Screen {
 
     protected void init() {
         gridX = Math.max(20, width / 2 - GRID * CELL / 2);
-        gridY = 54;
+        gridY = CONTENT_TOP - scrollOffset;
     }
 
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        gridY = CONTENT_TOP - scrollOffset;
         Theme theme = ThemeManager.getInstance().getTheme();
         context.fill(0, 0, width, height, theme.background());
         RenderUtil.panel(context, gridX - 12, gridY - 35, GRID * CELL + 24, GRID * CELL + 120, theme);
@@ -69,6 +73,7 @@ public final class CrosshairDrawerScreen extends Screen {
                     !crosshair.useThemeColor() && crosshair.color() == PALETTE[i], theme);
         }
         drawButton(context, width - 76, 14, 60, "DONE", theme, mouseX, mouseY);
+        drawScrollbar(context, theme);
         context.drawCenteredTextWithShadow(textRenderer,
                 Text.literal("Left click draws • right click erases • drag to paint"),
                 width / 2, height - 18, theme.mutedText());
@@ -118,6 +123,13 @@ public final class CrosshairDrawerScreen extends Screen {
         return super.mouseDragged(click, deltaX, deltaY);
     }
 
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        scrollOffset -= (int) Math.round(verticalAmount * 28.0D);
+        scrollOffset = Math.clamp(scrollOffset, 0, maximumScroll());
+        gridY = CONTENT_TOP - scrollOffset;
+        return true;
+    }
+
     public void close() {
         crosshair.save();
         if (client != null) client.setScreen(parent);
@@ -156,6 +168,24 @@ public final class CrosshairDrawerScreen extends Screen {
             context.fill(x - 2, y + 20, x + 22, y + 22, theme.text());
         }
         if (index == 0) context.drawTextWithShadow(textRenderer, Text.literal("T"), x + 7, y + 6, 0xFF101216);
+    }
+
+    private void drawScrollbar(DrawContext context, Theme theme) {
+        int maximum = maximumScroll();
+        if (maximum <= 0) return;
+        int top = 46;
+        int bottom = height - 24;
+        int available = Math.max(30, bottom - top);
+        int fullHeight = available + maximum;
+        int thumbHeight = Math.max(20, Math.round(available * (available / (float) fullHeight)));
+        int travel = available - thumbHeight;
+        int thumbY = top + Math.round(travel * (scrollOffset / (float) maximum));
+        context.fill(width - 8, top, width - 4, bottom, 0x66343B45);
+        context.fill(width - 9, thumbY, width - 3, thumbY + thumbHeight, theme.accent());
+    }
+
+    private int maximumScroll() {
+        return Math.max(0, CONTENT_TOP + CONTENT_HEIGHT - (height - 24));
     }
 
     private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {
