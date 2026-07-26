@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import com.codex.pvphud.waypoint.WaypointManager;
 
 import java.util.Locale;
 
@@ -13,7 +14,6 @@ public final class FeatureModule extends HudElement {
 
     private final Type type;
     private double value;
-    private BlockPos waypoint;
 
     public FeatureModule(Type type, String name, float x, float y, double value) {
         super("feature_" + type.name().toLowerCase(Locale.ROOT), name, x, y);
@@ -26,13 +26,14 @@ public final class FeatureModule extends HudElement {
         HudStyles.card(context, theme, width(client), height(client), alpha);
         context.drawTextWithShadow(client.textRenderer, Text.literal(nameText()), 7, 7, theme.text());
         if (type == Type.WAYPOINT) {
-            String detail = waypoint == null ? "Press B to set" : distanceText(client);
+            String detail = distanceText(client);
             context.drawTextWithShadow(client.textRenderer, Text.literal(detail), 7, 19, theme.accent());
+            drawMinimap(context, client, theme);
         }
     }
 
     public int width(MinecraftClient client) { return type == Type.WAYPOINT ? 122 : 104; }
-    public int height(MinecraftClient client) { return type == Type.WAYPOINT ? 34 : 22; }
+    public int height(MinecraftClient client) { return type == Type.WAYPOINT ? 92 : 22; }
     public Type type() { return type; }
     public boolean adjustable() { return type == Type.ZOOM || type == Type.FULLBRIGHT; }
     public String valueName() { return type == Type.ZOOM ? "Zoom FOV" : "Brightness"; }
@@ -40,8 +41,6 @@ public final class FeatureModule extends HudElement {
     public double maximum() { return type == Type.ZOOM ? 70.0 : 16.0; }
     public double value() { return value; }
     public void setValue(double value) { this.value = Math.clamp(value, minimum(), maximum()); }
-    public BlockPos waypoint() { return waypoint; }
-    public void setWaypoint(BlockPos waypoint) { this.waypoint = waypoint; }
 
     private String nameText() {
         return switch (type) {
@@ -53,9 +52,31 @@ public final class FeatureModule extends HudElement {
     }
 
     private String distanceText(MinecraftClient client) {
-        if (client.player == null || waypoint == null) return "--";
+        var points = WaypointManager.getInstance().waypoints();
+        if (client.player == null || points.isEmpty()) return "Press B to add";
+        var waypoint = points.getFirst();
         double distance = Math.sqrt(client.player.squaredDistanceTo(
-                waypoint.getX() + 0.5, waypoint.getY() + 0.5, waypoint.getZ() + 0.5));
-        return String.format(Locale.ROOT, "%.0fm  X%d Z%d", distance, waypoint.getX(), waypoint.getZ());
+                waypoint.x() + 0.5, waypoint.y() + 0.5, waypoint.z() + 0.5));
+        return String.format(Locale.ROOT, "%d points • %.0fm", points.size(), distance);
+    }
+
+    private void drawMinimap(DrawContext context, MinecraftClient client, Theme theme) {
+        int mapX = 31;
+        int mapY = 35;
+        int size = 58;
+        context.fill(mapX, mapY, mapX + size, mapY + size, 0xBB0C1016);
+        context.fill(mapX + size / 2 - 1, mapY + size / 2 - 1, mapX + size / 2 + 2, mapY + size / 2 + 2, theme.text());
+        if (client.player == null) return;
+        double yaw = Math.toRadians(client.player.getYaw());
+        for (var point : WaypointManager.getInstance().waypoints()) {
+            double dx = point.x() + 0.5 - client.player.getX();
+            double dz = point.z() + 0.5 - client.player.getZ();
+            double rx = dx * Math.cos(yaw) + dz * Math.sin(yaw);
+            double rz = dz * Math.cos(yaw) - dx * Math.sin(yaw);
+            double scale = Math.max(1.0, Math.max(Math.abs(rx), Math.abs(rz)) / 24.0);
+            int px = mapX + size / 2 + (int) Math.clamp(Math.round(rx / scale), -25, 25);
+            int py = mapY + size / 2 + (int) Math.clamp(Math.round(rz / scale), -25, 25);
+            context.fill(px - 1, py - 1, px + 2, py + 2, theme.accent());
+        }
     }
 }
