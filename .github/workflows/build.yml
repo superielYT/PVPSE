@@ -27,6 +27,11 @@ jobs:
         with:
           gradle-version: "9.5.0"
 
+      - name: Restore PVPSE logo
+        run: |
+          mkdir -p src/main/resources/assets/pvp_hud_client
+          base64 --decode assets/transparent-logo.png.b64 > src/main/resources/assets/pvp_hud_client/icon.png
+
       - name: Build
         run: gradle build
 
