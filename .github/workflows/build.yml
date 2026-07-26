@@ -38,27 +38,27 @@ jobs:
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-1.1.0
-          path: build/libs/PVPSE-1.1.0.jar
+          name: PVPSE-1.2.0
+          path: build/libs/PVPSE-1.2.0.jar
           if-no-files-found: error
 
       - name: Publish GitHub release
-        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.1.0'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.2.0'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.0
-          name: PVPSE Client v1.1.0
+          tag_name: v1.2.0
+          name: PVPSE Client v1.2.0
           body: |
-            PVPSE Client feature release for Fabric 1.21.11 and Java 21.
+            PVPSE Client UI release for Fabric 1.21.11 and Java 21.
 
-            New custom crosshair drawer:
-            - 15x15 pixel drawing grid
-            - Draw and erase by dragging
-            - Horizontal and vertical mirror modes
-            - Theme-aware color plus seven-color palette
-            - Clear, reset, live preview, and persistent storage
+            New in v1.2.0:
+            - Mouse-wheel and draggable-scrollbar ClickGUI scrolling
+            - Custom RGB theme editor with persistent accent color
+            - HUD snapping and live alignment guides
+            - Animated theme-aware notifications
+            - Crosshair design copy/paste codes
+            - Existing corner-handle HUD scaling and seven themes
 
-            Also includes the premium scrollable ClickGUI, resizable HUD editor, six themes, profiles, combat feedback, and branding.
-          files: build/libs/PVPSE-1.1.0.jar
+          files: build/libs/PVPSE-1.2.0.jar
           draft: false
           prerelease: false
