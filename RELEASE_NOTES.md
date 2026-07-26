@@ -1,24 +1,20 @@
-# PVPSE Client v1.2.0
+# PVPSE Client v1.3.0
 
-UI and customization release for Fabric 1.21.11 and Java 21.
+PvP feedback edition for Fabric 1.21.11 and Java 21.
 
-## New in v1.2.0
+## New PvP features
 
-- Main ClickGUI scrolls with the mouse wheel
-- Visible scrollbar can be grabbed and dragged with the mouse
-- Custom RGB theme editor with saved accent color
-- HUD elements snap to screen edges, centers, and other elements
-- Live alignment guides while moving HUD elements
-- Animated, theme-aware notification cards
-- Crosshair designs can be copied and pasted as compact PVPSE codes
-- Corner-handle HUD scaling remains available
-- Seven built-in/custom themes
+- Damage tilt is automatically set to 0 for a stable view
+- Live combo counter that resets on misses or after inactivity
+- Last successful hit reach measured from the player's eye position
+- Animated low-health notification at three hearts
+- Combo and Reach are fully movable, scalable, and toggleable HUD elements
 
-## Included systems
+## Also included
 
-- Modern searchable ClickGUI
-- Drag-and-drop HUD editor
-- Crosshair drawer and live in-game renderer
-- Persistent configuration profiles
-- Combat feedback, session HUD, keystrokes, armor, potion, target, FPS, ping, CPS, coordinates, array list, and watermark HUDs
-- PVPSE logo and branding
+- Mouse-wheel and draggable-scrollbar ClickGUI
+- Custom RGB theme editor and seven themes
+- Snapping HUD editor with alignment guides and corner scaling
+- Crosshair drawer with copy/paste design codes
+- Theme-aware notification system
+- All existing PVPSE HUD elements and branding
