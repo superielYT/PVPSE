@@ -23,6 +23,12 @@ public final class CrosshairDrawerScreen extends Screen {
     private int gridX;
     private int gridY;
     private int scrollOffset;
+    private boolean scrollbarDragging;
+    private int scrollbarDragOffset;
+    private int scrollbarTop;
+    private int scrollbarBottom;
+    private int scrollbarThumbY;
+    private int scrollbarThumbHeight;
     private static final int CONTENT_TOP = 54;
     private static final int CONTENT_HEIGHT = GRID * CELL + 85;
 
@@ -81,6 +87,13 @@ public final class CrosshairDrawerScreen extends Screen {
     }
 
     public boolean mouseClicked(Click click, boolean doubled) {
+        if (click.button() == 0 && maximumScroll() > 0 && click.x() >= width - 14 && click.x() < width) {
+            scrollbarDragging = true;
+            scrollbarDragOffset = click.y() >= scrollbarThumbY && click.y() < scrollbarThumbY + scrollbarThumbHeight
+                    ? (int) click.y() - scrollbarThumbY : scrollbarThumbHeight / 2;
+            updateScrollbar((int) click.y());
+            return true;
+        }
         if (insideGrid(click.x(), click.y())) {
             paint(click.x(), click.y(), click.button() != 1);
             return true;
@@ -116,11 +129,20 @@ public final class CrosshairDrawerScreen extends Screen {
     }
 
     public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+        if (scrollbarDragging) {
+            updateScrollbar((int) click.y());
+            return true;
+        }
         if (insideGrid(click.x(), click.y())) {
             paint(click.x(), click.y(), click.button() != 1);
             return true;
         }
         return super.mouseDragged(click, deltaX, deltaY);
+    }
+
+    public boolean mouseReleased(Click click) {
+        scrollbarDragging = false;
+        return super.mouseReleased(click);
     }
 
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
@@ -173,15 +195,24 @@ public final class CrosshairDrawerScreen extends Screen {
     private void drawScrollbar(DrawContext context, Theme theme) {
         int maximum = maximumScroll();
         if (maximum <= 0) return;
-        int top = 46;
-        int bottom = height - 24;
-        int available = Math.max(30, bottom - top);
+        scrollbarTop = 46;
+        scrollbarBottom = height - 24;
+        int available = Math.max(30, scrollbarBottom - scrollbarTop);
         int fullHeight = available + maximum;
-        int thumbHeight = Math.max(20, Math.round(available * (available / (float) fullHeight)));
-        int travel = available - thumbHeight;
-        int thumbY = top + Math.round(travel * (scrollOffset / (float) maximum));
-        context.fill(width - 8, top, width - 4, bottom, 0x66343B45);
-        context.fill(width - 9, thumbY, width - 3, thumbY + thumbHeight, theme.accent());
+        scrollbarThumbHeight = Math.max(20, Math.round(available * (available / (float) fullHeight)));
+        int travel = available - scrollbarThumbHeight;
+        scrollbarThumbY = scrollbarTop + Math.round(travel * (scrollOffset / (float) maximum));
+        context.fill(width - 10, scrollbarTop, width - 3, scrollbarBottom, 0x66343B45);
+        context.fill(width - 12, scrollbarThumbY, width - 1,
+                scrollbarThumbY + scrollbarThumbHeight, theme.accent());
+    }
+
+    private void updateScrollbar(int mouseY) {
+        int maximum = maximumScroll();
+        int travel = Math.max(1, scrollbarBottom - scrollbarTop - scrollbarThumbHeight);
+        int position = Math.clamp(mouseY - scrollbarDragOffset - scrollbarTop, 0, travel);
+        scrollOffset = Math.round(maximum * position / (float) travel);
+        gridY = CONTENT_TOP - scrollOffset;
     }
 
     private int maximumScroll() {
