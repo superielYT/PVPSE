@@ -2,6 +2,7 @@ package com.codex.pvphud.crosshair;
 
 import com.codex.pvphud.render.RenderUtil;
 import com.codex.pvphud.render.RoundedRenderer;
+import com.codex.pvphud.notification.NotificationManager;
 import com.codex.pvphud.theme.Theme;
 import com.codex.pvphud.theme.ThemeManager;
 import net.minecraft.client.gui.Click;
@@ -35,7 +36,7 @@ public final class CrosshairDrawerScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         Theme theme = ThemeManager.getInstance().getTheme();
         context.fill(0, 0, width, height, theme.background());
-        RenderUtil.panel(context, gridX - 12, gridY - 35, GRID * CELL + 24, GRID * CELL + 94, theme);
+        RenderUtil.panel(context, gridX - 12, gridY - 35, GRID * CELL + 24, GRID * CELL + 120, theme);
         context.drawCenteredTextWithShadow(textRenderer, title, width / 2, gridY - 25, theme.accent());
 
         for (int y = 0; y < GRID; y++) {
@@ -57,6 +58,8 @@ public final class CrosshairDrawerScreen extends Screen {
         drawToggle(context, gridX, controlsY + 24, 92, "MIRROR Y", crosshair.mirrorVertical(), theme, mouseX, mouseY);
         drawButton(context, gridX + 98, controlsY + 24, 44, "CLEAR", theme, mouseX, mouseY);
         drawButton(context, gridX + 146, controlsY + 24, 44, "RESET", theme, mouseX, mouseY);
+        drawButton(context, gridX, controlsY + 50, 92, "COPY CODE", theme, mouseX, mouseY);
+        drawButton(context, gridX + 98, controlsY + 50, 92, "PASTE CODE", theme, mouseX, mouseY);
 
         int paletteX = gridX + GRID * CELL + 22;
         context.drawTextWithShadow(textRenderer, Text.literal("COLOR"), paletteX, gridY, theme.text());
@@ -83,6 +86,15 @@ public final class CrosshairDrawerScreen extends Screen {
         else if (inside(click.x(), click.y(), gridX, controlsY + 24, 92, 20)) crosshair.setMirrorVertical(!crosshair.mirrorVertical());
         else if (inside(click.x(), click.y(), gridX + 98, controlsY + 24, 44, 20)) crosshair.clear();
         else if (inside(click.x(), click.y(), gridX + 146, controlsY + 24, 44, 20)) crosshair.reset();
+        else if (inside(click.x(), click.y(), gridX, controlsY + 50, 92, 20)) {
+            if (client != null) client.keyboard.setClipboard(crosshair.exportCode());
+            NotificationManager.getInstance().push("Crosshair copied", "Share code copied");
+        }
+        else if (inside(click.x(), click.y(), gridX + 98, controlsY + 50, 92, 20)) {
+            boolean imported = client != null && crosshair.importCode(client.keyboard.getClipboard());
+            NotificationManager.getInstance().push(imported ? "Crosshair imported" : "Invalid code",
+                    imported ? "Clipboard design loaded" : "Copy a PVPSE1 code first");
+        }
         else if (inside(click.x(), click.y(), width - 76, 14, 60, 20)) close();
         else {
             int paletteX = gridX + GRID * CELL + 22;
