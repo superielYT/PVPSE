@@ -6,7 +6,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class ThemeManager {
     private static final ThemeManager INSTANCE = new ThemeManager();
-    private final List<Theme> themes = List.of(new IgniteTheme(), new MidnightTheme(), new NeonTheme());
+    private final List<Theme> themes = List.of(
+            new IgniteTheme(),
+            new MidnightTheme(),
+            new NeonTheme(),
+            new CyberpunkTheme(),
+            new FrostTheme(),
+            new SakuraTheme()
+    );
     private final AtomicReference<Theme> current = new AtomicReference<>(themes.getFirst());
 
     private ThemeManager() {}
