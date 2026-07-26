@@ -1,6 +1,7 @@
 package com.codex.pvphud.gui;
 
 import com.codex.pvphud.animation.ScaleAnimation;
+import com.codex.pvphud.crosshair.CrosshairDrawerScreen;
 import com.codex.pvphud.hud.HudEditor;
 import com.codex.pvphud.hud.HudManager;
 import com.codex.pvphud.theme.Theme;
@@ -19,6 +20,7 @@ public final class ClickGuiScreen extends Screen {
     private int editorButtonX;
     private int editorButtonY;
     private static final int EDITOR_BUTTON_WIDTH = 100;
+    private int crosshairButtonX;
 
     public ClickGuiScreen(HudManager hudManager) {
         super(Text.literal("PVPSE Client"));
@@ -31,6 +33,7 @@ public final class ClickGuiScreen extends Screen {
         opening.animateTo(1.0F);
         search = addDrawableChild(new SearchBar(textRenderer, 18, 18, 170));
         editorButtonX = width - EDITOR_BUTTON_WIDTH - 18;
+        crosshairButtonX = editorButtonX - EDITOR_BUTTON_WIDTH - 8;
         editorButtonY = 16;
     }
 
@@ -43,6 +46,12 @@ public final class ClickGuiScreen extends Screen {
                 EDITOR_BUTTON_WIDTH, 24, 6, editorHovered ? theme.accentSecondary() : theme.accent());
         context.drawCenteredTextWithShadow(textRenderer, Text.literal("HUD EDITOR"),
                 editorButtonX + EDITOR_BUTTON_WIDTH / 2, editorButtonY + 8, 0xFF101216);
+        boolean crosshairHovered = mouseX >= crosshairButtonX && mouseX < crosshairButtonX + EDITOR_BUTTON_WIDTH
+                && mouseY >= editorButtonY && mouseY < editorButtonY + 24;
+        com.codex.pvphud.render.RoundedRenderer.fill(context, crosshairButtonX, editorButtonY,
+                EDITOR_BUTTON_WIDTH, 24, 6, crosshairHovered ? theme.accentSecondary() : theme.panelHeader());
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("CROSSHAIR"),
+                crosshairButtonX + EDITOR_BUTTON_WIDTH / 2, editorButtonY + 8, theme.text());
         context.getMatrices().pushMatrix();
         float scale = opening.value();
         context.getMatrices().translate(width * (1.0F - scale) / 2.0F, height * (1.0F - scale) / 2.0F);
@@ -58,6 +67,11 @@ public final class ClickGuiScreen extends Screen {
         if (click.button() == 0 && click.x() >= editorButtonX && click.x() < editorButtonX + EDITOR_BUTTON_WIDTH
                 && click.y() >= editorButtonY && click.y() < editorButtonY + 24) {
             if (client != null) client.setScreen(new HudEditor(hudManager, this));
+            return true;
+        }
+        if (click.button() == 0 && click.x() >= crosshairButtonX && click.x() < crosshairButtonX + EDITOR_BUTTON_WIDTH
+                && click.y() >= editorButtonY && click.y() < editorButtonY + 24) {
+            if (client != null) client.setScreen(new CrosshairDrawerScreen(this));
             return true;
         }
         String query = search == null ? "" : search.getText();
