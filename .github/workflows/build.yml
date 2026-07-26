@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout
@@ -41,3 +41,17 @@ jobs:
           name: PVPSE-1.0.0
           path: build/libs/PVPSE-1.0.0.jar
           if-no-files-found: error
+
+      - name: Publish GitHub release
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.0.0'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: PVPSE Client v1.0.0
+          body: |
+            First premium PVPSE Client release for Fabric 1.21.11 and Java 21.
+
+            Includes the customizable HUD, ClickGUI, themes, animation/render framework, configuration profiles, custom crosshair, combat feedback, and PVPSE branding.
+          files: build/libs/PVPSE-1.0.0.jar
+          draft: false
+          prerelease: false
