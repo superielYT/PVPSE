@@ -19,6 +19,7 @@ public final class ConfigProfile {
         public float x;
         public float y;
         public float scale = 1.0F;
+        public double value;
 
         public HudState() {}
 
