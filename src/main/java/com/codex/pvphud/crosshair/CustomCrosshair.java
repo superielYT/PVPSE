@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 
 public final class CustomCrosshair {
     public static final int GRID_SIZE = 15;
@@ -71,6 +72,43 @@ public final class CustomCrosshair {
                 GSON.toJson(this, writer);
             }
         } catch (IOException ignored) {}
+    }
+
+    public synchronized String exportCode() {
+        byte[] data = new byte[(GRID_SIZE * GRID_SIZE + 7) / 8];
+        for (int y = 0; y < GRID_SIZE; y++) {
+            for (int x = 0; x < GRID_SIZE; x++) {
+                int bit = y * GRID_SIZE + x;
+                if (pixels[y][x]) data[bit / 8] |= (byte) (1 << bit % 8);
+            }
+        }
+        int flags = (mirrorHorizontal ? 1 : 0) | (mirrorVertical ? 2 : 0) | (useThemeColor ? 4 : 0);
+        return "PVPSE1:" + Base64.getUrlEncoder().withoutPadding().encodeToString(data)
+                + ":" + Integer.toHexString(color) + ":" + flags;
+    }
+
+    public synchronized boolean importCode(String code) {
+        try {
+            String[] parts = code == null ? new String[0] : code.trim().split(":");
+            if (parts.length != 4 || !"PVPSE1".equals(parts[0])) return false;
+            byte[] data = Base64.getUrlDecoder().decode(parts[1]);
+            if (data.length != (GRID_SIZE * GRID_SIZE + 7) / 8) return false;
+            boolean[][] imported = new boolean[GRID_SIZE][GRID_SIZE];
+            for (int bit = 0; bit < GRID_SIZE * GRID_SIZE; bit++) {
+                imported[bit / GRID_SIZE][bit % GRID_SIZE] = (data[bit / 8] & 1 << bit % 8) != 0;
+            }
+            color = (int) Long.parseLong(parts[2], 16);
+            int flags = Integer.parseInt(parts[3]);
+            mirrorHorizontal = (flags & 1) != 0;
+            mirrorVertical = (flags & 2) != 0;
+            useThemeColor = (flags & 4) != 0;
+            pixels = imported;
+            enabled = true;
+            save();
+            return true;
+        } catch (IllegalArgumentException exception) {
+            return false;
+        }
     }
 
     private void paint(int x, int y, boolean active) {
