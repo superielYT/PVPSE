@@ -1,16 +1,28 @@
-# PVPSE Client v1.4.1
+# PVPSE Client v1.5.0
 
-Crosshair editor scrolling update for Fabric 1.21.11 and Java 21.
+Waypoint and keybind release for Fabric 1.21.11 and Java 21.
 
-## Fixed
+## Waypoint system
 
-- Scroll the crosshair editor with the mouse wheel
-- Grab and drag the visible scrollbar with the left mouse button
-- Click the scrollbar track to jump directly to another position
-- All crosshair controls remain reachable on small screens
+- New WAYPOINTS button in the main ClickGUI
+- Type a custom name before adding a waypoint
+- Select an existing waypoint and change its name
+- Delete individual waypoints or clear the complete list
+- Scrollable waypoint list
+- Persistent waypoints separated by dimension
+- Labeled on-screen markers show waypoint name and distance
+- Movable/scalable HUD with a rotating waypoint minimap
+
+## Keybind settings
+
+- Right-click Zoom, Waypoint, or Fullbright in the main GUI
+- Click the Keybind setting
+- The button displays LISTENING...
+- Press any keyboard key to assign it
+- Escape cancels key capture
 
 ## Included
 
-- Module-specific right-click settings
-- Waypoint, Zoom, No Pumpkin, and Fullbright
-- All previous PvP HUD, theme, editor, and crosshair features
+- Draggable crosshair scrollbar
+- Zoom, No Pumpkin, Fullbright, damage tilt 0
+- Combo, reach, low-health and all existing HUD features
