@@ -17,6 +17,8 @@ public final class HudEditor extends Screen {
     private double resizeStartX;
     private float resizeStartScale;
     private HudElement selected;
+    private Integer guideX;
+    private Integer guideY;
 
     private static final int TOP_BAR_HEIGHT = 38;
     private static final int BUTTON_WIDTH = 72;
@@ -39,6 +41,8 @@ public final class HudEditor extends Screen {
                 width / 2, TOP_BAR_HEIGHT + 2, theme.mutedText());
         if (client != null) {
             manager.render(context, client, true);
+            if (guideX != null) context.fill(guideX, TOP_BAR_HEIGHT + 12, guideX + 1, height, theme.accentSecondary());
+            if (guideY != null) context.fill(0, guideY, width, guideY + 1, theme.accentSecondary());
             for (HudElement element : manager.elements()) drawElementOutline(context, element, element == selected, theme);
         }
         super.render(context, mouseX, mouseY, delta);
@@ -91,7 +95,7 @@ public final class HudEditor extends Screen {
                 float delta = (float) ((click.x() - resizeStartX) / Math.max(40.0, dragging.width(client)));
                 dragging.setScale(resizeStartScale + delta);
             } else {
-                dragging.setPosition((float) (click.x() - offsetX), (float) (click.y() - offsetY));
+                moveWithSnapping((float) (click.x() - offsetX), (float) (click.y() - offsetY));
             }
             return true;
         }
@@ -101,6 +105,8 @@ public final class HudEditor extends Screen {
     public boolean mouseReleased(Click click) {
         dragging = null;
         resizing = false;
+        guideX = null;
+        guideY = null;
         return super.mouseReleased(click);
     }
 
@@ -138,6 +144,58 @@ public final class HudEditor extends Screen {
         int bottom = Math.round(element.y() + element.height(client) * element.scale());
         return inside(mouseX, mouseY, right - 7, bottom - 7, 14, 14);
     }
+
+    private void moveWithSnapping(float proposedX, float proposedY) {
+        float elementWidth = dragging.width(client) * dragging.scale();
+        float elementHeight = dragging.height(client) * dragging.scale();
+        float[] xTargets = new float[3 + manager.elements().size() * 3];
+        float[] yTargets = new float[3 + manager.elements().size() * 3];
+        int xi = 0;
+        int yi = 0;
+        xTargets[xi++] = 8;
+        xTargets[xi++] = width / 2.0F;
+        xTargets[xi++] = width - 8;
+        yTargets[yi++] = TOP_BAR_HEIGHT + 14;
+        yTargets[yi++] = height / 2.0F;
+        yTargets[yi++] = height - 8;
+        for (HudElement other : manager.elements()) {
+            if (other == dragging) continue;
+            float ow = other.width(client) * other.scale();
+            float oh = other.height(client) * other.scale();
+            xTargets[xi++] = other.x();
+            xTargets[xi++] = other.x() + ow / 2.0F;
+            xTargets[xi++] = other.x() + ow;
+            yTargets[yi++] = other.y();
+            yTargets[yi++] = other.y() + oh / 2.0F;
+            yTargets[yi++] = other.y() + oh;
+        }
+        Snap sx = snap(proposedX, elementWidth, xTargets, xi);
+        Snap sy = snap(proposedY, elementHeight, yTargets, yi);
+        guideX = sx.guide();
+        guideY = sy.guide();
+        dragging.setPosition(Math.clamp(sx.position(), 0, Math.max(0, width - elementWidth)),
+                Math.clamp(sy.position(), TOP_BAR_HEIGHT + 12, Math.max(TOP_BAR_HEIGHT + 12, height - elementHeight)));
+    }
+
+    private static Snap snap(float position, float size, float[] targets, int count) {
+        float bestPosition = position;
+        float bestDistance = 6.1F;
+        Integer guide = null;
+        for (int i = 0; i < count; i++) {
+            for (float anchor : new float[]{0, size / 2.0F, size}) {
+                float candidate = targets[i] - anchor;
+                float distance = Math.abs(candidate - position);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestPosition = candidate;
+                    guide = Math.round(targets[i]);
+                }
+            }
+        }
+        return new Snap(bestPosition, guide);
+    }
+
+    private record Snap(float position, Integer guide) {}
 
     private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
