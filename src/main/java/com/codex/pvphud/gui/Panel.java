@@ -18,6 +18,12 @@ public final class Panel {
     private int width;
     private int viewportHeight;
     private int scrollOffset;
+    private boolean scrollbarDragging;
+    private int scrollbarDragOffset;
+    private int thumbY;
+    private int thumbHeight;
+    private int trackTop;
+    private int trackBottom;
 
     public Panel(String title, List<HudElement> elements) {
         this.title = title;
@@ -44,8 +50,30 @@ public final class Panel {
 
     public boolean click(double mouseX, double mouseY, int button, String query) {
         if (mouseX < x || mouseX >= x + width || mouseY < y + 27 || mouseY >= y + viewportHeight) return false;
+        if (button == 0 && contentHeight(query) > viewportHeight - 32
+                && mouseX >= x + width - 9 && mouseX < x + width) {
+            scrollbarDragging = true;
+            scrollbarDragOffset = mouseY >= thumbY && mouseY < thumbY + thumbHeight
+                    ? (int) mouseY - thumbY : thumbHeight / 2;
+            drag(mouseX, mouseY, query);
+            return true;
+        }
         for (ModuleButton module : filtered(query)) if (module.click(mouseX, mouseY, button)) return true;
         return false;
+    }
+
+    public boolean drag(double mouseX, double mouseY, String query) {
+        if (!scrollbarDragging) return false;
+        int available = trackBottom - trackTop;
+        int travel = Math.max(1, available - thumbHeight - 4);
+        int target = Math.clamp((int) mouseY - scrollbarDragOffset - trackTop - 2, 0, travel);
+        int maximum = Math.max(0, contentHeight(query) - available);
+        scrollOffset = Math.round(maximum * target / (float) travel);
+        return true;
+    }
+
+    public void release() {
+        scrollbarDragging = false;
     }
 
     public boolean scroll(double mouseX, double mouseY, double verticalAmount, String query) {
@@ -72,15 +100,20 @@ public final class Panel {
     }
 
     private void drawScrollbar(DrawContext context, Theme theme, String query, int top, int bottom) {
+        trackTop = top;
+        trackBottom = bottom;
         int content = contentHeight(query);
         int available = bottom - top;
-        if (content <= available) return;
+        if (content <= available) {
+            scrollbarDragging = false;
+            return;
+        }
         int trackX = x + width - 4;
-        context.fill(trackX, top + 2, trackX + 2, bottom - 2, 0x553B424C);
-        int thumbHeight = Math.max(16, Math.round(available * (available / (float) content)));
+        context.fill(trackX - 2, top + 2, trackX + 3, bottom - 2, 0x553B424C);
+        thumbHeight = Math.max(16, Math.round(available * (available / (float) content)));
         int maximum = Math.max(1, content - available);
         int travel = Math.max(1, available - thumbHeight - 4);
-        int thumbY = top + 2 + Math.round(travel * (scrollOffset / (float) maximum));
-        context.fill(trackX, thumbY, trackX + 2, thumbY + thumbHeight, theme.accent());
+        thumbY = top + 2 + Math.round(travel * (scrollOffset / (float) maximum));
+        context.fill(trackX - 2, thumbY, trackX + 3, thumbY + thumbHeight, theme.accent());
     }
 }
