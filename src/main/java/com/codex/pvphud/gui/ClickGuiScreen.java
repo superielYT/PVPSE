@@ -7,6 +7,7 @@ import com.codex.pvphud.hud.HudManager;
 import com.codex.pvphud.theme.Theme;
 import com.codex.pvphud.theme.ThemeManager;
 import com.codex.pvphud.theme.ThemeEditorScreen;
+import com.codex.pvphud.waypoint.WaypointScreen;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -22,6 +23,7 @@ public final class ClickGuiScreen extends Screen {
     private int editorButtonY;
     private static final int EDITOR_BUTTON_WIDTH = 100;
     private int crosshairButtonX;
+    private int waypointButtonX;
 
     public ClickGuiScreen(HudManager hudManager) {
         super(Text.literal("PVPSE Client"));
@@ -35,6 +37,7 @@ public final class ClickGuiScreen extends Screen {
         search = addDrawableChild(new SearchBar(textRenderer, 18, 18, 170));
         editorButtonX = width - EDITOR_BUTTON_WIDTH - 18;
         crosshairButtonX = editorButtonX - EDITOR_BUTTON_WIDTH - 8;
+        waypointButtonX = crosshairButtonX - EDITOR_BUTTON_WIDTH - 8;
         editorButtonY = 16;
     }
 
@@ -53,6 +56,12 @@ public final class ClickGuiScreen extends Screen {
                 EDITOR_BUTTON_WIDTH, 24, 6, crosshairHovered ? theme.accentSecondary() : theme.panelHeader());
         context.drawCenteredTextWithShadow(textRenderer, Text.literal("CROSSHAIR"),
                 crosshairButtonX + EDITOR_BUTTON_WIDTH / 2, editorButtonY + 8, theme.text());
+        boolean waypointHovered = mouseX >= waypointButtonX && mouseX < waypointButtonX + EDITOR_BUTTON_WIDTH
+                && mouseY >= editorButtonY && mouseY < editorButtonY + 24;
+        com.codex.pvphud.render.RoundedRenderer.fill(context, waypointButtonX, editorButtonY,
+                EDITOR_BUTTON_WIDTH, 24, 6, waypointHovered ? theme.accentSecondary() : theme.panelHeader());
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("WAYPOINTS"),
+                waypointButtonX + EDITOR_BUTTON_WIDTH / 2, editorButtonY + 8, theme.text());
         context.getMatrices().pushMatrix();
         float scale = opening.value();
         context.getMatrices().translate(width * (1.0F - scale) / 2.0F, height * (1.0F - scale) / 2.0F);
@@ -78,6 +87,11 @@ public final class ClickGuiScreen extends Screen {
         if (click.button() == 0 && click.x() >= crosshairButtonX && click.x() < crosshairButtonX + EDITOR_BUTTON_WIDTH
                 && click.y() >= editorButtonY && click.y() < editorButtonY + 24) {
             if (client != null) client.setScreen(new CrosshairDrawerScreen(this));
+            return true;
+        }
+        if (click.button() == 0 && click.x() >= waypointButtonX && click.x() < waypointButtonX + EDITOR_BUTTON_WIDTH
+                && click.y() >= editorButtonY && click.y() < editorButtonY + 24) {
+            if (client != null) client.setScreen(new WaypointScreen(this));
             return true;
         }
         String query = search == null ? "" : search.getText();
