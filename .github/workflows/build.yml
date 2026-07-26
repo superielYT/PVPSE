@@ -38,26 +38,25 @@ jobs:
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-1.3.0
-          path: build/libs/PVPSE-1.3.0.jar
+          name: PVPSE-1.3.1
+          path: build/libs/PVPSE-1.3.1.jar
           if-no-files-found: error
 
       - name: Publish GitHub release
-        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.3.0'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.3.1'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.3.0
-          name: PVPSE Client v1.3.0
+          tag_name: v1.3.1
+          name: PVPSE Client v1.3.1
           body: |
-            PVPSE Client PvP edition for Fabric 1.21.11 and Java 21.
+            PVPSE Client crosshair scrolling fix for Fabric 1.21.11 and Java 21.
 
-            New in v1.3.0:
-            - Damage tilt automatically set to zero
-            - Live combo counter HUD
-            - Accurate last-hit reach HUD
-            - Animated low-health warning
-            - All v1.2 UI, themes, scrolling, HUD editor, and crosshair tools
+            Fixed in v1.3.1:
+            - Crosshair editor now scrolls vertically with the mouse wheel
+            - Visible crosshair-editor scrollbar
+            - All controls remain reachable on smaller screens
+            - Includes every v1.3.0 PvP and UI feature
 
-          files: build/libs/PVPSE-1.3.0.jar
+          files: build/libs/PVPSE-1.3.1.jar
           draft: false
           prerelease: false
