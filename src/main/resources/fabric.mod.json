@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "pvp_hud_client",
+  "version": "${version}",
+  "name": "PVPSE",
+  "description": "A lightweight, legit PvP HUD client mod for Fabric.",
+  "authors": [
+    "superielYT"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.codex.pvphud.PvpHudClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
