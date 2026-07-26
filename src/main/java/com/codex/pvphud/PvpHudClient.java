@@ -5,6 +5,8 @@ import com.codex.pvphud.gui.ClickGuiScreen;
 import com.codex.pvphud.hud.HudManager;
 import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.notification.NotificationManager;
+import com.codex.pvphud.waypoint.WaypointManager;
+import com.codex.pvphud.waypoint.WaypointOverlay;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -56,6 +58,9 @@ public final class PvpHudClient implements ClientModInitializer {
         zoomKey = registerKey("key.pvp_hud_client.zoom", GLFW.GLFW_KEY_Z);
         waypointKey = registerKey("key.pvp_hud_client.waypoint", GLFW.GLFW_KEY_B);
         fullbrightKey = registerKey("key.pvp_hud_client.fullbright", GLFW.GLFW_KEY_V);
+        FeatureKeybinds.register(FeatureModule.Type.ZOOM, zoomKey);
+        FeatureKeybinds.register(FeatureModule.Type.WAYPOINT, waypointKey);
+        FeatureKeybinds.register(FeatureModule.Type.FULLBRIGHT, fullbrightKey);
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
         registerHudElements();
@@ -91,6 +96,7 @@ public final class PvpHudClient implements ClientModInitializer {
             damageTiltDisabled = true;
         }
         updateUtilityFeatures(client);
+        FeatureKeybinds.tick(client);
         if (++profileSaveTicks >= 100) {
             profileSaveTicks = 0;
             profileManager.save(hudManager);
@@ -127,8 +133,8 @@ public final class PvpHudClient implements ClientModInitializer {
         while (waypointKey.wasPressed()) {
             hudManager.feature(FeatureModule.Type.WAYPOINT).filter(FeatureModule::enabled).ifPresent(feature -> {
                 if (client.player != null) {
-                    feature.setWaypoint(client.player.getBlockPos());
-                    NotificationManager.getInstance().push("Waypoint set", client.player.getBlockPos().toShortString());
+                    var waypoint = WaypointManager.getInstance().addCurrent(client);
+                    if (waypoint != null) NotificationManager.getInstance().push("Waypoint added", waypoint.name());
                 }
             });
         }
@@ -152,6 +158,9 @@ public final class PvpHudClient implements ClientModInitializer {
         }
         if (config.enabled) {
             hudManager.render(context, client, false);
+            if (hudManager.feature(FeatureModule.Type.WAYPOINT).map(FeatureModule::enabled).orElse(false)) {
+                WaypointOverlay.render(context, client, com.codex.pvphud.theme.ThemeManager.getInstance().getTheme());
+            }
         }
         combatFeedback.render(context, config);
         NotificationManager.getInstance().render(context, client);
