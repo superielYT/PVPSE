@@ -1,12 +1,21 @@
-# PVPSE Client v1.0.1
+# PVPSE Client v1.1.0
 
-Fabric 1.21.11 client update built with Java 21.
+Feature release for Fabric 1.21.11 and Java 21.
 
-## Improvements
+## Custom crosshair drawer
 
-- Custom PVPSE-styled controls instead of vanilla editor buttons
-- Scrollable main ClickGUI with clipping and a scrollbar
-- HUD edge/corner resize handles with live scale display
-- Added Cyberpunk, Arctic Frost, and Sakura Night themes
-- Retains Ignite, Midnight, and Neon themes
-- Premium HUD framework, profiles, custom crosshair, combat feedback, and branding
+- 15×15 pixel drawing grid
+- Draw and erase with click-and-drag
+- Horizontal and vertical mirror modes
+- Active-theme color and seven-color palette
+- Clear and reset controls
+- Persistent custom design and live in-game rendering
+
+## Existing premium systems
+
+- Custom scrollable ClickGUI
+- Resizable drag-and-drop HUD editor
+- Six runtime themes
+- Configuration profiles
+- Custom crosshair presets and combat feedback
+- PVPSE logo and branding
