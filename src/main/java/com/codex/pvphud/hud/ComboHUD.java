@@ -11,7 +11,7 @@ public final class ComboHUD extends HudElement {
 
     protected void renderElement(DrawContext context, MinecraftClient client, Theme theme, boolean editorMode, float alpha) {
         int combo = PvpStats.getInstance().combo();
-        HudStyles.card(context, 0, 0, width(client), height(client), theme, alpha);
+        HudStyles.card(context, theme, width(client), height(client), alpha);
         context.drawTextWithShadow(client.textRenderer, Text.literal("COMBO"), 8, 6, theme.mutedText());
         context.drawTextWithShadow(client.textRenderer, Text.literal((combo > 0 ? combo : 0) + " hits"), 8, 18,
                 combo >= 3 ? theme.accentSecondary() : theme.text());
