@@ -1,3 +1,23 @@
+# PVPSE Client v1.6.0
+
+Final PvP HUD release for Fabric 1.21.11 and Java 21.
+
+## Melee hitbox practice
+
+- New **Melee Hitboxes** module in the scrollable HUD elements panel
+- Shows a precise 3D wireframe only for the living entity under the crosshair
+- Activates only while holding a sword or mace
+- Adjustable visual range (2–12 blocks) in the module settings
+- Client-side visualization only: no reach, attack, aiming, or packet changes
+
+## Included
+
+- Full draggable HUD and editor
+- Target, armor, potion, CPS, combo, reach, ping, FPS, session and keystroke widgets
+- Custom crosshair editor, themes, waypoints and profile-backed settings
+
+---
+
 # PVPSE Client v1.5.0
 
 Waypoint and keybind release for Fabric 1.21.11 and Java 21.

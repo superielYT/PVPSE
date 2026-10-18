@@ -4,6 +4,7 @@ import com.codex.pvphud.config.ConfigManager;
 import com.codex.pvphud.gui.ClickGuiScreen;
 import com.codex.pvphud.hud.HudManager;
 import com.codex.pvphud.hud.FeatureModule;
+import com.codex.pvphud.MeleeHitboxRenderer;
 import com.codex.pvphud.notification.NotificationManager;
 import com.codex.pvphud.waypoint.WaypointManager;
 import com.codex.pvphud.waypoint.WaypointOverlay;
@@ -63,6 +64,7 @@ public final class PvpHudClient implements ClientModInitializer {
         FeatureKeybinds.register(FeatureModule.Type.FULLBRIGHT, fullbrightKey);
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
+        MeleeHitboxRenderer.register(hudManager);
         registerHudElements();
     }
 

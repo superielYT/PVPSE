@@ -10,7 +10,7 @@ import com.codex.pvphud.waypoint.WaypointManager;
 import java.util.Locale;
 
 public final class FeatureModule extends HudElement {
-    public enum Type { WAYPOINT, ZOOM, NO_PUMPKIN, FULLBRIGHT }
+    public enum Type { WAYPOINT, ZOOM, NO_PUMPKIN, FULLBRIGHT, MELEE_HITBOXES }
 
     private final Type type;
     private double value;
@@ -35,10 +35,17 @@ public final class FeatureModule extends HudElement {
     public int width(MinecraftClient client) { return type == Type.WAYPOINT ? 122 : 104; }
     public int height(MinecraftClient client) { return type == Type.WAYPOINT ? 92 : 22; }
     public Type type() { return type; }
-    public boolean adjustable() { return type == Type.ZOOM || type == Type.FULLBRIGHT; }
-    public String valueName() { return type == Type.ZOOM ? "Zoom FOV" : "Brightness"; }
-    public double minimum() { return type == Type.ZOOM ? 10.0 : 1.0; }
-    public double maximum() { return type == Type.ZOOM ? 70.0 : 16.0; }
+    public boolean adjustable() { return type == Type.ZOOM || type == Type.FULLBRIGHT || type == Type.MELEE_HITBOXES; }
+    public String valueName() {
+        return switch (type) {
+            case ZOOM -> "Zoom FOV";
+            case FULLBRIGHT -> "Brightness";
+            case MELEE_HITBOXES -> "Range";
+            default -> "Value";
+        };
+    }
+    public double minimum() { return type == Type.ZOOM ? 10.0 : type == Type.MELEE_HITBOXES ? 2.0 : 1.0; }
+    public double maximum() { return type == Type.ZOOM ? 70.0 : type == Type.MELEE_HITBOXES ? 12.0 : 16.0; }
     public double value() { return value; }
     public void setValue(double value) { this.value = Math.clamp(value, minimum(), maximum()); }
 
@@ -48,6 +55,7 @@ public final class FeatureModule extends HudElement {
             case ZOOM -> "ZOOM";
             case NO_PUMPKIN -> "NO PUMPKIN";
             case FULLBRIGHT -> "FULLBRIGHT";
+            case MELEE_HITBOXES -> "MELEE HITBOXES";
         };
     }
 
