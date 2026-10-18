@@ -54,6 +54,10 @@ public final class HudManager {
         if (client.player == null || client.world == null) return;
         var theme = ThemeManager.getInstance().getTheme();
         for (HudElement element : elements) {
+            if (element instanceof FeatureModule feature && feature.type() == FeatureModule.Type.WAYPOINT) {
+                element.setPosition(Math.min(element.x(), Math.max(0, client.getWindow().getScaledWidth() - element.width(client) * element.scale())),
+                        Math.min(element.y(), Math.max(0, client.getWindow().getScaledHeight() - element.height(client) * element.scale())));
+            }
             element.render(context, client, theme, editorMode);
         }
     }

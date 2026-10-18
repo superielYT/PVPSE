@@ -30,7 +30,8 @@ public final class ModuleButton {
                     new SettingComponent.Keybind(feature))
                     : feature.type() == FeatureModule.Type.WAYPOINT
                     ? List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element),
-                    new SettingComponent.Keybind(feature))
+                    new SettingComponent.Position(element, true), new SettingComponent.Position(element, false),
+                    new SettingComponent.ResetLayout(element), new SettingComponent.Keybind(feature))
                     : List.of(new SettingComponent.Toggle(element));
         } else {
             this.settings = List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element),

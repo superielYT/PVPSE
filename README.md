@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v1.6.0)
+## Installation (v1.7.0)
 
-Requires Minecraft **1.21.11**, Fabric Loader **0.19.3+**, Fabric API for 1.21.11 and Java **21**. Place PVPSE-1.6.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **1.21.11**, Fabric Loader **0.19.3+**, Fabric API for 1.21.11 and Java **21**. Place PVPSE-1.7.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -31,3 +31,11 @@ Requires Minecraft **1.21.11**, Fabric Loader **0.19.3+**, Fabric API for 1.21.1
 - Search filters modules; mouse wheel scrolls the module list
 - Changes save when leaving the main interface and periodically during play
 - Profiles live in config/pvpse/default.json; controls can be rebound in Minecraft settings
+
+## Waypoints and radar (1.7.0)
+
+Open WAYPOINTS from the Right Shift menu. ADD HERE saves your position; select a row to rename, delete, TRACK, change its COLOR, SHOW/HIDE it or COPY XYZ. Clearing all points asks for confirmation.
+
+RANGE cycles 32/64/128/256/512 blocks from the radar center to its edge. NORTH UP/ROTATING changes orientation. LABELS controls on-screen destination labels separately from radar dots. DEATH saves a marker once when you die. Tracked destinations render first; otherwise the nearest visible point is used. Labels show horizontal distance and vertical offset.
+
+New waypoints are isolated by server/world and dimension. Older waypoints stay accessible and display "legacy". The minimap is a waypoint radar with grid and heading, without terrain or entity scanning. Right-click Waypoint in the module list for position, scale and reset controls.

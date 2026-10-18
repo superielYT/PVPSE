@@ -91,6 +91,7 @@ public final class PvpHudClient implements ClientModInitializer {
 
     private void tick(MinecraftClient client) {
         cps.tick(client);
+        WaypointManager.getInstance().tick(client);
         combatFeedback.tick(client, config);
         PvpStats.getInstance().tick(client);
         if (!damageTiltDisabled) {

@@ -1,3 +1,19 @@
+# PVPSE Client v1.7.0
+
+## Waypoints and radar
+
+- New waypoint controls: track a destination, cycle six marker colors, hide/show points, copy coordinates.
+- Automatic death-position markers, with an on/off setting.
+- New points belong to their server or singleplayer world and dimension. Legacy points remain available and are marked in the list.
+- Fixed-scale waypoint radar with grid, player heading and range choices from 32 to 512 blocks.
+- Choose rotating radar or north-up; distant points clamp to the edge without losing direction.
+- Tracked destination takes priority; otherwise the nearest visible waypoint is shown first.
+- On-screen labels show horizontal distance, vertical offset and behind-you indicators; labels can be disabled separately.
+- Scrollable waypoint list uses standard keyboard-focusable action buttons and confirms clearing all points.
+- Atomic waypoint saves protect against interrupted writes.
+
+The minimap is a waypoint radar, without terrain or entity scanning.
+
 # PVPSE Client v1.6.0
 
 Final PvP HUD release for Fabric 1.21.11 and Java 21.

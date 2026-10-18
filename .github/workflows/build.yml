@@ -38,17 +38,17 @@ jobs:
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-1.6.0
-          path: build/libs/PVPSE-1.6.0.jar
+          name: PVPSE-1.7.0
+          path: build/libs/PVPSE-1.7.0.jar
           if-no-files-found: error
 
       - name: Publish GitHub release
-        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.6.0'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.7.0'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.6.0
-          name: PVPSE Client v1.6.0
+          tag_name: v1.7.0
+          name: PVPSE Client v1.7.0
           body_path: RELEASE_NOTES.md
-          files: build/libs/PVPSE-1.6.0.jar
+          files: build/libs/PVPSE-1.7.0.jar
           draft: false
           prerelease: false

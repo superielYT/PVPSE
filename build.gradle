@@ -40,3 +40,17 @@ jar {
         rename { "${it}_${base.archivesName.get()}" }
     }
 }
+
+sourceSets {
+    radarTest {
+        compileClasspath = sourceSets.main.output
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+tasks.register("testRadar", JavaExec) {
+    dependsOn radarTestClasses
+    classpath = sourceSets.radarTest.runtimeClasspath
+    mainClass = "com.codex.pvphud.waypoint.RadarMathTest"
+}
+check.dependsOn testRadar
