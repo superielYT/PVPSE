@@ -29,6 +29,8 @@ public abstract class SettingComponent {
 
     public abstract void render(DrawContext context, MinecraftClient client, Theme theme, int mouseX, int mouseY);
     public abstract boolean click(double mouseX, double mouseY, int button);
+    public boolean draggable() { return this instanceof Scale || this instanceof FeatureValue || this instanceof Position; }
+    public void drag(double mouseX) { click(Math.clamp(mouseX, x, x + width - 1), y + height / 2.0, 0); }
     public int height() { return height; }
 
     public static final class Toggle extends SettingComponent {
@@ -51,16 +53,16 @@ public abstract class SettingComponent {
     public static final class Scale extends SettingComponent {
         public Scale(HudElement element) { super(element); }
         public void render(DrawContext c, MinecraftClient mc, Theme t, int mx, int my) {
-            c.drawText(mc.textRenderer, Text.literal(String.format("Scale %.2f", element.scale())), x, y + 4, t.text(), false);
-            int sx = x + 76;
-            int sw = width - 82;
+            c.drawText(mc.textRenderer, Text.literal(mc.textRenderer.trimToWidth(String.format(java.util.Locale.ROOT, "Scale %.2f", element.scale()), width / 2 - 3)), x, y + 4, t.text(), false);
+            int sx = x + width / 2;
+            int sw = width - width / 2 - 4;
             c.fill(sx, y + 9, sx + sw, y + 11, 0xFF343B45);
             int fill = Math.round((element.scale() - 0.5F) / 2.0F * sw);
             c.fill(sx, y + 8, sx + fill, y + 12, t.accent());
         }
         public boolean click(double mx, double my, int button) {
             if (button == 0 && inside(mx, my)) {
-                float normalized = (float) Math.clamp((mx - (x + 76)) / Math.max(1.0, width - 82.0), 0.0, 1.0);
+                float normalized = (float) Math.clamp((mx - (x + width / 2)) / Math.max(1.0, width - width / 2 - 4.0), 0.0, 1.0);
                 element.setScale(0.5F + normalized * 2.0F);
                 return true;
             }
@@ -72,9 +74,9 @@ public abstract class SettingComponent {
         private final FeatureModule feature;
         public FeatureValue(FeatureModule feature) { super(feature); this.feature = feature; }
         public void render(DrawContext c, MinecraftClient mc, Theme t, int mx, int my) {
-            c.drawText(mc.textRenderer, Text.literal(feature.valueName() + " " + Math.round(feature.value())), x, y + 4, t.text(), false);
-            int sx = x + 92;
-            int sw = Math.max(20, width - 98);
+            c.drawText(mc.textRenderer, Text.literal(mc.textRenderer.trimToWidth(feature.valueName() + " " + Math.round(feature.value()), width / 2 - 3)), x, y + 4, t.text(), false);
+            int sx = x + width / 2;
+            int sw = Math.max(1, width - width / 2 - 4);
             c.fill(sx, y + 9, sx + sw, y + 11, 0xFF343B45);
             double range = feature.maximum() - feature.minimum();
             int fill = (int) Math.round((feature.value() - feature.minimum()) / range * sw);
@@ -82,7 +84,7 @@ public abstract class SettingComponent {
         }
         public boolean click(double mx, double my, int button) {
             if (button != 0 || !inside(mx, my)) return false;
-            double normalized = Math.clamp((mx - (x + 92)) / Math.max(20.0, width - 98.0), 0.0, 1.0);
+            double normalized = Math.clamp((mx - (x + width / 2)) / Math.max(1.0, width - width / 2 - 4.0), 0.0, 1.0);
             feature.setValue(feature.minimum() + normalized * (feature.maximum() - feature.minimum()));
             return true;
         }
@@ -117,8 +119,8 @@ public abstract class SettingComponent {
         public void render(DrawContext c, MinecraftClient mc, Theme t, int mx, int my) {
             float position = horizontal ? element.x() : element.y();
             c.drawText(mc.textRenderer, Text.literal((horizontal ? "X " : "Y ") + Math.round(position)), x, y + 6, t.text(), false);
-            int limit = horizontal ? mc.getWindow().getScaledWidth() : mc.getWindow().getScaledHeight();
-            int start = x + 76, length = Math.max(1, width - 82);
+            float limit = Math.max(1, (horizontal ? mc.getWindow().getScaledWidth() : mc.getWindow().getScaledHeight()) - (horizontal ? element.width(mc) : element.height(mc)) * element.scale());
+            int start = x + width / 2, length = Math.max(1, width - width / 2 - 4);
             c.fill(start, y + 9, start + length, y + 11, t.panelHeader());
             c.fill(start, y + 8, start + Math.round(Math.clamp(position / Math.max(1, limit), 0, 1) * length), y + 12, t.accent());
         }
@@ -127,7 +129,7 @@ public abstract class SettingComponent {
             var mc = MinecraftClient.getInstance();
             float limit = horizontal ? mc.getWindow().getScaledWidth() : mc.getWindow().getScaledHeight();
             float size = horizontal ? element.width(mc) : element.height(mc);
-            float value = (float) Math.clamp((mx - x - 76) / Math.max(1, width - 82), 0, 1) * Math.max(0, limit - size * element.scale());
+            float value = (float) Math.clamp((mx - x - width / 2) / Math.max(1, width - width / 2 - 4), 0, 1) * Math.max(0, limit - size * element.scale());
             element.setPosition(horizontal ? value : element.x(), horizontal ? element.y() : value);
             return true;
         }

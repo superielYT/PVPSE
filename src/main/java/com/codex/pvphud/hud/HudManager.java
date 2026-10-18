@@ -41,6 +41,10 @@ public final class HudManager {
         return Collections.unmodifiableList(elements);
     }
 
+    public List<HudElement> layoutElements() {
+        return elements.stream().filter(e -> !(e instanceof FeatureModule f) || f.type() == FeatureModule.Type.WAYPOINT).toList();
+    }
+
     public Optional<HudElement> find(String id) {
         return elements.stream().filter(element -> element.id().equals(id)).findFirst();
     }
@@ -54,10 +58,8 @@ public final class HudManager {
         if (client.player == null || client.world == null) return;
         var theme = ThemeManager.getInstance().getTheme();
         for (HudElement element : elements) {
-            if (element instanceof FeatureModule feature && feature.type() == FeatureModule.Type.WAYPOINT) {
-                element.setPosition(Math.min(element.x(), Math.max(0, client.getWindow().getScaledWidth() - element.width(client) * element.scale())),
-                        Math.min(element.y(), Math.max(0, client.getWindow().getScaledHeight() - element.height(client) * element.scale())));
-            }
+            if (editorMode && element instanceof FeatureModule feature && feature.type() != FeatureModule.Type.WAYPOINT) continue;
+            if (!editorMode) element.keepOnScreen(client);
             element.render(context, client, theme, editorMode);
         }
     }

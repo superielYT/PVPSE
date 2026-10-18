@@ -21,6 +21,9 @@ final class HudConfig {
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("pvp-hud-client.json");
 
     boolean enabled = true;
+    boolean suppressDamageTilt = true;
+    boolean notifications = true;
+    boolean hideOnDebug = true;
     boolean showCoords = true;
     boolean showArmor = true;
     boolean showPotions = true;
@@ -78,7 +81,7 @@ final class HudConfig {
             }
             config.ensureWidgets();
             return config;
-        } catch (IOException ignored) {
+        } catch (IOException | RuntimeException ignored) {
             return new HudConfig();
         }
     }

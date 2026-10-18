@@ -20,6 +20,11 @@ public final class RadarMathTest {
         if (!clipped.outside()) throw new AssertionError("Distant point should be on the edge");
         if (RadarMath.project(64, 0, 0, true, 64, 40).outside()) throw new AssertionError("Boundary is visible");
         point(0, 0, 0, false, 0, 0, 0);
-        System.out.println("Radar direction, zoom and edge checks passed");
+        near(com.codex.pvphud.hud.HudGeometry.coordinate(300, 320, 100), 220);
+        near(com.codex.pvphud.hud.HudGeometry.coordinate(-40, 320, 100), 0);
+        near(com.codex.pvphud.hud.HudGeometry.coordinate(12, 100, 200), 0);
+        near(com.codex.pvphud.hud.HudGeometry.coordinate(Float.NaN, 320, 100), 0);
+        near(com.codex.pvphud.hud.HudGeometry.coordinate(80, 320, 100), 80);
+        System.out.println("Radar and HUD boundary checks passed");
     }
 }

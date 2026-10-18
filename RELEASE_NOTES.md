@@ -1,3 +1,23 @@
+# PVPSE Client v1.8.0
+
+## General usability and stability
+
+- Main navigation now uses keyboard-focusable buttons, retains search text, shows enabled module count and explains module controls.
+- New SETTINGS & PROFILES screen: HUD, notifications, hide-on-debug, damage tilt, hit marker, damage flash, kill particles and crosshair switches.
+- Copy the current HUD/theme to a named profile and cycle saved profiles. The active profile survives restarting.
+- Profile files now live in a dedicated profiles directory, separate from waypoint and crosshair JSON. Existing default profiles migrate automatically.
+- Malformed profile files are backed up before fallback recovery.
+- Drag scale, position and utility-value sliders; the + button expands module settings.
+- Keep HUD positions within the current screen. Utility modules no longer clutter the HUD editor.
+- HUD editor: arrow keys nudge the selection, Shift moves 10 pixels, R restores the selected layout, Ctrl+Z restores the session's initial layout and visibility.
+- F1 hides the overlays; F3 can hide them independently. Disabling the client HUD restores the vanilla crosshair.
+- Zoom releases when opening a screen; original FOV, gamma and damage tilt are restored on client shutdown.
+- Keybind capture consumes Escape to cancel, supports Backspace/Delete to unbind and saves bindings on clean shutdown.
+- Target names and notification text fit their cards; notifications respect smaller screens.
+- Added HUD boundary checks alongside radar direction, zoom and edge tests.
+
+Build and automated checks pass. A full Minecraft gameplay/visual test has not been performed.
+
 # PVPSE Client v1.7.0
 
 ## Waypoints and radar

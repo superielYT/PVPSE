@@ -15,6 +15,6 @@ public final class SessionHUD extends HudElement {
         HudStyles.label(c, mc, Text.literal("SESSION"), 6, 6, t.mutedText());
         HudStyles.label(c, mc, Text.literal(time), 55, 6, t.accent());
     }
-    public int width(MinecraftClient mc) { return 108; }
+    public int width(MinecraftClient mc) { return 112; }
     public int height(MinecraftClient mc) { return 21; }
 }

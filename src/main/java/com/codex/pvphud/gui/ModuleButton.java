@@ -21,25 +21,29 @@ public final class ModuleButton {
     private int y;
     private int width;
     private boolean expanded;
+    private SettingComponent dragging;
 
     public ModuleButton(HudElement element) {
         this.element = element;
+        var controls = new java.util.ArrayList<SettingComponent>();
+        controls.add(new SettingComponent.Toggle(element));
         if (element instanceof FeatureModule feature) {
-            this.settings = feature.adjustable()
-                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.FeatureValue(feature),
-                    new SettingComponent.Keybind(feature))
-                    : feature.type() == FeatureModule.Type.WAYPOINT
-                    ? List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element),
-                    new SettingComponent.Position(element, true), new SettingComponent.Position(element, false),
-                    new SettingComponent.ResetLayout(element), new SettingComponent.Keybind(feature))
-                    : List.of(new SettingComponent.Toggle(element));
+            if (feature.adjustable()) controls.add(new SettingComponent.FeatureValue(feature));
+            if (feature.type() == FeatureModule.Type.WAYPOINT) {
+                controls.add(new SettingComponent.Scale(element));
+                controls.add(new SettingComponent.Position(element, true));
+                controls.add(new SettingComponent.Position(element, false));
+                controls.add(new SettingComponent.ResetLayout(element));
+            }
+            if (com.codex.pvphud.FeatureKeybinds.key(feature.type()) != null) controls.add(new SettingComponent.Keybind(feature));
         } else {
-            this.settings = List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element),
-                    new SettingComponent.Position(element, true), new SettingComponent.Position(element, false),
-                    new SettingComponent.ResetLayout(element));
+            controls.add(new SettingComponent.Scale(element));
+            controls.add(new SettingComponent.Position(element, true));
+            controls.add(new SettingComponent.Position(element, false));
+            controls.add(new SettingComponent.ResetLayout(element));
         }
+        this.settings = List.copyOf(controls);
     }
-
     public void render(DrawContext context, MinecraftClient client, Theme theme, int x, int y, int width, int mouseX, int mouseY) {
         this.x = x; this.y = y; this.width = width;
         expansion.animateTo(expanded ? 1 : 0);
@@ -63,12 +67,16 @@ public final class ModuleButton {
 
     public boolean click(double mouseX, double mouseY, int button) {
         if (RenderUtil.hovered(mouseX, mouseY, x, y, width, 24)) {
-            if (button == 0) element.setEnabled(!element.enabled());
+            if (button == 0 && mouseX >= x + width - 44 && mouseX < x + width - 28) expanded = !expanded;
+            else if (button == 0) element.setEnabled(!element.enabled());
             if (button == 1) expanded = !expanded;
             return true;
         }
         if (expanded && mouseY >= y + 26 && mouseY < y + totalHeight()) {
-            for (SettingComponent setting : settings) if (setting.click(mouseX, mouseY, button)) return true;
+            for (SettingComponent setting : settings) if (setting.click(mouseX, mouseY, button)) {
+                if (setting.draggable()) dragging = setting;
+                return true;
+            }
         }
         return false;
     }
@@ -78,4 +86,6 @@ public final class ModuleButton {
     }
 
     public HudElement element() { return element; }
+    public boolean drag(double mouseX) { if (dragging == null) return false; dragging.drag(mouseX); return true; }
+    public void release() { dragging = null; }
 }

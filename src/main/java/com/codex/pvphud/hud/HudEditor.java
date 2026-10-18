@@ -19,6 +19,9 @@ public final class HudEditor extends Screen {
     private HudElement selected;
     private Integer guideX;
     private Integer guideY;
+    private final java.util.Map<HudElement, Layout> original = new java.util.LinkedHashMap<>();
+    private record Layout(float x, float y, float scale, boolean enabled) {}
+
 
     private static final int TOP_BAR_HEIGHT = 38;
     private static final int BUTTON_WIDTH = 72;
@@ -27,6 +30,7 @@ public final class HudEditor extends Screen {
         super(Text.literal("PVPSE HUD Editor"));
         this.manager = manager;
         this.parent = parent;
+        manager.layoutElements().forEach(e -> original.put(e, new Layout(e.x(), e.y(), e.scale(), e.enabled())));
     }
 
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -37,13 +41,13 @@ public final class HudEditor extends Screen {
         drawAction(context, width - BUTTON_WIDTH * 2 - 24, 10, "THEME", mouseX, mouseY, theme.accentSecondary());
         drawAction(context, width - BUTTON_WIDTH - 16, 10, "DONE", mouseX, mouseY, theme.accent());
         context.drawCenteredTextWithShadow(textRenderer,
-                Text.literal("Drag elements • resize with the corner handle • right-click to toggle"),
+                Text.literal("Drag / corner: resize | Arrows: nudge | R: reset | Ctrl+Z: undo"),
                 width / 2, TOP_BAR_HEIGHT + 2, theme.mutedText());
         if (client != null) {
             manager.render(context, client, true);
             if (guideX != null) context.fill(guideX, TOP_BAR_HEIGHT + 12, guideX + 1, height, theme.accentSecondary());
             if (guideY != null) context.fill(0, guideY, width, guideY + 1, theme.accentSecondary());
-            for (HudElement element : manager.elements()) drawElementOutline(context, element, element == selected, theme);
+            for (HudElement element : manager.layoutElements()) drawElementOutline(context, element, element == selected, theme);
         }
         super.render(context, mouseX, mouseY, delta);
     }
@@ -58,8 +62,8 @@ public final class HudEditor extends Screen {
                 ThemeManager.getInstance().cycle();
                 return true;
             }
-            for (int i = manager.elements().size() - 1; i >= 0; i--) {
-                HudElement element = manager.elements().get(i);
+            for (int i = manager.layoutElements().size() - 1; i >= 0; i--) {
+                HudElement element = manager.layoutElements().get(i);
                 if (overResizeHandle(click.x(), click.y(), element)) {
                     selected = element;
                     dragging = element;
@@ -79,7 +83,7 @@ public final class HudEditor extends Screen {
             }
         }
         if (client != null && click.button() == 1) {
-            manager.elements().stream().filter(element -> element.contains(click.x(), click.y(), client)).findFirst()
+            manager.layoutElements().reversed().stream().filter(element -> element.contains(click.x(), click.y(), client)).findFirst()
                     .ifPresent(element -> {
                         selected = element;
                         element.setEnabled(!element.enabled());
@@ -94,6 +98,7 @@ public final class HudEditor extends Screen {
             if (resizing) {
                 float delta = (float) ((click.x() - resizeStartX) / Math.max(40.0, dragging.width(client)));
                 dragging.setScale(resizeStartScale + delta);
+                dragging.keepOnScreen(client);
             } else {
                 moveWithSnapping((float) (click.x() - offsetX), (float) (click.y() - offsetY));
             }
@@ -110,6 +115,22 @@ public final class HudEditor extends Screen {
         return super.mouseReleased(click);
     }
 
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
+        int key = input.key();
+        if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_Z && (input.modifiers() & org.lwjgl.glfw.GLFW.GLFW_MOD_CONTROL) != 0) {
+            original.forEach((e, l) -> { e.setPosition(l.x(), l.y()); e.setScale(l.scale()); e.setEnabled(l.enabled()); });
+            return true;
+        }
+        if (selected != null) {
+            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_R) { selected.resetLayout(); selected.keepOnScreen(client); return true; }
+            int step = (input.modifiers() & org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT) != 0 ? 10 : 1;
+            int dx = key == org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT ? -step : key == org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT ? step : 0;
+            int dy = key == org.lwjgl.glfw.GLFW.GLFW_KEY_UP ? -step : key == org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN ? step : 0;
+            if (dx != 0 || dy != 0) { selected.setPosition(selected.x() + dx, selected.y() + dy); selected.keepOnScreen(client); return true; }
+        }
+        return super.keyPressed(input);
+    }
     public void close() {
         if (client != null) client.setScreen(parent);
     }
@@ -148,17 +169,17 @@ public final class HudEditor extends Screen {
     private void moveWithSnapping(float proposedX, float proposedY) {
         float elementWidth = dragging.width(client) * dragging.scale();
         float elementHeight = dragging.height(client) * dragging.scale();
-        float[] xTargets = new float[3 + manager.elements().size() * 3];
-        float[] yTargets = new float[3 + manager.elements().size() * 3];
+        float[] xTargets = new float[3 + manager.layoutElements().size() * 3];
+        float[] yTargets = new float[3 + manager.layoutElements().size() * 3];
         int xi = 0;
         int yi = 0;
         xTargets[xi++] = 8;
         xTargets[xi++] = width / 2.0F;
         xTargets[xi++] = width - 8;
-        yTargets[yi++] = TOP_BAR_HEIGHT + 14;
+        yTargets[yi++] = 8;
         yTargets[yi++] = height / 2.0F;
         yTargets[yi++] = height - 8;
-        for (HudElement other : manager.elements()) {
+        for (HudElement other : manager.layoutElements()) {
             if (other == dragging) continue;
             float ow = other.width(client) * other.scale();
             float oh = other.height(client) * other.scale();
@@ -174,7 +195,7 @@ public final class HudEditor extends Screen {
         guideX = sx.guide();
         guideY = sy.guide();
         dragging.setPosition(Math.clamp(sx.position(), 0, Math.max(0, width - elementWidth)),
-                Math.clamp(sy.position(), TOP_BAR_HEIGHT + 12, Math.max(TOP_BAR_HEIGHT + 12, height - elementHeight)));
+                Math.clamp(sy.position(), 0, Math.max(0, height - elementHeight)));
     }
 
     private static Snap snap(float position, float size, float[] targets, int count) {

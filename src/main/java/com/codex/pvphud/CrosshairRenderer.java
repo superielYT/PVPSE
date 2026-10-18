@@ -70,7 +70,7 @@ final class CrosshairRenderer {
     }
 
     static boolean usesCustomCrosshair(HudConfig config) {
-        return config.showCrosshair && config.crosshairStyle != HudConfig.CrosshairStyle.OFF;
+        return config.enabled && config.showCrosshair && config.crosshairStyle != HudConfig.CrosshairStyle.OFF;
     }
 
     private static boolean isTargetingPlayer() {

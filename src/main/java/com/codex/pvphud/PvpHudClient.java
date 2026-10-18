@@ -36,7 +36,7 @@ public final class PvpHudClient implements ClientModInitializer {
     private KeyBinding waypointKey;
     private KeyBinding fullbrightKey;
     private int profileSaveTicks;
-    private boolean damageTiltDisabled;
+    private Double previousDamageTilt;
     private Integer previousFov;
     private Double previousGamma;
 
@@ -64,6 +64,14 @@ public final class PvpHudClient implements ClientModInitializer {
         FeatureKeybinds.register(FeatureModule.Type.FULLBRIGHT, fullbrightKey);
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+            config.save();
+            profileManager.save(hudManager);
+            if (previousFov != null) client.options.getFov().setValue(previousFov);
+            if (previousGamma != null) client.options.getGamma().setValue(previousGamma);
+            if (previousDamageTilt != null) client.options.getDamageTiltStrength().setValue(previousDamageTilt);
+            FeatureKeybinds.save(client);
+        });
         MeleeHitboxRenderer.register(hudManager);
         registerHudElements();
     }
@@ -94,9 +102,12 @@ public final class PvpHudClient implements ClientModInitializer {
         WaypointManager.getInstance().tick(client);
         combatFeedback.tick(client, config);
         PvpStats.getInstance().tick(client);
-        if (!damageTiltDisabled) {
+        if (config.suppressDamageTilt && previousDamageTilt == null) {
+            previousDamageTilt = client.options.getDamageTiltStrength().getValue();
             client.options.getDamageTiltStrength().setValue(0.0D);
-            damageTiltDisabled = true;
+        } else if (!config.suppressDamageTilt && previousDamageTilt != null) {
+            client.options.getDamageTiltStrength().setValue(previousDamageTilt);
+            previousDamageTilt = null;
         }
         updateUtilityFeatures(client);
         FeatureKeybinds.tick(client);
@@ -111,7 +122,8 @@ public final class PvpHudClient implements ClientModInitializer {
         }
         while (openConfigKey.wasPressed()) {
             if (client.player != null && client.currentScreen == null) {
-                client.setScreen(new ClickGuiScreen(hudManager, () -> profileManager.save(hudManager)));
+                client.setScreen(new ClickGuiScreen(hudManager, () -> profileManager.save(hudManager),
+                        parent -> new ClientSettingsScreen(parent, config, profileManager, hudManager)));
             }
         }
     }
@@ -124,7 +136,7 @@ public final class PvpHudClient implements ClientModInitializer {
 
     private void updateUtilityFeatures(MinecraftClient client) {
         FeatureModule zoom = hudManager.feature(FeatureModule.Type.ZOOM).orElse(null);
-        boolean zooming = zoom != null && zoom.enabled() && zoomKey.isPressed();
+        boolean zooming = zoom != null && zoom.enabled() && zoomKey.isPressed() && client.player != null && client.currentScreen == null;
         if (zooming && previousFov == null) {
             previousFov = client.options.getFov().getValue();
             client.options.getFov().setValue((int) Math.round(zoom.value()));
@@ -156,7 +168,8 @@ public final class PvpHudClient implements ClientModInitializer {
 
     private void renderHud(DrawContext context, RenderTickCounter tickCounter) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client.currentScreen instanceof com.codex.pvphud.hud.HudEditor) {
+        if (client.options.hudHidden || (config.hideOnDebug && client.getDebugHud().shouldShowDebugHud())
+                || client.currentScreen instanceof com.codex.pvphud.hud.HudEditor) {
             return;
         }
         if (config.enabled) {
@@ -166,6 +179,6 @@ public final class PvpHudClient implements ClientModInitializer {
             }
         }
         combatFeedback.render(context, config);
-        NotificationManager.getInstance().render(context, client);
+        if (config.notifications) NotificationManager.getInstance().render(context, client);
     }
 }

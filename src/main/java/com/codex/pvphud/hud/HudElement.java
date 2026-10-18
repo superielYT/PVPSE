@@ -50,6 +50,11 @@ public abstract class HudElement {
     public float scale() { return scale; }
     public void setScale(float scale) { this.scale = Float.isFinite(scale) ? Math.clamp(scale, 0.5F, 2.5F) : 1.0F; }
     public void resetLayout() { x = defaultX; y = defaultY; scale = 1.0F; }
+    public void resetSettings() { resetLayout(); enabled = true; }
+    public void keepOnScreen(MinecraftClient client) {
+        setPosition(HudGeometry.coordinate(x, client.getWindow().getScaledWidth(), width(client) * scale),
+                HudGeometry.coordinate(y, client.getWindow().getScaledHeight(), height(client) * scale));
+    }
 
     public boolean contains(double mouseX, double mouseY, MinecraftClient client) {
         return mouseX >= x && mouseY >= y && mouseX <= x + width(client) * scale && mouseY <= y + height(client) * scale;

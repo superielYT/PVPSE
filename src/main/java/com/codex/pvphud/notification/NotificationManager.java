@@ -35,13 +35,14 @@ public final class NotificationManager {
             float enter = Math.min(1.0F, age / 240.0F);
             float leave = Math.min(1.0F, (LIFETIME_MS - age) / 300.0F);
             float progress = easeOut(Math.min(enter, leave));
-            int boxWidth = 190;
+            int boxWidth = Math.min(190, context.getScaledWindowWidth() - 24);
             int x = Math.round(context.getScaledWindowWidth() - 12 - boxWidth * progress);
             int y = context.getScaledWindowHeight() - 48 - index++ * 48;
+            if (y < 4) break;
             RoundedRenderer.fill(context, x, y, boxWidth, 40, 7, theme.panel());
             context.fill(x, y, x + 3, y + 40, theme.accent());
-            context.drawTextWithShadow(client.textRenderer, Text.literal(notice.title()), x + 10, y + 7, theme.accent());
-            context.drawTextWithShadow(client.textRenderer, Text.literal(notice.message()), x + 10, y + 22, theme.mutedText());
+            context.drawTextWithShadow(client.textRenderer, Text.literal(client.textRenderer.trimToWidth(notice.title(), boxWidth - 20)), x + 10, y + 7, theme.accent());
+            context.drawTextWithShadow(client.textRenderer, Text.literal(client.textRenderer.trimToWidth(notice.message(), boxWidth - 20)), x + 10, y + 22, theme.mutedText());
         }
     }
 

@@ -45,6 +45,7 @@ public final class Panel {
             by += button.totalHeight() + 4;
         }
         context.disableScissor();
+        if (filtered(query).isEmpty()) context.drawCenteredTextWithShadow(client.textRenderer, Text.literal("No matching modules"), x + width / 2, contentTop + 10, theme.mutedText());
         drawScrollbar(context, theme, query, contentTop, contentBottom);
     }
 
@@ -63,7 +64,10 @@ public final class Panel {
     }
 
     public boolean drag(double mouseX, double mouseY, String query) {
-        if (!scrollbarDragging) return false;
+        if (!scrollbarDragging) {
+            for (ModuleButton module : buttons) if (module.drag(mouseX)) return true;
+            return false;
+        }
         int available = trackBottom - trackTop;
         int travel = Math.max(1, available - thumbHeight - 4);
         int target = Math.clamp((int) mouseY - scrollbarDragOffset - trackTop - 2, 0, travel);
@@ -74,6 +78,7 @@ public final class Panel {
 
     public void release() {
         scrollbarDragging = false;
+        buttons.forEach(ModuleButton::release);
     }
 
     public boolean scroll(double mouseX, double mouseY, double verticalAmount, String query) {

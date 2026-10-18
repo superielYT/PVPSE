@@ -15,7 +15,7 @@ public final class TargetHUD extends HudElement {
         HudStyles.card(c, t, width(mc), height(mc), alpha);
         String name = target == null ? "Target preview" : target.getName().getString();
         float hp = target == null ? 20.0F : target.getHealth();
-        HudStyles.label(c, mc, Text.literal(name), 7, 6, t.text());
+        HudStyles.label(c, mc, Text.literal(mc.textRenderer.trimToWidth(name, width(mc) - 14)), 7, 6, t.text());
         HudStyles.label(c, mc, Text.literal(String.format("%.1f HP", hp)), 7, 19, t.accent());
         int bar = Math.clamp(Math.round(hp / Math.max(1.0F, target == null ? 20.0F : target.getMaxHealth()) * 104), 0, 104);
         c.fill(7, 32, 111, 35, 0x55000000);

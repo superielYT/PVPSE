@@ -19,8 +19,22 @@ import java.util.List;
 
 public final class ConfigManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private final Path directory = FabricLoader.getInstance().getConfigDir().resolve("pvpse");
+    private final Path base = FabricLoader.getInstance().getConfigDir().resolve("pvpse");
+    private final Path directory = base.resolve("profiles");
     private String activeProfile = "default";
+
+    public ConfigManager() {
+        try {
+            Files.createDirectories(directory);
+            if (Files.exists(base.resolve("default.json")) && !Files.exists(path("default")))
+                Files.copy(base.resolve("default.json"), path("default"));
+            Path active = base.resolve("active-profile.txt");
+            if (Files.exists(active)) {
+                String name = sanitize(Files.readString(active).strip());
+                if (!name.isBlank() && Files.exists(path(name))) activeProfile = name;
+            }
+        } catch (IOException ignored) {}
+    }
 
     public synchronized void load(HudManager hudManager) {
         ConfigProfile profile = read(activeProfile);
@@ -31,6 +45,7 @@ public final class ConfigManager {
         if (profile.theme != null) ThemeManager.getInstance().setTheme(profile.theme);
         if (profile.hud == null) return;
         for (HudElement element : hudManager.elements()) {
+            element.resetSettings();
             ConfigProfile.HudState state = profile.hud.get(element.id());
             if (state == null) continue;
             element.setEnabled(state.enabled);
@@ -40,7 +55,7 @@ public final class ConfigManager {
         }
     }
 
-    public synchronized void save(HudManager hudManager) {
+    public synchronized boolean save(HudManager hudManager) {
         ConfigProfile profile = new ConfigProfile(activeProfile);
         profile.theme = ThemeManager.getInstance().getTheme().id();
         for (HudElement element : hudManager.elements()) {
@@ -49,16 +64,33 @@ public final class ConfigManager {
             if (element instanceof FeatureModule feature) state.value = feature.value();
             profile.hud.put(element.id(), state);
         }
-        write(profile);
+        return write(profile);
     }
 
     public synchronized boolean switchProfile(String name, HudManager hudManager) {
         String safe = sanitize(name);
-        if (safe.isBlank()) return false;
-        save(hudManager);
+        if (safe.isBlank() || read(safe) == null) return false;
+        if (!save(hudManager)) return false;
         activeProfile = safe;
         load(hudManager);
+        rememberActive();
         return true;
+    }
+
+    public synchronized boolean createProfile(String name, HudManager hudManager) {
+        String safe = sanitize(name);
+        if (safe.isBlank() || Files.exists(path(safe))) return false;
+        if (!save(hudManager)) return false;
+        String previous = activeProfile;
+        activeProfile = safe;
+        if (!save(hudManager)) { activeProfile = previous; return false; }
+        rememberActive();
+        return true;
+    }
+
+    private void rememberActive() {
+        try { Files.writeString(base.resolve("active-profile.txt"), activeProfile); }
+        catch (IOException ignored) {}
     }
 
     public synchronized List<String> profiles() {
@@ -83,11 +115,13 @@ public final class ConfigManager {
         try (Reader reader = Files.newBufferedReader(path)) {
             return GSON.fromJson(reader, ConfigProfile.class);
         } catch (IOException | RuntimeException ignored) {
+            try { Files.copy(path, path.resolveSibling(path.getFileName() + ".broken-" + System.currentTimeMillis())); }
+            catch (IOException ignoredBackup) {}
             return null;
         }
     }
 
-    private void write(ConfigProfile profile) {
+    private boolean write(ConfigProfile profile) {
         try {
             Files.createDirectories(directory);
             Path target = path(profile.name);
@@ -100,7 +134,8 @@ public final class ConfigManager {
             } catch (IOException unsupportedAtomicMove) {
                 Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
             }
-        } catch (IOException ignored) {}
+            return true;
+        } catch (IOException ignored) { return false; }
     }
 
     private Path path(String name) {
