@@ -15,3 +15,19 @@ Save configurations, change colors, edit layouts, and create your own personal s
 ✨ Professional Experience
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
+
+## Installation (v1.6.0)
+
+Requires Minecraft **1.21.11**, Fabric Loader **0.19.3+**, Fabric API for 1.21.11 and Java **21**. Place PVPSE-1.6.0.jar in your Minecraft mods folder alongside Fabric API.
+
+## Controls and settings
+
+- Right Shift: open the client interface
+- H: toggle the HUD
+- Z: hold to zoom; B: add waypoint; V: toggle Fullbright
+- Left-click a module to toggle it; right-click to expand settings
+- HUD modules: scale, X/Y position and reset layout
+- HUD EDITOR: drag widgets to arrange your layout
+- Search filters modules; mouse wheel scrolls the module list
+- Changes save when leaving the main interface and periodically during play
+- Profiles live in config/pvpse/default.json; controls can be rebound in Minecraft settings

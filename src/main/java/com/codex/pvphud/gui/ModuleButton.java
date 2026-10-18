@@ -33,7 +33,9 @@ public final class ModuleButton {
                     new SettingComponent.Keybind(feature))
                     : List.of(new SettingComponent.Toggle(element));
         } else {
-            this.settings = List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element));
+            this.settings = List.of(new SettingComponent.Toggle(element), new SettingComponent.Scale(element),
+                    new SettingComponent.Position(element, true), new SettingComponent.Position(element, false),
+                    new SettingComponent.ResetLayout(element));
         }
     }
 
@@ -64,7 +66,7 @@ public final class ModuleButton {
             if (button == 1) expanded = !expanded;
             return true;
         }
-        if (expanded) {
+        if (expanded && mouseY >= y + 26 && mouseY < y + totalHeight()) {
             for (SettingComponent setting : settings) if (setting.click(mouseX, mouseY, button)) return true;
         }
         return false;

@@ -110,7 +110,7 @@ public final class PvpHudClient implements ClientModInitializer {
         }
         while (openConfigKey.wasPressed()) {
             if (client.player != null && client.currentScreen == null) {
-                client.setScreen(new ClickGuiScreen(hudManager));
+                client.setScreen(new ClickGuiScreen(hudManager, () -> profileManager.save(hudManager)));
             }
         }
     }

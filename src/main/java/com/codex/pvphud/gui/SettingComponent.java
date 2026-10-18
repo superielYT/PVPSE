@@ -111,6 +111,41 @@ public abstract class SettingComponent {
         }
     }
 
+    public static final class Position extends SettingComponent {
+        private final boolean horizontal;
+        public Position(HudElement element, boolean horizontal) { super(element); this.horizontal = horizontal; }
+        public void render(DrawContext c, MinecraftClient mc, Theme t, int mx, int my) {
+            float position = horizontal ? element.x() : element.y();
+            c.drawText(mc.textRenderer, Text.literal((horizontal ? "X " : "Y ") + Math.round(position)), x, y + 6, t.text(), false);
+            int limit = horizontal ? mc.getWindow().getScaledWidth() : mc.getWindow().getScaledHeight();
+            int start = x + 76, length = Math.max(1, width - 82);
+            c.fill(start, y + 9, start + length, y + 11, t.panelHeader());
+            c.fill(start, y + 8, start + Math.round(Math.clamp(position / Math.max(1, limit), 0, 1) * length), y + 12, t.accent());
+        }
+        public boolean click(double mx, double my, int button) {
+            if (button != 0 || !inside(mx, my)) return false;
+            var mc = MinecraftClient.getInstance();
+            float limit = horizontal ? mc.getWindow().getScaledWidth() : mc.getWindow().getScaledHeight();
+            float size = horizontal ? element.width(mc) : element.height(mc);
+            float value = (float) Math.clamp((mx - x - 76) / Math.max(1, width - 82), 0, 1) * Math.max(0, limit - size * element.scale());
+            element.setPosition(horizontal ? value : element.x(), horizontal ? element.y() : value);
+            return true;
+        }
+    }
+
+    public static final class ResetLayout extends SettingComponent {
+        public ResetLayout(HudElement element) { super(element); }
+        public void render(DrawContext c, MinecraftClient mc, Theme t, int mx, int my) {
+            RoundedRenderer.fill(c, x, y + 2, width, 16, 4, inside(mx, my) ? t.accentSecondary() : t.panelHeader());
+            c.drawCenteredTextWithShadow(mc.textRenderer, Text.literal("Reset position & scale"), x + width / 2, y + 6, t.text());
+        }
+        public boolean click(double mx, double my, int button) {
+            if (button != 0 || !inside(mx, my)) return false;
+            element.resetLayout();
+            return true;
+        }
+    }
+
     protected boolean inside(double mx, double my) {
         return mx >= x && my >= y && mx < x + width && my < y + height;
     }

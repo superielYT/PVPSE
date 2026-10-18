@@ -13,12 +13,16 @@ public abstract class HudElement {
     private float x;
     private float y;
     private float scale = 1.0F;
+    private final float defaultX;
+    private final float defaultY;
 
     protected HudElement(String id, String name, float x, float y) {
         this.id = id;
         this.name = name;
         this.x = x;
         this.y = y;
+        this.defaultX = x;
+        this.defaultY = y;
     }
 
     public final void render(DrawContext context, MinecraftClient client, Theme theme, boolean editorMode) {
@@ -42,9 +46,10 @@ public abstract class HudElement {
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public float x() { return x; }
     public float y() { return y; }
-    public void setPosition(float x, float y) { this.x = Math.max(0, x); this.y = Math.max(0, y); }
+    public void setPosition(float x, float y) { this.x = Float.isFinite(x) ? Math.max(0, x) : defaultX; this.y = Float.isFinite(y) ? Math.max(0, y) : defaultY; }
     public float scale() { return scale; }
-    public void setScale(float scale) { this.scale = Math.clamp(scale, 0.5F, 2.5F); }
+    public void setScale(float scale) { this.scale = Float.isFinite(scale) ? Math.clamp(scale, 0.5F, 2.5F) : 1.0F; }
+    public void resetLayout() { x = defaultX; y = defaultY; scale = 1.0F; }
 
     public boolean contains(double mouseX, double mouseY, MinecraftClient client) {
         return mouseX >= x && mouseY >= y && mouseX <= x + width(client) * scale && mouseY <= y + height(client) * scale;

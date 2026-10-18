@@ -10,6 +10,14 @@ Final PvP HUD release for Fabric 1.21.11 and Java 21.
 - Adjustable visual range (2–12 blocks) in the module settings
 - Client-side visualization only: no reach, attack, aiming, or packet changes
 
+## Settings and polish
+
+- Per-widget X and Y position controls
+- Reset position and scale for individual HUD widgets
+- Reject non-finite positions, scales and utility values
+- Handle incomplete profile data safely
+- Fix the release workflow to publish the 1.6.0 JAR
+
 ## Included
 
 - Full draggable HUD and editor

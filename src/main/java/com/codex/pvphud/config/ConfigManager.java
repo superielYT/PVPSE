@@ -28,7 +28,8 @@ public final class ConfigManager {
             save(hudManager);
             return;
         }
-        ThemeManager.getInstance().setTheme(profile.theme);
+        if (profile.theme != null) ThemeManager.getInstance().setTheme(profile.theme);
+        if (profile.hud == null) return;
         for (HudElement element : hudManager.elements()) {
             ConfigProfile.HudState state = profile.hud.get(element.id());
             if (state == null) continue;
