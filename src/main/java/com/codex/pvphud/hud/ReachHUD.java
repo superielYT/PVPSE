@@ -2,23 +2,22 @@ package com.codex.pvphud.hud;
 
 import com.codex.pvphud.PvpStats;
 import com.codex.pvphud.theme.Theme;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-
 import java.util.Locale;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public final class ReachHUD extends HudElement {
     public ReachHUD() { super("reach", "Reach", 98, 250); }
 
-    protected void renderElement(DrawContext context, MinecraftClient client, Theme theme, boolean editorMode, float alpha) {
+    protected void renderElement(GuiGraphics context, Minecraft client, Theme theme, boolean editorMode, float alpha) {
         HudStyles.card(context, theme, width(client), height(client), alpha);
-        context.drawTextWithShadow(client.textRenderer, Text.literal("REACH"), 8, 6, theme.mutedText());
+        context.drawString(client.font, Component.literal("REACH"), 8, 6, theme.mutedText());
         String value = PvpStats.getInstance().lastReach() <= 0 ? "--" :
                 String.format(Locale.ROOT, "%.2f blocks", PvpStats.getInstance().lastReach());
-        context.drawTextWithShadow(client.textRenderer, Text.literal(value), 8, 18, theme.text());
+        context.drawString(client.font, Component.literal(value), 8, 18, theme.text());
     }
 
-    public int width(MinecraftClient client) { return 94; }
-    public int height(MinecraftClient client) { return 34; }
+    public int width(Minecraft client) { return 94; }
+    public int height(Minecraft client) { return 34; }
 }

@@ -1,12 +1,12 @@
 package com.codex.pvphud;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
 final class HudConfigScreen extends Screen {
     private static final int CARD_PAD = 12;
@@ -39,7 +39,7 @@ final class HudConfigScreen extends Screen {
     }
 
     HudConfigScreen(HudConfig config, Screen parent) {
-        super(Text.translatable("screen.pvp_hud_client.config"));
+        super(Component.translatable("screen.pvp_hud_client.config"));
         this.config = config;
         this.parent = parent;
     }
@@ -52,7 +52,7 @@ final class HudConfigScreen extends Screen {
     }
 
     private void clearAndBuild() {
-        clearChildren();
+        clearWidgets();
         buildTab(activeTab);
     }
 
@@ -71,11 +71,11 @@ final class HudConfigScreen extends Screen {
         for (int i = 0; i < TAB_KEYS.length; i++) {
             final int idx = i;
             int tx = panelX + i * tabW;
-            addDrawableChild(ButtonWidget.builder(Text.translatable(TAB_KEYS[i]), b -> {
+            addRenderableWidget(Button.builder(Component.translatable(TAB_KEYS[i]), b -> {
                 activeTab = idx;
                 scrollOffset = 0;
                 clearAndBuild();
-            }).dimensions(tx, LOGO_H, tabW, TAB_H).build());
+            }).bounds(tx, LOGO_H, tabW, TAB_H).build());
         }
 
         switch (tab) {
@@ -98,10 +98,10 @@ final class HudConfigScreen extends Screen {
 
         // Bottom buttons
         int btnY = height - 28;
-        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.back"), b -> goBack())
-                .dimensions(panelX, btnY, panelW / 2 - 4, 20).build());
-        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.done"), b -> close())
-                .dimensions(panelX + panelW / 2 + 4, btnY, panelW / 2 - 4, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.back"), b -> goBack())
+                .bounds(panelX, btnY, panelW / 2 - 4, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
+                .bounds(panelX + panelW / 2 + 4, btnY, panelW / 2 - 4, 20).build());
     }
 
     private void buildWidgetsTab(int x, int w, int y) {
@@ -125,34 +125,34 @@ final class HudConfigScreen extends Screen {
     }
 
     private void buildStyleTab(int x, int w, int y) {
-        addDrawableChild(CyclingButtonWidget.builder(HudConfigScreen::themeLabel, config.theme)
-                .values(HudConfig.Theme.values())
-                .build(x, y, w, ROW_H, Text.translatable("screen.pvp_hud_client.theme"), (b, theme) -> {
+        addRenderableWidget(CycleButton.builder(HudConfigScreen::themeLabel, config.theme)
+                .withValues(HudConfig.Theme.values())
+                .create(x, y, w, ROW_H, Component.translatable("screen.pvp_hud_client.theme"), (b, theme) -> {
                     config.setTheme(theme);
                 }));
         y += ROW_H + ROW_GAP;
-        addDrawableChild(toggle(x, y, w, "screen.pvp_hud_client.crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v));
+        addRenderableWidget(toggle(x, y, w, "screen.pvp_hud_client.crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v));
         y += ROW_H + ROW_GAP;
-        addDrawableChild(new OpacitySlider(x, y, w, ROW_H, config));
+        addRenderableWidget(new OpacitySlider(x, y, w, ROW_H, config));
         y += ROW_H + ROW_GAP;
-        addDrawableChild(toggle(x, y, w, "screen.pvp_hud_client.animated_themes", () -> config.animatedThemes, v -> config.animatedThemes = v));
+        addRenderableWidget(toggle(x, y, w, "screen.pvp_hud_client.animated_themes", () -> config.animatedThemes, v -> config.animatedThemes = v));
     }
 
     private void buildCrosshairTab(int x, int w, int y) {
-        addDrawableChild(CyclingButtonWidget.builder(HudConfigScreen::crosshairLabel, config.crosshairStyle)
-                .values(HudConfig.CrosshairStyle.values())
-                .build(x, y, w, ROW_H, Text.translatable("screen.pvp_hud_client.crosshair_style"), (b, style) -> {
+        addRenderableWidget(CycleButton.builder(HudConfigScreen::crosshairLabel, config.crosshairStyle)
+                .withValues(HudConfig.CrosshairStyle.values())
+                .create(x, y, w, ROW_H, Component.translatable("screen.pvp_hud_client.crosshair_style"), (b, style) -> {
                     config.crosshairStyle = style;
                     config.save();
                 }));
         y += ROW_H + ROW_GAP;
-        addDrawableChild(new CrosshairSizeSlider(x, y, w, ROW_H, config));
+        addRenderableWidget(new CrosshairSizeSlider(x, y, w, ROW_H, config));
         y += ROW_H + ROW_GAP;
-        addDrawableChild(toggle(x, y, w, "screen.pvp_hud_client.hit_marker", () -> config.showHitMarker, v -> config.showHitMarker = v));
+        addRenderableWidget(toggle(x, y, w, "screen.pvp_hud_client.hit_marker", () -> config.showHitMarker, v -> config.showHitMarker = v));
         y += ROW_H + ROW_GAP;
-        addDrawableChild(toggle(x, y, w, "screen.pvp_hud_client.damage_flash", () -> config.showDamageFlash, v -> config.showDamageFlash = v));
+        addRenderableWidget(toggle(x, y, w, "screen.pvp_hud_client.damage_flash", () -> config.showDamageFlash, v -> config.showDamageFlash = v));
         y += ROW_H + ROW_GAP;
-        addDrawableChild(toggle(x, y, w, "screen.pvp_hud_client.kill_particles", () -> config.showKillParticles, v -> config.showKillParticles = v));
+        addRenderableWidget(toggle(x, y, w, "screen.pvp_hud_client.kill_particles", () -> config.showKillParticles, v -> config.showKillParticles = v));
     }
 
     private void buildCpsTab(int x, int w, int y) {
@@ -169,16 +169,16 @@ final class HudConfigScreen extends Screen {
     private void addRow2(int x1, int x2, int y, int w,
                          String key1, BooleanSupplier g1, BooleanConsumer s1,
                          String key2, BooleanSupplier g2, BooleanConsumer s2) {
-        addDrawableChild(toggle(x1, y, w, key1, g1, s1));
-        addDrawableChild(toggle(x2, y, w, key2, g2, s2));
+        addRenderableWidget(toggle(x1, y, w, key1, g1, s1));
+        addRenderableWidget(toggle(x2, y, w, key2, g2, s2));
     }
 
-    private ButtonWidget toggle(int x, int y, int w, String key, BooleanSupplier getter, BooleanConsumer setter) {
-        return ButtonWidget.builder(stateText(key, getter.get()), b -> {
+    private Button toggle(int x, int y, int w, String key, BooleanSupplier getter, BooleanConsumer setter) {
+        return Button.builder(stateText(key, getter.get()), b -> {
             setter.accept(!getter.get());
             config.save();
             b.setMessage(stateText(key, getter.get()));
-        }).dimensions(x, y, w, ROW_H).build();
+        }).bounds(x, y, w, ROW_H).build();
     }
 
     // ── animation & render ──────────────────────────────────────────────────
@@ -189,7 +189,7 @@ final class HudConfigScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         float progress = Math.min(1.0f, (animTick + delta) / ANIM_DURATION);
         float ease = 1f - (1f - progress) * (1f - progress); // ease-out quad
 
@@ -201,8 +201,8 @@ final class HudConfigScreen extends Screen {
 
         context.fill(0, 0, width, height, 0xBB000000);
 
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(0, slideOffset);
+        context.pose().pushMatrix();
+        context.pose().translate(0, slideOffset);
 
         // ── PVPSE logo header ──
         drawLogo(context, panelX, panelW, ease);
@@ -218,35 +218,35 @@ final class HudConfigScreen extends Screen {
             int previewCy = contentTop + 60;
             context.fill(previewCx - 28, previewCy - 28, previewCx + 28, previewCy + 28, 0xFF0A0C10);
             context.fill(previewCx - 28, previewCy - 28, previewCx + 28, previewCy - 27, config.accentColor());
-            context.drawCenteredTextWithShadow(textRenderer,
-                Text.translatable("screen.pvp_hud_client.preview"),
+            context.drawCenteredString(font,
+                Component.translatable("screen.pvp_hud_client.preview"),
                 previewCx, previewCy - 38, config.mutedColor());
             CrosshairRenderer.draw(context, previewCx, previewCy, config, false);
         }
 
         super.render(context, mouseX, mouseY, delta);
-        context.getMatrices().popMatrix();
+        context.pose().popMatrix();
     }
 
-    private void drawLogo(DrawContext context, int panelX, int panelW, float ease) {
+    private void drawLogo(GuiGraphics context, int panelX, int panelW, float ease) {
         context.fill(panelX, 0, panelX + panelW, LOGO_H, 0xFF0A0C12);
         int lineW = (int) (panelW * ease);
         context.fill(panelX, 0, panelX + lineW, 2, config.accentColor());
 
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(panelX + panelW / 2.0F, 7);
-        context.getMatrices().scale(1.65F, 1.65F);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("PVPSE"), 0, 0, config.accentColor());
-        context.getMatrices().popMatrix();
+        context.pose().pushMatrix();
+        context.pose().translate(panelX + panelW / 2.0F, 7);
+        context.pose().scale(1.65F, 1.65F);
+        context.drawCenteredString(font, Component.literal("PVPSE"), 0, 0, config.accentColor());
+        context.pose().popMatrix();
 
-        context.drawCenteredTextWithShadow(textRenderer,
-            Text.literal("PVP CLIENT  •  1.21"), panelX + panelW / 2, LOGO_H - 12, config.mutedColor());
+        context.drawCenteredString(font,
+            Component.literal("PVP CLIENT  •  1.21"), panelX + panelW / 2, LOGO_H - 12, config.mutedColor());
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         int old = scrollOffset;
-        scrollOffset = MathHelper.clamp(scrollOffset - (int) Math.round(verticalAmount * 18.0D), 0, maxScroll);
+        scrollOffset = Mth.clamp(scrollOffset - (int) Math.round(verticalAmount * 18.0D), 0, maxScroll);
         if (old != scrollOffset) clearAndBuild();
         return old != scrollOffset || super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
@@ -260,32 +260,32 @@ final class HudConfigScreen extends Screen {
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 
     private void goBack() {
         config.save();
-        if (client != null) client.setScreen(parent);
+        if (minecraft != null) minecraft.setScreen(parent);
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         config.save();
-        if (client != null) client.setScreen(parent != null ? parent : null);
+        if (minecraft != null) minecraft.setScreen(parent != null ? parent : null);
     }
 
-    private static Text stateText(String key, boolean on) {
-        return Text.translatable(key).append(": ")
-                .append(Text.translatable(on ? "options.on" : "options.off"));
+    private static Component stateText(String key, boolean on) {
+        return Component.translatable(key).append(": ")
+                .append(Component.translatable(on ? "options.on" : "options.off"));
     }
 
-    private static Text themeLabel(HudConfig.Theme theme) {
-        return Text.translatable("screen.pvp_hud_client.theme." + theme.name().toLowerCase());
+    private static Component themeLabel(HudConfig.Theme theme) {
+        return Component.translatable("screen.pvp_hud_client.theme." + theme.name().toLowerCase());
     }
 
-    private static Text crosshairLabel(HudConfig.CrosshairStyle style) {
-        return Text.translatable("screen.pvp_hud_client.crosshair." + style.name().toLowerCase());
+    private static Component crosshairLabel(HudConfig.CrosshairStyle style) {
+        return Component.translatable("screen.pvp_hud_client.crosshair." + style.name().toLowerCase());
     }
 
     @FunctionalInterface
@@ -296,19 +296,19 @@ final class HudConfigScreen extends Screen {
 
     // ── sliders ──────────────────────────────────────────────────────────────
 
-    private static final class CrosshairSizeSlider extends SliderWidget {
+    private static final class CrosshairSizeSlider extends AbstractSliderButton {
         private final HudConfig config;
         CrosshairSizeSlider(int x, int y, int w, int h, HudConfig config) {
-            super(x, y, w, h, Text.empty(), sizeToValue(config.crosshairSize));
+            super(x, y, w, h, Component.empty(), sizeToValue(config.crosshairSize));
             this.config = config;
             updateMessage();
         }
         @Override protected void updateMessage() {
-            setMessage(Text.translatable("screen.pvp_hud_client.crosshair_size", config.crosshairSize));
+            setMessage(Component.translatable("screen.pvp_hud_client.crosshair_size", config.crosshairSize));
         }
         @Override protected void applyValue() {
-            config.crosshairSize = MathHelper.clamp(
-                HudConfig.MIN_CROSSHAIR_SIZE + MathHelper.floor(value * (HudConfig.MAX_CROSSHAIR_SIZE - HudConfig.MIN_CROSSHAIR_SIZE)),
+            config.crosshairSize = Mth.clamp(
+                HudConfig.MIN_CROSSHAIR_SIZE + Mth.floor(value * (HudConfig.MAX_CROSSHAIR_SIZE - HudConfig.MIN_CROSSHAIR_SIZE)),
                 HudConfig.MIN_CROSSHAIR_SIZE, HudConfig.MAX_CROSSHAIR_SIZE);
             config.save(); updateMessage();
         }
@@ -317,19 +317,19 @@ final class HudConfigScreen extends Screen {
         }
     }
 
-    private static final class OpacitySlider extends SliderWidget {
+    private static final class OpacitySlider extends AbstractSliderButton {
         private final HudConfig config;
         OpacitySlider(int x, int y, int w, int h, HudConfig config) {
-            super(x, y, w, h, Text.empty(), opacityToValue(config.panelOpacity));
+            super(x, y, w, h, Component.empty(), opacityToValue(config.panelOpacity));
             this.config = config;
             updateMessage();
         }
         @Override protected void updateMessage() {
-            setMessage(Text.translatable("screen.pvp_hud_client.opacity", config.panelOpacity));
+            setMessage(Component.translatable("screen.pvp_hud_client.opacity", config.panelOpacity));
         }
         @Override protected void applyValue() {
-            config.panelOpacity = MathHelper.clamp(
-                HudConfig.MIN_OPACITY + MathHelper.floor(value * (HudConfig.MAX_OPACITY - HudConfig.MIN_OPACITY)),
+            config.panelOpacity = Mth.clamp(
+                HudConfig.MIN_OPACITY + Mth.floor(value * (HudConfig.MAX_OPACITY - HudConfig.MIN_OPACITY)),
                 HudConfig.MIN_OPACITY, HudConfig.MAX_OPACITY);
             config.save(); updateMessage();
         }

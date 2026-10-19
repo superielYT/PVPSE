@@ -3,12 +3,11 @@ package com.codex.pvphud.gui;
 import com.codex.pvphud.hud.HudElement;
 import com.codex.pvphud.render.RenderUtil;
 import com.codex.pvphud.theme.Theme;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public final class Panel {
     private final String title;
@@ -38,13 +37,13 @@ public final class Panel {
         elements.forEach(element -> buttons.add(new ModuleButton(element)));
     }
 
-    public void render(DrawContext context, MinecraftClient client, Theme theme, int x, int y, int width, int viewportHeight,
+    public void render(GuiGraphics context, Minecraft client, Theme theme, int x, int y, int width, int viewportHeight,
                        int mouseX, int mouseY, String query) {
         this.x = x; this.y = y; this.width = width; this.viewportHeight = Math.max(80, viewportHeight);
         if (!java.util.Objects.equals(lastQuery, query)) { release(); scrollOffset = 0; lastQuery = query; }
         clampScroll(query);
         RenderUtil.panel(context, x, y, width, this.viewportHeight, theme);
-        context.drawTextWithShadow(client.textRenderer, Text.literal(title + " / " + filtered(query).size()), x + 9, y + 8, theme.accent());
+        context.drawString(client.font, Component.literal(title + " / " + filtered(query).size()), x + 9, y + 8, theme.accent());
         int contentTop = y + 27;
         int contentBottom = y + this.viewportHeight - 5;
         context.enableScissor(x + 2, contentTop, x + width - 2, contentBottom);
@@ -54,7 +53,7 @@ public final class Panel {
             by += button.totalHeight() + 4;
         }
         context.disableScissor();
-        if (filtered(query).isEmpty()) context.drawCenteredTextWithShadow(client.textRenderer, Text.literal("No matching modules"), x + width / 2, contentTop + 10, theme.mutedText());
+        if (filtered(query).isEmpty()) context.drawCenteredString(client.font, Component.literal("No matching modules"), x + width / 2, contentTop + 10, theme.mutedText());
         drawScrollbar(context, theme, query, contentTop, contentBottom);
     }
 
@@ -113,7 +112,7 @@ public final class Panel {
         scrollOffset = Math.clamp(scrollOffset, 0, maximum);
     }
 
-    private void drawScrollbar(DrawContext context, Theme theme, String query, int top, int bottom) {
+    private void drawScrollbar(GuiGraphics context, Theme theme, String query, int top, int bottom) {
         trackTop = top;
         trackBottom = bottom;
         int content = contentHeight(query);

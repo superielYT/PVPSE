@@ -1,25 +1,24 @@
 package com.codex.pvphud;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.Text;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.biome.Biome;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 final class HudRenderer {
     private final List<WidgetBounds> lastBounds = new ArrayList<>();
@@ -28,16 +27,16 @@ final class HudRenderer {
         return lastBounds;
     }
 
-    List<WidgetBounds> render(DrawContext context, MinecraftClient client, HudConfig config, CpsTracker cps, boolean editorMode) {
+    List<WidgetBounds> render(GuiGraphics context, Minecraft client, HudConfig config, CpsTracker cps, boolean editorMode) {
         lastBounds.clear();
-        if (client.player == null || client.world == null || !config.enabled) {
+        if (client.player == null || client.level == null || !config.enabled) {
             return lastBounds;
         }
 
-        TextRenderer text = client.textRenderer;
-        int screenW = context.getScaledWindowWidth();
-        int screenH = context.getScaledWindowHeight();
-        PlayerEntity player = client.player;
+        Font text = client.font;
+        int screenW = context.guiWidth();
+        int screenH = context.guiHeight();
+        Player player = client.player;
 
         if (config.useFreeLayout) {
             drawCombat(context, text, screenW, screenH, config, editorMode, client, cps);
@@ -45,8 +44,8 @@ final class HudRenderer {
             if (config.showCoords) {
                 drawLocation(context, text, screenW, screenH, config, editorMode, player, client);
             }
-            ItemStack mainHand = player.getMainHandStack();
-            if (!mainHand.isEmpty() && mainHand.isDamageable()) {
+            ItemStack mainHand = player.getMainHandItem();
+            if (!mainHand.isEmpty() && mainHand.isDamageableItem()) {
                 drawHeld(context, text, screenW, screenH, config, editorMode, mainHand);
             }
             if (config.showTarget) {
@@ -55,7 +54,7 @@ final class HudRenderer {
                     drawTarget(context, text, screenW, screenH, config, editorMode, target);
                 }
             }
-            if (config.showPotions && !player.getStatusEffects().isEmpty()) {
+            if (config.showPotions && !player.getActiveEffects().isEmpty()) {
                 drawEffects(context, text, screenW, screenH, config, editorMode, player);
             }
             if (config.showArmor) {
@@ -68,20 +67,20 @@ final class HudRenderer {
         return lastBounds;
     }
 
-    private void drawCombat(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode,
-                            MinecraftClient client, CpsTracker cps) {
-        Text title = Text.translatable("hud.pvp_hud_client.widget.combat");
+    private void drawCombat(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+                            Minecraft client, CpsTracker cps) {
+        Component title = Component.translatable("hud.pvp_hud_client.widget.combat");
         List<HudPanel.Chip> chips = new ArrayList<>();
-        chips.add(HudPanel.Chip.of(Text.literal("FPS "), Text.literal(String.valueOf(client.getCurrentFps()))));
-        chips.add(HudPanel.Chip.of(Text.literal("Ping "), Text.literal(ping(client) + "ms")));
+        chips.add(HudPanel.Chip.of(Component.literal("FPS "), Component.literal(String.valueOf(client.getFps()))));
+        chips.add(HudPanel.Chip.of(Component.literal("Ping "), Component.literal(ping(client) + "ms")));
         if (config.showCps) {
             String cpsValue = config.showRightCps ? cps.leftCps() + "/" + cps.rightCps() : String.valueOf(cps.leftCps());
-            chips.add(HudPanel.Chip.of(Text.literal("CPS "), Text.literal(cpsValue)));
+            chips.add(HudPanel.Chip.of(Component.literal("CPS "), Component.literal(cpsValue)));
         }
         placeChipWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.COMBAT, title, chips);
     }
 
-    private void drawPlayer(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode, PlayerEntity player) {
+    private void drawPlayer(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
         WidgetLayout layout = config.layout(HudWidgetId.PLAYER);
         if (!layout.visible && !editorMode) {
             return;
@@ -89,13 +88,13 @@ final class HudRenderer {
 
         float health = player.getHealth() + player.getAbsorptionAmount();
         float maxHealth = Math.max(1.0F, player.getMaxHealth());
-        float hpPercent = MathHelper.clamp(health / maxHealth, 0.0F, 1.0F);
+        float hpPercent = Mth.clamp(health / maxHealth, 0.0F, 1.0F);
         boolean lowHp = hpPercent < 0.25F;
 
-        Text title = Text.translatable("hud.pvp_hud_client.widget.player");
+        Component title = Component.translatable("hud.pvp_hud_client.widget.player");
         List<HudPanel.Chip> chips = List.of(
-                HudPanel.Chip.of(Text.literal("HP "), Text.literal(String.format(Locale.ROOT, "%.1f", health))),
-                HudPanel.Chip.of(Text.literal("Spd "), Text.literal(speed(player)))
+                HudPanel.Chip.of(Component.literal("HP "), Component.literal(String.format(Locale.ROOT, "%.1f", health))),
+                HudPanel.Chip.of(Component.literal("Spd "), Component.literal(speed(player)))
         );
 
         int x = toX(layout.x, screenW);
@@ -110,24 +109,24 @@ final class HudRenderer {
         if (config.showHealthBar) {
             int barY = y + height - 10;
             HudPanel.drawProgressBar(context, x + 6, barY, width - 12, 4, hpPercent, config, lowHp);
-            context.drawText(text, Text.literal(Math.round(hpPercent * 100) + "%"), x + width - 28, barY - 1, lowHp ? config.dangerColor() : config.mutedColor(), false);
+            context.drawString(text, Component.literal(Math.round(hpPercent * 100) + "%"), x + width - 28, barY - 1, lowHp ? config.dangerColor() : config.mutedColor(), false);
         }
         addBounds(HudWidgetId.PLAYER, x, y, width, height, layout, editorMode);
     }
 
-    private void drawLocation(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode,
-                                PlayerEntity player, MinecraftClient client) {
-        Text title = Text.translatable("hud.pvp_hud_client.widget.location");
+    private void drawLocation(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+                                Player player, Minecraft client) {
+        Component title = Component.translatable("hud.pvp_hud_client.widget.location");
         List<HudPanel.Chip> chips = List.of(
-                HudPanel.Chip.of(Text.literal("X "), Text.literal(String.format(Locale.ROOT, "%.0f", player.getX()))),
-                HudPanel.Chip.of(Text.literal("Y "), Text.literal(String.format(Locale.ROOT, "%.0f", player.getY()))),
-                HudPanel.Chip.of(Text.literal("Z "), Text.literal(String.format(Locale.ROOT, "%.0f", player.getZ()))),
-                HudPanel.Chip.of(Text.literal("Biome "), Text.literal(biomeName(client)))
+                HudPanel.Chip.of(Component.literal("X "), Component.literal(String.format(Locale.ROOT, "%.0f", player.getX()))),
+                HudPanel.Chip.of(Component.literal("Y "), Component.literal(String.format(Locale.ROOT, "%.0f", player.getY()))),
+                HudPanel.Chip.of(Component.literal("Z "), Component.literal(String.format(Locale.ROOT, "%.0f", player.getZ()))),
+                HudPanel.Chip.of(Component.literal("Biome "), Component.literal(biomeName(client)))
         );
         placeChipWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.LOCATION, title, chips);
     }
 
-    private void drawHeld(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode, ItemStack stack) {
+    private void drawHeld(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, ItemStack stack) {
         WidgetLayout layout = config.layout(HudWidgetId.HELD);
         if (!layout.visible && !editorMode) {
             return;
@@ -135,10 +134,10 @@ final class HudRenderer {
 
         boolean low = lowDurability(stack);
         int percent = durabilityPercent(stack);
-        Text title = Text.translatable("hud.pvp_hud_client.widget.held");
+        Component title = Component.translatable("hud.pvp_hud_client.widget.held");
         List<HudPanel.Line> lines = List.of(low
-                ? HudPanel.Line.danger(Text.translatable("hud.pvp_hud_client.held", stack.getName().getString(), durability(stack)))
-                : HudPanel.Line.normal(Text.translatable("hud.pvp_hud_client.held", stack.getName().getString(), durability(stack))));
+                ? HudPanel.Line.danger(Component.translatable("hud.pvp_hud_client.held", stack.getHoverName().getString(), durability(stack)))
+                : HudPanel.Line.normal(Component.translatable("hud.pvp_hud_client.held", stack.getHoverName().getString(), durability(stack))));
 
         int x = toX(layout.x, screenW);
         int y = toY(layout.y, screenH);
@@ -152,28 +151,28 @@ final class HudRenderer {
         if (config.showDurabilityBars) {
             int barY = y + height - 10;
             HudPanel.drawProgressBar(context, x + 6, barY, width - 12, 4, percent / 100.0F, config, low);
-            context.drawText(text, Text.literal(percent + "%"), x + width - 28, barY - 1, low ? config.dangerColor() : config.mutedColor(), false);
+            context.drawString(text, Component.literal(percent + "%"), x + width - 28, barY - 1, low ? config.dangerColor() : config.mutedColor(), false);
         }
         addBounds(HudWidgetId.HELD, x, y, width, height, layout, editorMode);
     }
 
-    private void drawTarget(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode, TargetInfo target) {
+    private void drawTarget(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, TargetInfo target) {
         placeChipWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.TARGET,
-                Text.translatable("hud.pvp_hud_client.widget.target"), target.chips());
+                Component.translatable("hud.pvp_hud_client.widget.target"), target.chips());
     }
 
-    private void drawEffects(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode, PlayerEntity player) {
-        List<HudPanel.Line> effects = player.getStatusEffects().stream()
-                .sorted(Comparator.comparing(effect -> effect.getEffectType().value().getTranslationKey()))
+    private void drawEffects(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
+        List<HudPanel.Line> effects = player.getActiveEffects().stream()
+                .sorted(Comparator.comparing(effect -> effect.getEffect().value().getDescriptionId()))
                 .limit(5)
                 .map(this::effectLine)
                 .map(HudPanel.Line::muted)
                 .toList();
         placeLineWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.EFFECTS,
-                Text.translatable("hud.pvp_hud_client.widget.effects"), effects);
+                Component.translatable("hud.pvp_hud_client.widget.effects"), effects);
     }
 
-    private void drawArmor(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode, PlayerEntity player) {
+    private void drawArmor(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
         WidgetLayout layout = config.layout(HudWidgetId.ARMOR);
         if (!layout.visible && !editorMode) {
             return;
@@ -186,7 +185,7 @@ final class HudRenderer {
         int y = toY(layout.y, screenH);
 
         HudPanel.drawWidgetFrame(context, x, y, width, height, config, editorMode);
-        context.drawText(text, Text.translatable("hud.pvp_hud_client.widget.armor"), x + 6, y + 4, config.accentColor(), false);
+        context.drawString(text, Component.translatable("hud.pvp_hud_client.widget.armor"), x + 6, y + 4, config.accentColor(), false);
         if (editorMode) {
             HudPanel.drawCloseButton(context, x + width - 10, y + 3, false);
         }
@@ -194,17 +193,17 @@ final class HudRenderer {
 
         int slot = 0;
         for (EquipmentSlot armorSlot : List.of(EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD)) {
-            ItemStack stack = player.getEquippedStack(armorSlot);
+            ItemStack stack = player.getItemBySlot(armorSlot);
             int itemX = x + 6 + slot * slotWidth;
             if (!stack.isEmpty()) {
-                context.drawItem(stack, itemX, y + 17);
-                context.drawStackOverlay(text, stack, itemX, y + 17);
-                if (stack.isDamageable()) {
+                context.renderItem(stack, itemX, y + 17);
+                context.renderItemDecorations(text, stack, itemX, y + 17);
+                if (stack.isDamageableItem()) {
                     int percent = durabilityPercent(stack);
                     boolean low = percent < 20;
                     if (config.showDurabilityBars) {
                         HudPanel.drawProgressBar(context, itemX, y + 34, 18, 3, percent / 100.0F, config, low);
-                        context.drawText(text, Text.literal(percent + "%"), itemX, y + 39, low ? config.dangerColor() : config.mutedColor(), false);
+                        context.drawString(text, Component.literal(percent + "%"), itemX, y + 39, low ? config.dangerColor() : config.mutedColor(), false);
                     }
                 }
             }
@@ -214,23 +213,23 @@ final class HudRenderer {
         addBounds(HudWidgetId.ARMOR, x, y, width, height, layout, editorMode);
     }
 
-    private void drawStack(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode,
-                           MinecraftClient client, PlayerEntity player, CpsTracker cps) {
+    private void drawStack(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+                           Minecraft client, Player player, CpsTracker cps) {
         List<HudPanel.Line> rows = new ArrayList<>();
-        rows.add(HudPanel.Line.normal(Text.translatable("hud.pvp_hud_client.stats_short",
-                client.getCurrentFps(), ping(client), cps.leftCps(), cps.rightCps())));
-        rows.add(HudPanel.Line.normal(Text.translatable("hud.pvp_hud_client.player_short",
+        rows.add(HudPanel.Line.normal(Component.translatable("hud.pvp_hud_client.stats_short",
+                client.getFps(), ping(client), cps.leftCps(), cps.rightCps())));
+        rows.add(HudPanel.Line.normal(Component.translatable("hud.pvp_hud_client.player_short",
                 String.format(Locale.ROOT, "%.1f", player.getHealth() + player.getAbsorptionAmount()), speed(player))));
         if (config.showCoords) {
-            rows.add(HudPanel.Line.muted(Text.translatable("hud.pvp_hud_client.coords",
-                    player.getX(), player.getY(), player.getZ(), facing(player.getHorizontalFacing()), biomeName(client))));
+            rows.add(HudPanel.Line.muted(Component.translatable("hud.pvp_hud_client.coords",
+                    player.getX(), player.getY(), player.getZ(), facing(player.getDirection()), biomeName(client))));
         }
         placeLineWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.STACK,
-                Text.translatable("hud.pvp_hud_client.title"), rows);
+                Component.translatable("hud.pvp_hud_client.title"), rows);
     }
 
-    private void placeChipWidget(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode,
-                                 HudWidgetId id, Text title, List<HudPanel.Chip> chips) {
+    private void placeChipWidget(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+                                 HudWidgetId id, Component title, List<HudPanel.Chip> chips) {
         WidgetLayout layout = config.layout(id);
         if (!layout.visible && !editorMode) {
             return;
@@ -244,8 +243,8 @@ final class HudRenderer {
         addBounds(id, x, y, width, height, layout, editorMode);
     }
 
-    private void placeLineWidget(DrawContext context, TextRenderer text, int screenW, int screenH, HudConfig config, boolean editorMode,
-                                 HudWidgetId id, Text title, List<HudPanel.Line> lines) {
+    private void placeLineWidget(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+                                 HudWidgetId id, Component title, List<HudPanel.Line> lines) {
         WidgetLayout layout = config.layout(id);
         if (!layout.visible && !editorMode) {
             return;
@@ -266,32 +265,32 @@ final class HudRenderer {
     }
 
     static int toX(float percent, int screenW) {
-        return MathHelper.clamp(Math.round(percent * screenW), 0, Math.max(0, screenW - 40));
+        return Mth.clamp(Math.round(percent * screenW), 0, Math.max(0, screenW - 40));
     }
 
     static int toY(float percent, int screenH) {
-        return MathHelper.clamp(Math.round(percent * screenH), 0, Math.max(0, screenH - 30));
+        return Mth.clamp(Math.round(percent * screenH), 0, Math.max(0, screenH - 30));
     }
 
     static float toPercentX(int x, int screenW) {
-        return screenW <= 0 ? 0.0F : MathHelper.clamp(x / (float) screenW, 0.0F, 0.95F);
+        return screenW <= 0 ? 0.0F : Mth.clamp(x / (float) screenW, 0.0F, 0.95F);
     }
 
     static float toPercentY(int y, int screenH) {
-        return screenH <= 0 ? 0.0F : MathHelper.clamp(y / (float) screenH, 0.0F, 0.92F);
+        return screenH <= 0 ? 0.0F : Mth.clamp(y / (float) screenH, 0.0F, 0.92F);
     }
 
-    private static int ping(MinecraftClient client) {
-        if (client.getNetworkHandler() == null || client.player == null) {
+    private static int ping(Minecraft client) {
+        if (client.getConnection() == null || client.player == null) {
             return 0;
         }
-        PlayerListEntry entry = client.getNetworkHandler().getPlayerListEntry(client.player.getUuid());
+        PlayerInfo entry = client.getConnection().getPlayerInfo(client.player.getUUID());
         return entry == null ? 0 : entry.getLatency();
     }
 
-    private static String speed(PlayerEntity player) {
-        double dx = player.getX() - player.lastX;
-        double dz = player.getZ() - player.lastZ;
+    private static String speed(Player player) {
+        double dx = player.getX() - player.xo;
+        double dz = player.getZ() - player.zo;
         return String.format(Locale.ROOT, "%.2f b/s", Math.sqrt(dx * dx + dz * dz) * 20.0D);
     }
 
@@ -301,59 +300,59 @@ final class HudRenderer {
             case SOUTH -> "S";
             case EAST -> "E";
             case WEST -> "W";
-            default -> direction.asString().toUpperCase(Locale.ROOT);
+            default -> direction.getSerializedName().toUpperCase(Locale.ROOT);
         };
     }
 
-    private static String biomeName(MinecraftClient client) {
-        RegistryEntry<Biome> biome = client.world.getBiome(client.player.getBlockPos());
-        return biome.getKey()
-                .map(key -> key.getValue().getPath().replace('_', ' '))
+    private static String biomeName(Minecraft client) {
+        Holder<Biome> biome = client.level.getBiome(client.player.blockPosition());
+        return biome.unwrapKey()
+                .map(key -> key.identifier().getPath().replace('_', ' '))
                 .orElse("unknown");
     }
 
     private static String durability(ItemStack stack) {
-        int remaining = stack.getMaxDamage() - stack.getDamage();
+        int remaining = stack.getMaxDamage() - stack.getDamageValue();
         return remaining + "/" + stack.getMaxDamage() + " (" + durabilityPercent(stack) + "%)";
     }
 
     private static int durabilityPercent(ItemStack stack) {
-        if (!stack.isDamageable()) {
+        if (!stack.isDamageableItem()) {
             return 100;
         }
-        int remaining = stack.getMaxDamage() - stack.getDamage();
-        return MathHelper.floor((remaining / (float) stack.getMaxDamage()) * 100.0F);
+        int remaining = stack.getMaxDamage() - stack.getDamageValue();
+        return Mth.floor((remaining / (float) stack.getMaxDamage()) * 100.0F);
     }
 
     private static boolean lowDurability(ItemStack stack) {
         return durabilityPercent(stack) < 20;
     }
 
-    private TargetInfo targetInfo(MinecraftClient client) {
-        HitResult hit = client.crosshairTarget;
-        if (!(hit instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof PlayerEntity target)) {
+    private TargetInfo targetInfo(Minecraft client) {
+        HitResult hit = client.hitResult;
+        if (!(hit instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof Player target)) {
             return null;
         }
 
         float health = target.getHealth() + target.getAbsorptionAmount();
-        ItemStack weapon = target.getMainHandStack();
-        String weaponName = weapon.isEmpty() ? "empty" : weapon.getName().getString();
+        ItemStack weapon = target.getMainHandItem();
+        String weaponName = weapon.isEmpty() ? "empty" : weapon.getHoverName().getString();
         return new TargetInfo(target.getName().getString(), health, client.player.distanceTo(target), weaponName);
     }
 
-    private Text effectLine(StatusEffectInstance effect) {
-        String name = Text.translatable(effect.getTranslationKey()).getString();
+    private Component effectLine(MobEffectInstance effect) {
+        String name = Component.translatable(effect.getDescriptionId()).getString();
         int amplifier = effect.getAmplifier() + 1;
         int seconds = effect.getDuration() / 20;
-        return Text.literal(String.format(Locale.ROOT, "%s %d  %d:%02d", name, amplifier, seconds / 60, seconds % 60));
+        return Component.literal(String.format(Locale.ROOT, "%s %d  %d:%02d", name, amplifier, seconds / 60, seconds % 60));
     }
 
     private record TargetInfo(String name, float health, float distance, String weapon) {
         List<HudPanel.Chip> chips() {
             return List.of(
-                    HudPanel.Chip.of(Text.literal("HP "), Text.literal(String.format(Locale.ROOT, "%.1f", health))),
-                    HudPanel.Chip.of(Text.literal("Dist "), Text.literal(String.format(Locale.ROOT, "%.1fm", distance))),
-                    HudPanel.Chip.danger(Text.literal("Wpn "), Text.literal(weapon))
+                    HudPanel.Chip.of(Component.literal("HP "), Component.literal(String.format(Locale.ROOT, "%.1f", health))),
+                    HudPanel.Chip.of(Component.literal("Dist "), Component.literal(String.format(Locale.ROOT, "%.1fm", distance))),
+                    HudPanel.Chip.danger(Component.literal("Wpn "), Component.literal(weapon))
             );
         }
     }

@@ -1,9 +1,9 @@
 package com.codex.pvphud;
 
 import com.codex.pvphud.notification.NotificationManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.EntityHitResult;
 
 public final class PvpStats {
     private static final PvpStats INSTANCE = new PvpStats();
@@ -22,18 +22,18 @@ public final class PvpStats {
         return INSTANCE;
     }
 
-    public void tick(MinecraftClient client) {
-        if (client.player == null || client.world == null) {
+    public void tick(Minecraft client) {
+        if (client.player == null || client.level == null) {
             reset();
             return;
         }
-        boolean attackDown = client.options.attackKey.isPressed();
-        if (attackDown && !attackWasDown && client.crosshairTarget instanceof EntityHitResult hit
+        boolean attackDown = client.options.keyAttack.isDown();
+        if (attackDown && !attackWasDown && client.hitResult instanceof EntityHitResult hit
                 && hit.getEntity() instanceof LivingEntity living && living != client.player) {
             pendingTarget = living;
             pendingHurtTime = living.hurtTime;
             pendingTicks = 6;
-            lastReach = client.player.getEyePos().distanceTo(hit.getPos());
+            lastReach = client.player.getEyePosition().distanceTo(hit.getLocation());
         }
         attackWasDown = attackDown;
 

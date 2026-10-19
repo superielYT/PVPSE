@@ -1,14 +1,14 @@
 package com.codex.pvphud.waypoint;
 
 import com.codex.pvphud.theme.Theme;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
 import java.util.Locale;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public final class WaypointRadar {
     private WaypointRadar() {}
-    public static void render(DrawContext c, MinecraftClient mc, Theme t) {
+    public static void render(GuiGraphics c, Minecraft mc, Theme t) {
         var manager = WaypointManager.getInstance();
         int cx = 72, cy = 86, radius = 43;
         c.fill(cx - 46, cy - 46, cx + 47, cy + 47, 0xE00C1016);
@@ -16,20 +16,20 @@ public final class WaypointRadar {
             c.fill(cx + i * 22, cy - radius, cx + i * 22 + 1, cy + radius, 0x333D5368);
             c.fill(cx - radius, cy + i * 22, cx + radius, cy + i * 22 + 1, 0x333D5368);
         }
-        c.drawTextWithShadow(mc.textRenderer, Text.literal(manager.northUp() ? "N" : "FWD"), cx - 8, cy - 44, t.mutedText());
+        c.drawString(mc.font, Component.literal(manager.northUp() ? "N" : "FWD"), cx - 8, cy - 44, t.mutedText());
         if (mc.player == null) return;
         var points = manager.visible(mc);
         // Draw the destination last so nearby points cannot obscure it.
         for (int i = points.size() - 1; i >= 0; i--) {
             var p = points.get(i);
-            var projection = RadarMath.project(p.x() + .5 - mc.player.getX(), p.z() + .5 - mc.player.getZ(), mc.player.getYaw(), manager.northUp(), manager.mapRange(), radius - 4);
+            var projection = RadarMath.project(p.x() + .5 - mc.player.getX(), p.z() + .5 - mc.player.getZ(), mc.player.getYRot(), manager.northUp(), manager.mapRange(), radius - 4);
             int x = cx + (int) Math.round(projection.x()), y = cy + (int) Math.round(projection.y());
             if (manager.tracked(p)) c.fill(x - 3, y - 3, x + 4, y + 4, t.text());
             c.fill(x - 1, y - 1, x + 2, y + 2, p.tint());
             if (projection.outside()) c.fill(x - 2, y + 3, x + 3, y + 4, p.tint());
         }
         c.fill(cx - 2, cy - 2, cx + 3, cy + 3, t.text());
-        double heading = manager.northUp() ? Math.toRadians(mc.player.getYaw()) : Math.PI;
+        double heading = manager.northUp() ? Math.toRadians(mc.player.getYRot()) : Math.PI;
         int hx = cx - (int) Math.round(Math.sin(heading) * 6), hy = cy + (int) Math.round(Math.cos(heading) * 6);
         c.fill(hx - 1, hy - 1, hx + 2, hy + 2, t.accent());
         String detail = points.isEmpty() ? "B: add waypoint" : points.getFirst().name();
@@ -38,7 +38,7 @@ public final class WaypointRadar {
             double distance = Math.hypot(p.x() + .5 - mc.player.getX(), p.z() + .5 - mc.player.getZ());
             detail = (manager.tracked(p) ? "> " : "") + detail + String.format(Locale.ROOT, " %.0fm", distance);
         }
-        c.drawTextWithShadow(mc.textRenderer, Text.literal(mc.textRenderer.trimToWidth(detail, 130)), 7, 20, points.isEmpty() ? t.mutedText() : points.getFirst().tint());
-        c.drawCenteredTextWithShadow(mc.textRenderer, Text.literal(manager.mapRange() + "m | " + points.size() + " points"), cx, 137, t.mutedText());
+        c.drawString(mc.font, Component.literal(mc.font.plainSubstrByWidth(detail, 130)), 7, 20, points.isEmpty() ? t.mutedText() : points.getFirst().tint());
+        c.drawCenteredString(mc.font, Component.literal(manager.mapRange() + "m | " + points.size() + " points"), cx, 137, t.mutedText());
     }
 }

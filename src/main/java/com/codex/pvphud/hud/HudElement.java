@@ -2,8 +2,8 @@ package com.codex.pvphud.hud;
 
 import com.codex.pvphud.animation.FadeAnimation;
 import com.codex.pvphud.theme.Theme;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class HudElement {
     private final String id;
@@ -25,20 +25,20 @@ public abstract class HudElement {
         this.defaultY = y;
     }
 
-    public final void render(DrawContext context, MinecraftClient client, Theme theme, boolean editorMode) {
+    public final void render(GuiGraphics context, Minecraft client, Theme theme, boolean editorMode) {
         visibility.setVisible(enabled || editorMode);
         float alpha = visibility.value();
         if (alpha <= 0.01F) return;
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(x, y);
-        context.getMatrices().scale(scale, scale);
+        context.pose().pushMatrix();
+        context.pose().translate(x, y);
+        context.pose().scale(scale, scale);
         renderElement(context, client, theme, editorMode, alpha);
-        context.getMatrices().popMatrix();
+        context.pose().popMatrix();
     }
 
-    protected abstract void renderElement(DrawContext context, MinecraftClient client, Theme theme, boolean editorMode, float alpha);
-    public abstract int width(MinecraftClient client);
-    public abstract int height(MinecraftClient client);
+    protected abstract void renderElement(GuiGraphics context, Minecraft client, Theme theme, boolean editorMode, float alpha);
+    public abstract int width(Minecraft client);
+    public abstract int height(Minecraft client);
 
     public String id() { return id; }
     public String name() { return name; }
@@ -51,12 +51,12 @@ public abstract class HudElement {
     public void setScale(float scale) { this.scale = Float.isFinite(scale) ? Math.clamp(scale, 0.5F, 2.5F) : 1.0F; }
     public void resetLayout() { x = defaultX; y = defaultY; scale = 1.0F; }
     public void resetSettings() { resetLayout(); enabled = true; }
-    public void keepOnScreen(MinecraftClient client) {
-        setPosition(HudGeometry.coordinate(x, client.getWindow().getScaledWidth(), width(client) * scale),
-                HudGeometry.coordinate(y, client.getWindow().getScaledHeight(), height(client) * scale));
+    public void keepOnScreen(Minecraft client) {
+        setPosition(HudGeometry.coordinate(x, client.getWindow().getGuiScaledWidth(), width(client) * scale),
+                HudGeometry.coordinate(y, client.getWindow().getGuiScaledHeight(), height(client) * scale));
     }
 
-    public boolean contains(double mouseX, double mouseY, MinecraftClient client) {
+    public boolean contains(double mouseX, double mouseY, Minecraft client) {
         return mouseX >= x && mouseY >= y && mouseX <= x + width(client) * scale && mouseY <= y + height(client) * scale;
     }
 }

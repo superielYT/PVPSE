@@ -1,13 +1,12 @@
 package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.Theme;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import com.codex.pvphud.waypoint.WaypointManager;
 
 import java.util.Locale;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public final class FeatureModule extends HudElement {
     public enum Type { WAYPOINT, ZOOM, NO_PUMPKIN, FULLBRIGHT, MELEE_HITBOXES }
@@ -23,19 +22,19 @@ public final class FeatureModule extends HudElement {
         this.defaultValue = value;
     }
 
-    protected void renderElement(DrawContext context, MinecraftClient client, Theme theme, boolean editorMode, float alpha) {
+    protected void renderElement(GuiGraphics context, Minecraft client, Theme theme, boolean editorMode, float alpha) {
         if (type != Type.WAYPOINT && !editorMode) return;
         HudStyles.card(context, theme, width(client), height(client), alpha);
-        context.drawTextWithShadow(client.textRenderer, Text.literal(nameText()), 7, 7, theme.text());
+        context.drawString(client.font, Component.literal(nameText()), 7, 7, theme.text());
         if (type == Type.WAYPOINT) {
             String detail = "";
-            context.drawTextWithShadow(client.textRenderer, Text.literal(detail), 7, 19, theme.accent());
+            context.drawString(client.font, Component.literal(detail), 7, 19, theme.accent());
             com.codex.pvphud.waypoint.WaypointRadar.render(context, client, theme);
         }
     }
 
-    public int width(MinecraftClient client) { return type == Type.WAYPOINT ? 144 : 104; }
-    public int height(MinecraftClient client) { return type == Type.WAYPOINT ? 154 : 22; }
+    public int width(Minecraft client) { return type == Type.WAYPOINT ? 144 : 104; }
+    public int height(Minecraft client) { return type == Type.WAYPOINT ? 154 : 22; }
     public Type type() { return type; }
     public boolean adjustable() { return type == Type.ZOOM || type == Type.FULLBRIGHT || type == Type.MELEE_HITBOXES; }
     public String valueName() {

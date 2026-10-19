@@ -1,13 +1,12 @@
 package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.ThemeManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public final class HudManager {
     private final List<HudElement> elements = new ArrayList<>();
@@ -54,8 +53,8 @@ public final class HudManager {
                 .filter(feature -> feature.type() == type).findFirst();
     }
 
-    public void render(DrawContext context, MinecraftClient client, boolean editorMode) {
-        if (client.player == null || client.world == null) return;
+    public void render(GuiGraphics context, Minecraft client, boolean editorMode) {
+        if (client.player == null || client.level == null) return;
         var theme = ThemeManager.getInstance().getTheme();
         for (HudElement element : elements) {
             if (editorMode && element instanceof FeatureModule feature && feature.type() != FeatureModule.Type.WAYPOINT) continue;

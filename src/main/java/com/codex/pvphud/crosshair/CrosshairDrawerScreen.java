@@ -5,10 +5,10 @@ import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.notification.NotificationManager;
 import com.codex.pvphud.theme.Theme;
 import com.codex.pvphud.theme.ThemeManager;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 
 public final class CrosshairDrawerScreen extends Screen {
     private static final int GRID = CustomCrosshair.GRID_SIZE;
@@ -33,7 +33,7 @@ public final class CrosshairDrawerScreen extends Screen {
     private static final int CONTENT_HEIGHT = GRID * CELL + 85;
 
     public CrosshairDrawerScreen(Screen parent) {
-        super(Text.literal("PVPSE Crosshair Drawer"));
+        super(Component.literal("PVPSE Crosshair Drawer"));
         this.parent = parent;
     }
 
@@ -42,12 +42,12 @@ public final class CrosshairDrawerScreen extends Screen {
         gridY = CONTENT_TOP - scrollOffset;
     }
 
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         gridY = CONTENT_TOP - scrollOffset;
         Theme theme = ThemeManager.getInstance().getTheme();
         context.fill(0, 0, width, height, theme.background());
         RenderUtil.panel(context, gridX - 12, gridY - 35, GRID * CELL + 24, GRID * CELL + 120, theme);
-        context.drawCenteredTextWithShadow(textRenderer, title, width / 2, gridY - 25, theme.accent());
+        context.drawCenteredString(font, title, width / 2, gridY - 25, theme.accent());
 
         for (int y = 0; y < GRID; y++) {
             for (int x = 0; x < GRID; x++) {
@@ -72,7 +72,7 @@ public final class CrosshairDrawerScreen extends Screen {
         drawButton(context, gridX + 98, controlsY + 50, 92, "PASTE CODE", theme, mouseX, mouseY);
 
         int paletteX = gridX + GRID * CELL + 22;
-        context.drawTextWithShadow(textRenderer, Text.literal("COLOR"), paletteX, gridY, theme.text());
+        context.drawString(font, Component.literal("COLOR"), paletteX, gridY, theme.text());
         drawColor(context, paletteX, gridY + 18, 0, theme.accent(), crosshair.useThemeColor(), theme);
         for (int i = 0; i < PALETTE.length; i++) {
             drawColor(context, paletteX, gridY + 42 + i * 24, i + 1, PALETTE[i],
@@ -80,13 +80,13 @@ public final class CrosshairDrawerScreen extends Screen {
         }
         drawButton(context, width - 76, 14, 60, "DONE", theme, mouseX, mouseY);
         drawScrollbar(context, theme);
-        context.drawCenteredTextWithShadow(textRenderer,
-                Text.literal("Left click draws • right click erases • drag to paint"),
+        context.drawCenteredString(font,
+                Component.literal("Left click draws • right click erases • drag to paint"),
                 width / 2, height - 18, theme.mutedText());
         super.render(context, mouseX, mouseY, delta);
     }
 
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         if (click.button() == 0 && maximumScroll() > 0 && click.x() >= width - 14 && click.x() < width) {
             scrollbarDragging = true;
             scrollbarDragOffset = click.y() >= scrollbarThumbY && click.y() < scrollbarThumbY + scrollbarThumbHeight
@@ -105,15 +105,15 @@ public final class CrosshairDrawerScreen extends Screen {
         else if (inside(click.x(), click.y(), gridX + 98, controlsY + 24, 44, 20)) crosshair.clear();
         else if (inside(click.x(), click.y(), gridX + 146, controlsY + 24, 44, 20)) crosshair.reset();
         else if (inside(click.x(), click.y(), gridX, controlsY + 50, 92, 20)) {
-            if (client != null) client.keyboard.setClipboard(crosshair.exportCode());
+            if (minecraft != null) minecraft.keyboardHandler.setClipboard(crosshair.exportCode());
             NotificationManager.getInstance().push("Crosshair copied", "Share code copied");
         }
         else if (inside(click.x(), click.y(), gridX + 98, controlsY + 50, 92, 20)) {
-            boolean imported = client != null && crosshair.importCode(client.keyboard.getClipboard());
+            boolean imported = minecraft != null && crosshair.importCode(minecraft.keyboardHandler.getClipboard());
             NotificationManager.getInstance().push(imported ? "Crosshair imported" : "Invalid code",
                     imported ? "Clipboard design loaded" : "Copy a PVPSE1 code first");
         }
-        else if (inside(click.x(), click.y(), width - 76, 14, 60, 20)) close();
+        else if (inside(click.x(), click.y(), width - 76, 14, 60, 20)) onClose();
         else {
             int paletteX = gridX + GRID * CELL + 22;
             if (inside(click.x(), click.y(), paletteX, gridY + 18, 20, 20)) crosshair.setColor(0xFFFFFFFF, true);
@@ -128,7 +128,7 @@ public final class CrosshairDrawerScreen extends Screen {
         return super.mouseClicked(click, doubled);
     }
 
-    public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+    public boolean mouseDragged(MouseButtonEvent click, double deltaX, double deltaY) {
         if (scrollbarDragging) {
             updateScrollbar((int) click.y());
             return true;
@@ -140,7 +140,7 @@ public final class CrosshairDrawerScreen extends Screen {
         return super.mouseDragged(click, deltaX, deltaY);
     }
 
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         scrollbarDragging = false;
         return super.mouseReleased(click);
     }
@@ -152,12 +152,12 @@ public final class CrosshairDrawerScreen extends Screen {
         return true;
     }
 
-    public void close() {
+    public void onClose() {
         crosshair.save();
-        if (client != null) client.setScreen(parent);
+        if (minecraft != null) minecraft.setScreen(parent);
     }
 
-    public boolean shouldPause() { return false; }
+    public boolean isPauseScreen() { return false; }
 
     private void paint(double mouseX, double mouseY, boolean active) {
         int x = (int) ((mouseX - gridX) / CELL);
@@ -169,30 +169,30 @@ public final class CrosshairDrawerScreen extends Screen {
         return inside(mouseX, mouseY, gridX, gridY, GRID * CELL, GRID * CELL);
     }
 
-    private void drawToggle(DrawContext context, int x, int y, int width, String label, boolean active,
+    private void drawToggle(GuiGraphics context, int x, int y, int width, String label, boolean active,
                             Theme theme, int mouseX, int mouseY) {
         int color = active ? theme.accent() : (inside(mouseX, mouseY, x, y, width, 20) ? theme.panelHeader() : theme.panel());
         RoundedRenderer.fill(context, x, y, width, 20, 5, color);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal(label), x + width / 2, y + 6,
+        context.drawCenteredString(font, Component.literal(label), x + width / 2, y + 6,
                 active ? 0xFF101216 : theme.text());
     }
 
-    private void drawButton(DrawContext context, int x, int y, int width, String label, Theme theme, int mouseX, int mouseY) {
+    private void drawButton(GuiGraphics context, int x, int y, int width, String label, Theme theme, int mouseX, int mouseY) {
         RoundedRenderer.fill(context, x, y, width, 20, 5,
                 inside(mouseX, mouseY, x, y, width, 20) ? theme.accentSecondary() : theme.panelHeader());
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal(label), x + width / 2, y + 6, theme.text());
+        context.drawCenteredString(font, Component.literal(label), x + width / 2, y + 6, theme.text());
     }
 
-    private void drawColor(DrawContext context, int x, int y, int index, int color, boolean selected, Theme theme) {
+    private void drawColor(GuiGraphics context, int x, int y, int index, int color, boolean selected, Theme theme) {
         RoundedRenderer.fill(context, x, y, 20, 20, 5, color);
         if (selected) {
             context.fill(x - 2, y - 2, x + 22, y, theme.text());
             context.fill(x - 2, y + 20, x + 22, y + 22, theme.text());
         }
-        if (index == 0) context.drawTextWithShadow(textRenderer, Text.literal("T"), x + 7, y + 6, 0xFF101216);
+        if (index == 0) context.drawString(font, Component.literal("T"), x + 7, y + 6, 0xFF101216);
     }
 
-    private void drawScrollbar(DrawContext context, Theme theme) {
+    private void drawScrollbar(GuiGraphics context, Theme theme) {
         int maximum = maximumScroll();
         if (maximum <= 0) return;
         scrollbarTop = 46;

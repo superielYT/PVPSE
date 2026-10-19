@@ -2,16 +2,16 @@ package com.codex.pvphud;
 
 import com.codex.pvphud.crosshair.CustomCrosshair;
 import com.codex.pvphud.theme.ThemeManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.EntityHitResult;
 
 final class CrosshairRenderer {
     private CrosshairRenderer() {
     }
 
-    static void draw(DrawContext context, int cx, int cy, HudConfig config, boolean useTargetColor) {
+    static void draw(GuiGraphics context, int cx, int cy, HudConfig config, boolean useTargetColor) {
         if (!config.showCrosshair || config.crosshairStyle == HudConfig.CrosshairStyle.OFF) {
             return;
         }
@@ -63,9 +63,9 @@ final class CrosshairRenderer {
         }
     }
 
-    static void drawCentered(DrawContext context, HudConfig config) {
-        int cx = context.getScaledWindowWidth() / 2;
-        int cy = context.getScaledWindowHeight() / 2;
+    static void drawCentered(GuiGraphics context, HudConfig config) {
+        int cx = context.guiWidth() / 2;
+        int cy = context.guiHeight() / 2;
         draw(context, cx, cy, config, true);
     }
 
@@ -74,15 +74,15 @@ final class CrosshairRenderer {
     }
 
     private static boolean isTargetingPlayer() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        return client.crosshairTarget instanceof EntityHitResult hit && hit.getEntity() instanceof PlayerEntity;
+        Minecraft client = Minecraft.getInstance();
+        return client.hitResult instanceof EntityHitResult hit && hit.getEntity() instanceof Player;
     }
 
-    private static void line(DrawContext context, int x1, int y1, int x2, int y2, int color) {
+    private static void line(GuiGraphics context, int x1, int y1, int x2, int y2, int color) {
         context.fill(x1, y1, x2, y2, color);
     }
 
-    private static void drawCustom(DrawContext context, int cx, int cy, CustomCrosshair custom, int color) {
+    private static void drawCustom(GuiGraphics context, int cx, int cy, CustomCrosshair custom, int color) {
         int center = CustomCrosshair.GRID_SIZE / 2;
         for (int y = 0; y < CustomCrosshair.GRID_SIZE; y++) {
             for (int x = 0; x < CustomCrosshair.GRID_SIZE; x++) {
