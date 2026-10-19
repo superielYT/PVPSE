@@ -24,6 +24,14 @@ public final class Panel {
     private int thumbHeight;
     private int trackTop;
     private int trackBottom;
+    private java.util.function.Predicate<HudElement> category = element -> true;
+    private String lastQuery = "";
+
+    public void setCategory(java.util.function.Predicate<HudElement> category) {
+        release();
+        this.category = category;
+        scrollOffset = 0;
+    }
 
     public Panel(String title, List<HudElement> elements) {
         this.title = title;
@@ -33,9 +41,10 @@ public final class Panel {
     public void render(DrawContext context, MinecraftClient client, Theme theme, int x, int y, int width, int viewportHeight,
                        int mouseX, int mouseY, String query) {
         this.x = x; this.y = y; this.width = width; this.viewportHeight = Math.max(80, viewportHeight);
+        if (!java.util.Objects.equals(lastQuery, query)) { release(); scrollOffset = 0; lastQuery = query; }
         clampScroll(query);
         RenderUtil.panel(context, x, y, width, this.viewportHeight, theme);
-        context.drawTextWithShadow(client.textRenderer, Text.literal(title), x + 9, y + 8, theme.accent());
+        context.drawTextWithShadow(client.textRenderer, Text.literal(title + " / " + filtered(query).size()), x + 9, y + 8, theme.accent());
         int contentTop = y + 27;
         int contentBottom = y + this.viewportHeight - 5;
         context.enableScissor(x + 2, contentTop, x + width - 2, contentBottom);
@@ -89,9 +98,9 @@ public final class Panel {
     }
 
     private List<ModuleButton> filtered(String query) {
-        if (query == null || query.isBlank()) return buttons;
-        String needle = query.toLowerCase(java.util.Locale.ROOT);
-        return buttons.stream().filter(button -> button.element().name().toLowerCase(java.util.Locale.ROOT).contains(needle)).toList();
+        String needle = query == null ? "" : query.strip().toLowerCase(java.util.Locale.ROOT);
+        return buttons.stream().filter(button -> category.test(button.element()))
+                .filter(button -> button.element().name().toLowerCase(java.util.Locale.ROOT).contains(needle)).toList();
     }
 
     private int contentHeight(String query) {

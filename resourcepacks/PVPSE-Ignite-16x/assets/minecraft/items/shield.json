@@ -1,0 +1,20 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:using_item",
+    "on_true": {
+      "type": "minecraft:special",
+      "base": "pvpse:item/low_shield_blocking",
+      "model": {
+        "type": "minecraft:shield"
+      }
+    },
+    "on_false": {
+      "type": "minecraft:special",
+      "base": "pvpse:item/low_shield",
+      "model": {
+        "type": "minecraft:shield"
+      }
+    }
+  }
+}

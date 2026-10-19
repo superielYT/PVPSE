@@ -1,0 +1,13 @@
+{
+  "pack": {
+    "description": "PVPSE Ignite 16x | Short swords & clear PvP essentials",
+    "min_format": [
+      75,
+      0
+    ],
+    "max_format": [
+      75,
+      0
+    ]
+  }
+}

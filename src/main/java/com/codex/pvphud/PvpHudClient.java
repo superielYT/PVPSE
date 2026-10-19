@@ -174,11 +174,14 @@ public final class PvpHudClient implements ClientModInitializer {
         }
         if (config.enabled) {
             hudManager.render(context, client, false);
+            PvpIndicators.render(context, client, config);
             if (hudManager.feature(FeatureModule.Type.WAYPOINT).map(FeatureModule::enabled).orElse(false)) {
                 WaypointOverlay.render(context, client, com.codex.pvphud.theme.ThemeManager.getInstance().getTheme());
             }
         }
-        combatFeedback.render(context, config);
+        if (config.enabled && client.player != null && client.world != null && client.currentScreen == null) {
+            combatFeedback.render(context, config);
+        }
         if (config.notifications) NotificationManager.getInstance().render(context, client);
     }
 }

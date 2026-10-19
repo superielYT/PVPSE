@@ -32,23 +32,40 @@ jobs:
           mkdir -p src/main/resources/assets/pvp_hud_client
           base64 --decode assets/transparent-logo.png.b64 > src/main/resources/assets/pvp_hud_client/icon.png
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Generate and validate PvP resource pack
+        run: node tools/build-pvp-pack.mjs
+
+      - name: Upload PvP resource pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: PVPSE-Ignite-16x-1.21.11
+          path: |
+            dist/PVPSE-Ignite-16x-1.21.11.zip
+            dist/PVPSE-Ignite-preview.png
+          if-no-files-found: error
+
       - name: Build
         run: gradle build
 
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-1.8.0
-          path: build/libs/PVPSE-1.8.0.jar
+          name: PVPSE-1.9.0
+          path: build/libs/PVPSE-1.9.0.jar
           if-no-files-found: error
 
       - name: Publish GitHub release
-        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.8.0'
+        if: github.event_name == 'push' && github.event.head_commit.message == 'Release PVPSE v1.9.0'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.8.0
-          name: PVPSE Client v1.8.0
+          tag_name: v1.9.0
+          name: PVPSE Client v1.9.0
           body_path: RELEASE_NOTES.md
-          files: build/libs/PVPSE-1.8.0.jar
+          files: build/libs/PVPSE-1.9.0.jar
           draft: false
           prerelease: false
