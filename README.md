@@ -94,7 +94,7 @@ not damage, reach or attack timing. Other packs overriding the same items may co
 
 Regenerate and validate the textures and ZIP with Node 22:
 `node tools/build-pvp-pack.mjs`. GitHub Actions builds the mod and uploads the pack.
-The pack ZIP is also committed for direct downloading.
+The release includes the generated pack ZIP for direct downloading.
 
 ## Bow charge textures and melee hitbox display
 
