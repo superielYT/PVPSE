@@ -9,7 +9,7 @@
   ],
   "contact": {},
   "icon": "assets/pvp_hud_client/icon.png",
-  "license": "MIT",
+  "license": "All Rights Reserved",
   "environment": "client",
   "entrypoints": {
     "client": [
