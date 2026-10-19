@@ -1,6 +1,5 @@
 package com.codex.pvphud;
 
-import com.codex.pvphud.notification.NotificationManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
@@ -57,7 +56,6 @@ public final class PvpStats {
         pendingTarget = null;
         pendingTicks = 0;
         attackWasDown = false;
-        lowHealthWarning = false;
         combo = 0;
         lastReach = 0;
     }
