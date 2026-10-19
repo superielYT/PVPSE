@@ -14,7 +14,8 @@ public final class ThemeManager {
             new CyberpunkTheme(),
             new FrostTheme(),
             new SakuraTheme(),
-            customTheme
+            customTheme,
+            new GlassTheme()
     );
     private final AtomicReference<Theme> current = new AtomicReference<>(themes.getFirst());
 
