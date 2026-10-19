@@ -20,6 +20,7 @@
 - Empty waypoint radar no longer covers the HUD during gameplay; editor toolbar moved below widgets.
 
 ## Buttons and checks
+- PvP HUD preset removes the extra module list/session card; Auto Arrange keeps your switches.
 - Rounded, theme-aware buttons with animated hover, keyboard focus, native input and narration.
 - Themed module cards with clear toggle thumbs.
 - GUI and singleplayer HUD game tests capture screenshots and check actual watermark pixels.
