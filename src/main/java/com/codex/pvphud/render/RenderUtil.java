@@ -1,12 +1,12 @@
 package com.codex.pvphud.render;
 
 import com.codex.pvphud.theme.Theme;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public final class RenderUtil {
     private RenderUtil() {}
 
-    public static void panel(DrawContext context, int x, int y, int width, int height, Theme theme) {
+    public static void panel(GuiGraphicsExtractor context, int x, int y, int width, int height, Theme theme) {
         ShadowRenderer.draw(context, x, y, width, height, 6, theme.glow());
         BlurRenderer.drawGlass(context, x, y, width, height, 6, theme.panel());
         context.fill(x + 6, y, x + width - 6, y + 2, theme.accent());

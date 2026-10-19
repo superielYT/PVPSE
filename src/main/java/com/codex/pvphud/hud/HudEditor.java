@@ -1,11 +1,11 @@
 package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.ThemeManager;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import com.codex.pvphud.render.RoundedRenderer;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
 
 public final class HudEditor extends Screen {
     private final HudManager manager;
@@ -27,35 +27,35 @@ public final class HudEditor extends Screen {
     private static final int BUTTON_WIDTH = 72;
 
     public HudEditor(HudManager manager, Screen parent) {
-        super(Text.literal("PVPSE HUD Editor"));
+        super(Component.literal("PVPSE HUD Editor"));
         this.manager = manager;
         this.parent = parent;
         manager.layoutElements().forEach(e -> original.put(e, new Layout(e.x(), e.y(), e.scale(), e.enabled())));
     }
 
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         context.fill(0, 0, width, height, theme.background());
         RoundedRenderer.fill(context, 8, 7, width - 16, 26, 7, theme.panelHeader());
-        context.drawTextWithShadow(textRenderer, title, 18, 16, theme.accent());
+        context.text(font, title, 18, 16, theme.accent());
         drawAction(context, width - BUTTON_WIDTH * 2 - 24, 10, "THEME", mouseX, mouseY, theme.accentSecondary());
         drawAction(context, width - BUTTON_WIDTH - 16, 10, "DONE", mouseX, mouseY, theme.accent());
-        context.drawCenteredTextWithShadow(textRenderer,
-                Text.literal("Drag / corner: resize | Arrows: nudge | R: reset | Ctrl+Z: undo"),
+        context.centeredText(font,
+                Component.literal("Drag / corner: resize | Arrows: nudge | R: reset | Ctrl+Z: undo"),
                 width / 2, TOP_BAR_HEIGHT + 2, theme.mutedText());
-        if (client != null) {
-            manager.render(context, client, true);
+        if (minecraft != null) {
+            manager.render(context, minecraft, true);
             if (guideX != null) context.fill(guideX, TOP_BAR_HEIGHT + 12, guideX + 1, height, theme.accentSecondary());
             if (guideY != null) context.fill(0, guideY, width, guideY + 1, theme.accentSecondary());
             for (HudElement element : manager.layoutElements()) drawElementOutline(context, element, element == selected, theme);
         }
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
-    public boolean mouseClicked(Click click, boolean doubled) {
-        if (client != null && click.button() == 0) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        if (minecraft != null && click.button() == 0) {
             if (inside(click.x(), click.y(), width - BUTTON_WIDTH - 16, 10, BUTTON_WIDTH, 20)) {
-                close();
+                onClose();
                 return true;
             }
             if (inside(click.x(), click.y(), width - BUTTON_WIDTH * 2 - 24, 10, BUTTON_WIDTH, 20)) {
@@ -72,7 +72,7 @@ public final class HudEditor extends Screen {
                     resizeStartScale = element.scale();
                     return true;
                 }
-                if (element.contains(click.x(), click.y(), client)) {
+                if (element.contains(click.x(), click.y(), minecraft)) {
                     selected = element;
                     dragging = element;
                     resizing = false;
@@ -82,8 +82,8 @@ public final class HudEditor extends Screen {
                 }
             }
         }
-        if (client != null && click.button() == 1) {
-            manager.layoutElements().reversed().stream().filter(element -> element.contains(click.x(), click.y(), client)).findFirst()
+        if (minecraft != null && click.button() == 1) {
+            manager.layoutElements().reversed().stream().filter(element -> element.contains(click.x(), click.y(), minecraft)).findFirst()
                     .ifPresent(element -> {
                         selected = element;
                         element.setEnabled(!element.enabled());
@@ -93,12 +93,12 @@ public final class HudEditor extends Screen {
         return super.mouseClicked(click, doubled);
     }
 
-    public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+    public boolean mouseDragged(MouseButtonEvent click, double deltaX, double deltaY) {
         if (dragging != null) {
             if (resizing) {
-                float delta = (float) ((click.x() - resizeStartX) / Math.max(40.0, dragging.width(client)));
+                float delta = (float) ((click.x() - resizeStartX) / Math.max(40.0, dragging.width(minecraft)));
                 dragging.setScale(resizeStartScale + delta);
-                dragging.keepOnScreen(client);
+                dragging.keepOnScreen(minecraft);
             } else {
                 moveWithSnapping((float) (click.x() - offsetX), (float) (click.y() - offsetY));
             }
@@ -107,7 +107,7 @@ public final class HudEditor extends Screen {
         return super.mouseDragged(click, deltaX, deltaY);
     }
 
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         dragging = null;
         resizing = false;
         guideX = null;
@@ -116,38 +116,38 @@ public final class HudEditor extends Screen {
     }
 
     @Override
-    public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent input) {
         int key = input.key();
         if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_Z && (input.modifiers() & org.lwjgl.glfw.GLFW.GLFW_MOD_CONTROL) != 0) {
             original.forEach((e, l) -> { e.setPosition(l.x(), l.y()); e.setScale(l.scale()); e.setEnabled(l.enabled()); });
             return true;
         }
         if (selected != null) {
-            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_R) { selected.resetLayout(); selected.keepOnScreen(client); return true; }
+            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_R) { selected.resetLayout(); selected.keepOnScreen(minecraft); return true; }
             int step = (input.modifiers() & org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT) != 0 ? 10 : 1;
             int dx = key == org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT ? -step : key == org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT ? step : 0;
             int dy = key == org.lwjgl.glfw.GLFW.GLFW_KEY_UP ? -step : key == org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN ? step : 0;
-            if (dx != 0 || dy != 0) { selected.setPosition(selected.x() + dx, selected.y() + dy); selected.keepOnScreen(client); return true; }
+            if (dx != 0 || dy != 0) { selected.setPosition(selected.x() + dx, selected.y() + dy); selected.keepOnScreen(minecraft); return true; }
         }
         return super.keyPressed(input);
     }
-    public void close() {
-        if (client != null) client.setScreen(parent);
+    public void onClose() {
+        if (minecraft != null) minecraft.setScreen(parent);
     }
 
-    public boolean shouldPause() { return false; }
+    public boolean isPauseScreen() { return false; }
 
-    private void drawAction(DrawContext context, int x, int y, String label, int mouseX, int mouseY, int color) {
+    private void drawAction(GuiGraphicsExtractor context, int x, int y, String label, int mouseX, int mouseY, int color) {
         boolean hover = inside(mouseX, mouseY, x, y, BUTTON_WIDTH, 20);
         RoundedRenderer.fill(context, x, y, BUTTON_WIDTH, 20, 5, hover ? color : (0xCC000000 | color & 0xFFFFFF));
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal(label), x + BUTTON_WIDTH / 2, y + 6, 0xFFF8F8F8);
+        context.centeredText(font, Component.literal(label), x + BUTTON_WIDTH / 2, y + 6, 0xFFF8F8F8);
     }
 
-    private void drawElementOutline(DrawContext context, HudElement element, boolean active, com.codex.pvphud.theme.Theme theme) {
+    private void drawElementOutline(GuiGraphicsExtractor context, HudElement element, boolean active, com.codex.pvphud.theme.Theme theme) {
         int x = Math.round(element.x());
         int y = Math.round(element.y());
-        int w = Math.round(element.width(client) * element.scale());
-        int h = Math.round(element.height(client) * element.scale());
+        int w = Math.round(element.width(minecraft) * element.scale());
+        int h = Math.round(element.height(minecraft) * element.scale());
         int color = active ? theme.accentSecondary() : theme.accent();
         context.fill(x, y, x + w, y + 1, color);
         context.fill(x, y + h - 1, x + w, y + h, color);
@@ -156,19 +156,19 @@ public final class HudEditor extends Screen {
         RoundedRenderer.fill(context, x + w - 5, y + h - 5, 9, 9, 3, color);
         if (active) {
             String scale = String.format(java.util.Locale.ROOT, "%.2fx", element.scale());
-            context.drawTextWithShadow(textRenderer, Text.literal(scale), x + w + 7, y + h - 4, theme.text());
+            context.text(font, Component.literal(scale), x + w + 7, y + h - 4, theme.text());
         }
     }
 
     private boolean overResizeHandle(double mouseX, double mouseY, HudElement element) {
-        int right = Math.round(element.x() + element.width(client) * element.scale());
-        int bottom = Math.round(element.y() + element.height(client) * element.scale());
+        int right = Math.round(element.x() + element.width(minecraft) * element.scale());
+        int bottom = Math.round(element.y() + element.height(minecraft) * element.scale());
         return inside(mouseX, mouseY, right - 7, bottom - 7, 14, 14);
     }
 
     private void moveWithSnapping(float proposedX, float proposedY) {
-        float elementWidth = dragging.width(client) * dragging.scale();
-        float elementHeight = dragging.height(client) * dragging.scale();
+        float elementWidth = dragging.width(minecraft) * dragging.scale();
+        float elementHeight = dragging.height(minecraft) * dragging.scale();
         float[] xTargets = new float[3 + manager.layoutElements().size() * 3];
         float[] yTargets = new float[3 + manager.layoutElements().size() * 3];
         int xi = 0;
@@ -181,8 +181,8 @@ public final class HudEditor extends Screen {
         yTargets[yi++] = height - 8;
         for (HudElement other : manager.layoutElements()) {
             if (other == dragging) continue;
-            float ow = other.width(client) * other.scale();
-            float oh = other.height(client) * other.scale();
+            float ow = other.width(minecraft) * other.scale();
+            float oh = other.height(minecraft) * other.scale();
             xTargets[xi++] = other.x();
             xTargets[xi++] = other.x() + ow / 2.0F;
             xTargets[xi++] = other.x() + ow;

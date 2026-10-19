@@ -1,19 +1,18 @@
 package com.codex.pvphud;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.hit.EntityHitResult;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.EntityHitResult;
 
 final class CombatFeedback {
     private static final Random RANDOM = new Random();
     private final List<Particle> particles = new ArrayList<>();
-    private PlayerEntity pendingTarget;
+    private Player pendingTarget;
     private int pendingHurtTime;
     private int pendingTicks;
     private boolean attackWasDown;
@@ -21,8 +20,8 @@ final class CombatFeedback {
     private float hitMarkerLife;
     private float damageFlashLife;
 
-    void tick(MinecraftClient client, HudConfig config) {
-        if (client.player == null || client.world == null) {
+    void tick(Minecraft client, HudConfig config) {
+        if (client.player == null || client.level == null) {
             reset();
             return;
         }
@@ -33,9 +32,9 @@ final class CombatFeedback {
         }
         previousHealth = health;
 
-        boolean attackDown = client.options.attackKey.isPressed();
-        if (attackDown && !attackWasDown && client.crosshairTarget instanceof EntityHitResult hit
-                && hit.getEntity() instanceof PlayerEntity player && player != client.player) {
+        boolean attackDown = client.options.keyAttack.isDown();
+        if (attackDown && !attackWasDown && client.hitResult instanceof EntityHitResult hit
+                && hit.getEntity() instanceof Player player && player != client.player) {
             pendingTarget = player;
             pendingHurtTime = player.hurtTime;
             pendingTicks = 6;
@@ -67,9 +66,9 @@ final class CombatFeedback {
         }
     }
 
-    void render(DrawContext context, HudConfig config) {
-        int w = context.getScaledWindowWidth();
-        int h = context.getScaledWindowHeight();
+    void render(GuiGraphicsExtractor context, HudConfig config) {
+        int w = context.guiWidth();
+        int h = context.guiHeight();
         int cx = w / 2;
         int cy = h / 2;
 
@@ -113,7 +112,7 @@ final class CombatFeedback {
         }
     }
 
-    private static void line(DrawContext context, int x1, int y1, int x2, int y2, int color) {
+    private static void line(GuiGraphicsExtractor context, int x1, int y1, int x2, int y2, int color) {
         int minX = Math.min(x1, x2);
         int maxX = Math.max(x1, x2);
         int minY = Math.min(y1, y2);

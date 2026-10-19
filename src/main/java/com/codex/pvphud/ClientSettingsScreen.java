@@ -3,16 +3,16 @@ package com.codex.pvphud;
 import com.codex.pvphud.config.ConfigManager;
 import com.codex.pvphud.hud.HudManager;
 import com.codex.pvphud.theme.ThemeManager;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ConfirmScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 final class ClientSettingsScreen extends Screen {
     private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, PROFILES }
@@ -21,12 +21,12 @@ final class ClientSettingsScreen extends Screen {
     private final ConfigManager profiles;
     private final HudManager hud;
     private Tab tab = Tab.GENERAL;
-    private TextFieldWidget profileName;
+    private EditBox profileName;
     private String draftName = "";
     private String status = "";
 
     ClientSettingsScreen(Screen parent, HudConfig config, ConfigManager profiles, HudManager hud) {
-        super(Text.literal("SETTINGS")); this.parent = parent; this.config = config; this.profiles = profiles; this.hud = hud;
+        super(Component.literal("SETTINGS")); this.parent = parent; this.config = config; this.profiles = profiles; this.hud = hud;
     }
 
     private int x() { return (width - w()) / 2; }
@@ -37,9 +37,9 @@ final class ClientSettingsScreen extends Screen {
         profileName = null;
         int gap = 4, tw = (w() - gap * (Tab.values().length - 1)) / Tab.values().length;
         for (Tab next : Tab.values()) {
-            var button = addDrawableChild(ButtonWidget.builder(Text.literal(next.name()), b -> {
-                rememberDraft(); tab = next; status = ""; clearAndInit();
-            }).dimensions(x() + next.ordinal() * (tw + gap), top() - 25, tw, 20).build());
+            var button = addRenderableWidget(Button.builder(Component.literal(next.name()), b -> {
+                rememberDraft(); tab = next; status = ""; rebuildWidgets();
+            }).bounds(x() + next.ordinal() * (tw + gap), top() - 25, tw, 20).build());
             button.active = next != tab;
         }
         int half = (w() - 6) / 2, y = top();
@@ -77,7 +77,7 @@ final class ClientSettingsScreen extends Screen {
                 number(x() + half + 6, y + 50, half, "Particles", () -> config.particleAmount, v -> config.particleAmount = v, 4, 48, 4);
                 action(x(), y + 75, w(), "MINIMAL EFFECTS", () -> {
                     config.showDamageFlash = false; config.showKillParticles = false;
-                    config.showHitMarker = true; config.save(); clearAndInit();
+                    config.showHitMarker = true; config.save(); rebuildWidgets();
                 });
             }
             case PROFILES -> {
@@ -86,52 +86,52 @@ final class ClientSettingsScreen extends Screen {
                     var names = profiles.profiles();
                     int next = (names.indexOf(profiles.activeProfile()) + 1) % names.size();
                     status = profiles.switchProfile(names.get(next), hud) ? "Profile loaded" : "Could not load profile";
-                    clearAndInit();
+                    rebuildWidgets();
                 });
-                profileName = addDrawableChild(new TextFieldWidget(textRenderer, x(), y + 25, half, 20, Text.literal("New profile name")));
-                profileName.setPlaceholder(Text.literal("New profile name..."));
-                profileName.setMaxLength(32); profileName.setText(draftName);
+                profileName = addRenderableWidget(new EditBox(font, x(), y + 25, half, 20, Component.literal("New profile name")));
+                profileName.setHint(Component.literal("New profile name..."));
+                profileName.setMaxLength(32); profileName.setValue(draftName);
                 action(x() + half + 6, y + 25, half, "COPY CURRENT", () -> {
                     rememberDraft();
                     boolean created = profiles.createProfile(draftName, hud);
                     status = created ? "Current HUD and theme copied" : "Use a new name (letters/numbers)";
                     if (created) draftName = "";
-                    clearAndInit();
+                    rebuildWidgets();
                 });
                 action(x(), y + 50, w(), "Reset HUD positions & scales", () -> {
                     rememberDraft();
-                    client.setScreen(new ConfirmScreen(yes -> {
+                    minecraft.setScreen(new ConfirmScreen(yes -> {
                         if (yes) { hud.elements().forEach(e -> e.resetLayout()); profiles.save(hud); status = "HUD layout restored"; }
-                        client.setScreen(this);
-                    }, Text.literal("Reset HUD layout?"), Text.literal("Your module switches and other profiles are kept.")));
+                        minecraft.setScreen(this);
+                    }, Component.literal("Reset HUD layout?"), Component.literal("Your module switches and other profiles are kept.")));
                 });
             }
         }
-        action(x(), height - 28, w(), "Done", this::close);
+        action(x(), height - 28, w(), "Done", this::onClose);
     }
 
     private void action(int x, int y, int width, String label, Runnable action) {
-        addDrawableChild(ButtonWidget.builder(Text.literal(label), b -> action.run()).dimensions(x, y, width, 20).build());
+        addRenderableWidget(Button.builder(Component.literal(label), b -> action.run()).bounds(x, y, width, 20).build());
     }
     private void toggle(int x, int y, int width, String label, BooleanSupplier get, Consumer<Boolean> set) {
-        addDrawableChild(ButtonWidget.builder(Text.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")), b -> {
+        addRenderableWidget(Button.builder(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")), b -> {
             set.accept(!get.getAsBoolean()); config.save();
-            b.setMessage(Text.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")));
-        }).dimensions(x, y, width, 20).build());
+            b.setMessage(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")));
+        }).bounds(x, y, width, 20).build());
     }
     private void number(int x, int y, int width, String label, IntSupplier get, IntConsumer set, int min, int max, int step) {
-        addDrawableChild(ButtonWidget.builder(Text.literal(label + ": " + get.getAsInt() + " >"), b -> {
+        addRenderableWidget(Button.builder(Component.literal(label + ": " + get.getAsInt() + " >"), b -> {
             int next = get.getAsInt() + step; set.accept(next > max ? min : next); config.save();
-            b.setMessage(Text.literal(label + ": " + get.getAsInt() + " >"));
-        }).dimensions(x, y, width, 20).build());
+            b.setMessage(Component.literal(label + ": " + get.getAsInt() + " >"));
+        }).bounds(x, y, width, 20).build());
     }
-    private void rememberDraft() { if (profileName != null) draftName = profileName.getText(); }
+    private void rememberDraft() { if (profileName != null) draftName = profileName.getValue(); }
 
-    public void render(DrawContext c, int mx, int my, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, theme.background());
         c.fill(x() - 8, top() - 32, x() + w() + 8, Math.min(height - 34, top() + 122), theme.panel());
-        c.drawTextWithShadow(textRenderer, Text.literal("PVPSE / SETTINGS"), x(), top() - 44, theme.accent());
+        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 44, theme.accent());
         String helper = switch (tab) {
             case GENERAL -> "Your display and visibility preferences";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
@@ -142,11 +142,11 @@ final class ClientSettingsScreen extends Screen {
         int footer = top() + ((tab == Tab.EFFECTS || tab == Tab.HITBOX) ? 103 : 82);
         if (footer < height - 39) {
             String message = status.isBlank() ? helper : status;
-            c.drawTextWithShadow(textRenderer, Text.literal(textRenderer.trimToWidth(message, w())), x(), footer, theme.mutedText());
+            c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());
         }
-        super.render(c, mx, my, delta);
+        super.extractRenderState(c, mx, my, delta);
     }
     public void removed() { rememberDraft(); config.save(); profiles.save(hud); super.removed(); }
-    public void close() { if (client != null) client.setScreen(parent); }
-    public boolean shouldPause() { return false; }
+    public void onClose() { if (minecraft != null) minecraft.setScreen(parent); }
+    public boolean isPauseScreen() { return false; }
 }

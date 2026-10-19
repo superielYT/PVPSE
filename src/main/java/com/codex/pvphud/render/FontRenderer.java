@@ -1,29 +1,29 @@
 package com.codex.pvphud.render;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 
 public final class FontRenderer {
-    private final TextRenderer delegate;
+    private final Font delegate;
 
-    public FontRenderer(TextRenderer delegate) {
+    public FontRenderer(Font delegate) {
         this.delegate = delegate;
     }
 
-    public int width(Text text) {
-        return delegate.getWidth(text);
+    public int width(Component text) {
+        return delegate.width(text);
     }
 
     public int height() {
-        return delegate.fontHeight;
+        return delegate.lineHeight;
     }
 
-    public void draw(DrawContext context, Text text, int x, int y, int color) {
-        context.drawText(delegate, text, x, y, color, false);
+    public void draw(GuiGraphicsExtractor context, Component text, int x, int y, int color) {
+        context.text(delegate, text, x, y, color, false);
     }
 
-    public void drawShadow(DrawContext context, Text text, int x, int y, int color) {
-        context.drawTextWithShadow(delegate, text, x, y, color);
+    public void drawShadow(GuiGraphicsExtractor context, Component text, int x, int y, int color) {
+        context.text(delegate, text, x, y, color);
     }
 }

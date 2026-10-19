@@ -7,12 +7,12 @@ import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.theme.ThemeManager;
 import com.codex.pvphud.theme.ThemeEditorScreen;
 import com.codex.pvphud.waypoint.WaypointScreen;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
 import java.util.function.Function;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 
 public final class ClickGuiScreen extends Screen {
     private enum Filter { ALL, HUD, UTILITIES, ENABLED }
@@ -25,7 +25,7 @@ public final class ClickGuiScreen extends Screen {
     private Filter filter = Filter.ALL;
 
     public ClickGuiScreen(HudManager hudManager, Runnable save, Function<Screen, Screen> settings) {
-        super(Text.literal("PVPSE")); this.hudManager = hudManager; this.save = save; this.settings = settings;
+        super(Component.literal("PVPSE")); this.hudManager = hudManager; this.save = save; this.settings = settings;
         hudPanel = new Panel("MODULES", hudManager.elements());
     }
     private int sidebarWidth() { return Math.min(148, Math.max(100, width / 3)); }
@@ -33,25 +33,25 @@ public final class ClickGuiScreen extends Screen {
     private int contentWidth() { return width - contentX() - 12; }
 
     protected void init() {
-        search = addDrawableChild(new SearchBar(textRenderer, contentX(), 34, contentWidth()));
-        search.setText(query); search.setChangedListener(value -> query = value);
+        search = addRenderableWidget(new SearchBar(font, contentX(), 34, contentWidth()));
+        search.setValue(query); search.setResponder(value -> query = value);
         int tabWidth = (contentWidth() - 9) / 4;
         for (Filter next : Filter.values()) {
-            var button = addDrawableChild(ButtonWidget.builder(Text.literal(switch (next) { case ALL -> "ALL"; case HUD -> "HUD"; case UTILITIES -> "TOOLS"; case ENABLED -> "ON"; }), b -> {
-                filter = next; applyFilter(); clearAndInit();
-            }).dimensions(contentX() + next.ordinal() * (tabWidth + 3), 59, tabWidth, 20).build());
+            var button = addRenderableWidget(Button.builder(Component.literal(switch (next) { case ALL -> "ALL"; case HUD -> "HUD"; case UTILITIES -> "TOOLS"; case ENABLED -> "ON"; }), b -> {
+                filter = next; applyFilter(); rebuildWidgets();
+            }).bounds(contentX() + next.ordinal() * (tabWidth + 3), 59, tabWidth, 20).build());
             button.active = next != filter;
         }
         applyFilter();
-        action(42, "HUD editor", () -> client.setScreen(new HudEditor(hudManager, this)));
-        action(66, "Crosshair studio", () -> client.setScreen(new CrosshairDrawerScreen(this)));
-        action(90, "Waypoints", () -> client.setScreen(new WaypointScreen(this)));
-        action(122, "Settings & profiles", () -> client.setScreen(settings.apply(this)));
+        action(42, "HUD editor", () -> minecraft.setScreen(new HudEditor(hudManager, this)));
+        action(66, "Crosshair studio", () -> minecraft.setScreen(new CrosshairDrawerScreen(this)));
+        action(90, "Waypoints", () -> minecraft.setScreen(new WaypointScreen(this)));
+        action(122, "Settings & profiles", () -> minecraft.setScreen(settings.apply(this)));
         action(146, "Theme: " + ThemeManager.getInstance().getTheme().displayName(), () -> {
-            ThemeManager.getInstance().cycle(); save.run(); clearAndInit();
+            ThemeManager.getInstance().cycle(); save.run(); rebuildWidgets();
         });
-        action(170, "Custom theme", () -> client.setScreen(new ThemeEditorScreen(this)));
-        action(height - 28, "Done", this::close);
+        action(170, "Custom theme", () -> minecraft.setScreen(new ThemeEditorScreen(this)));
+        action(height - 28, "Done", this::onClose);
     }
     private void applyFilter() {
         hudPanel.setCategory(element -> switch (filter) {
@@ -62,37 +62,37 @@ public final class ClickGuiScreen extends Screen {
         });
     }
     private void action(int y, String label, Runnable action) {
-        addDrawableChild(ButtonWidget.builder(Text.literal(textRenderer.trimToWidth(label, sidebarWidth() - 10)), b -> action.run())
-                .dimensions(12, y, sidebarWidth(), 20).build());
+        addRenderableWidget(Button.builder(Component.literal(font.plainSubstrByWidth(label, sidebarWidth() - 10)), b -> action.run())
+                .bounds(12, y, sidebarWidth(), 20).build());
     }
-    public void render(DrawContext c, int mx, int my, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, theme.background());
         c.fill(0, 0, sidebarWidth() + 24, height, theme.panel());
         c.fill(sidebarWidth() + 23, 0, sidebarWidth() + 24, height, theme.panelHeader());
-        c.drawTextWithShadow(textRenderer, Text.literal("PVPSE"), 16, 15, theme.accent());
-        c.drawTextWithShadow(textRenderer, Text.literal(textRenderer.trimToWidth("CUSTOMIZE YOUR CLIENT", contentWidth())), contentX(), 16, theme.mutedText());
-        hudPanel.render(c, client, theme, contentX(), 85, contentWidth(), height - 116, mx, my, query);
+        c.text(font, Component.literal("PVPSE"), 16, 15, theme.accent());
+        c.text(font, Component.literal(font.plainSubstrByWidth("CUSTOMIZE YOUR CLIENT", contentWidth())), contentX(), 16, theme.mutedText());
+        hudPanel.render(c, minecraft, theme, contentX(), 85, contentWidth(), height - 116, mx, my, query);
         if (height > 225) {
             String hint = "Click: toggle   |   Right-click / +: settings";
-            c.drawTextWithShadow(textRenderer, Text.literal(textRenderer.trimToWidth(hint, contentWidth())), contentX(), height - 22, theme.mutedText());
+            c.text(font, Component.literal(font.plainSubstrByWidth(hint, contentWidth())), contentX(), height - 22, theme.mutedText());
         }
         if (height > 280) {
             long enabled = hudManager.elements().stream().filter(e -> e.enabled()).count();
-            c.drawTextWithShadow(textRenderer, Text.literal(enabled + " modules enabled"), 16, 206, theme.mutedText());
+            c.text(font, Component.literal(enabled + " modules enabled"), 16, 206, theme.mutedText());
         }
-        super.render(c, mx, my, delta);
+        super.extractRenderState(c, mx, my, delta);
     }
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         if (super.mouseClicked(click, doubled)) return true;
         return hudPanel.click(click.x(), click.y(), click.button(), query);
     }
     public boolean mouseScrolled(double x, double y, double horizontal, double vertical) { return hudPanel.scroll(x, y, vertical, query) || super.mouseScrolled(x, y, horizontal, vertical); }
-    public boolean mouseDragged(Click click, double dx, double dy) { return hudPanel.drag(click.x(), click.y(), query) || super.mouseDragged(click, dx, dy); }
-    public boolean mouseReleased(Click click) { hudPanel.release(); return super.mouseReleased(click); }
-    @Override public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
-        return com.codex.pvphud.FeatureKeybinds.capture(input, client) || super.keyPressed(input);
+    public boolean mouseDragged(MouseButtonEvent click, double dx, double dy) { return hudPanel.drag(click.x(), click.y(), query) || super.mouseDragged(click, dx, dy); }
+    public boolean mouseReleased(MouseButtonEvent click) { hudPanel.release(); return super.mouseReleased(click); }
+    @Override public boolean keyPressed(net.minecraft.client.input.KeyEvent input) {
+        return com.codex.pvphud.FeatureKeybinds.capture(input, minecraft) || super.keyPressed(input);
     }
     public void removed() { com.codex.pvphud.FeatureKeybinds.cancel(); hudPanel.release(); save.run(); super.removed(); }
-    public boolean shouldPause() { return false; }
+    public boolean isPauseScreen() { return false; }
 }

@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v1.9.0)
+## Installation (v2.0.0)
 
-Requires Minecraft **1.21.11**, Fabric Loader **0.19.3+**, Fabric API for 1.21.11 and Java **21**. Place PVPSE-1.9.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.0.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -40,7 +40,7 @@ RANGE cycles 32/64/128/256/512 blocks from the radar center to its edge. NORTH U
 
 New waypoints are isolated by server/world and dimension. Older waypoints stay accessible and display "legacy". The minimap is a waypoint radar with grid and heading, without terrain or entity scanning. Right-click Waypoint in the module list for position, scale and reset controls.
 
-## General settings (1.9.0)
+## General settings (2.0.0)
 
 Open Right Shift > SETTINGS & PROFILES for global switches, profile switching, copying your current HUD/theme to a new profile, and resetting HUD positions/scales. Profiles do not include global feedback, waypoint or custom crosshair files. Your active profile is remembered; the former default.json migrates automatically to the profiles folder.
 
@@ -62,7 +62,7 @@ Previously granted MIT rights and third-party licenses remain unaffected.
 A public GitHub repository can still be viewed and forked under GitHub's
 terms. A copyright notice does not technically prevent copying.
 
-## Cleaner customization and PvP visibility (1.9.0)
+## Cleaner customization and PvP visibility (2.0.0)
 
 The Right Shift menu now has a navigation sidebar, search and ALL / HUD /
 TOOLS / ON module filters. Use the + control or right-click for module settings.
@@ -79,7 +79,7 @@ Settings are split into General, Combat, Effects and Profiles:
 
 ## PVPSE Ignite 16x resource pack
 
-Download [PVPSE-Ignite-16x-1.21.11.zip](dist/PVPSE-Ignite-16x-1.21.11.zip).
+Download [PVPSE-Ignite-16x-26.1.2.zip](https://github.com/superielYT/PVPSE/releases/download/v2.0.0/PVPSE-Ignite-16x-26.1.2.zip).
 Place the ZIP in your Minecraft resourcepacks folder and enable it above other packs.
 
 Includes seven short swords, a lucky-cat totem, golden carrot, golden and enchanted
@@ -87,14 +87,14 @@ apples, ender pearl, XP bottle, end crystal and a crisp cobweb. The shield is lo
 in both hands, at rest and while blocking. Shield banners still use vanilla rendering.
 All pixel art is original. Unchanged textures and shield rendering come from Minecraft.
 
-Targets **Minecraft Java 1.21.11 / resource pack format 75.0**. It changes appearance,
+Targets **Minecraft Java 26.1.2 / resource pack format 84.0**. It changes appearance,
 not damage, reach or attack timing. Other packs overriding the same items may conflict.
 
 ![Ignite item preview](dist/PVPSE-Ignite-preview.png)
 
 Regenerate and validate the textures and ZIP with Node 22:
 `node tools/build-pvp-pack.mjs`. GitHub Actions builds the mod and uploads the pack.
-The pack ZIP is also committed for direct downloading.
+The release includes the generated pack ZIP for direct downloading.
 
 ## Bow charge textures and melee hitbox display
 

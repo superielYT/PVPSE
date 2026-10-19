@@ -142,7 +142,8 @@ const specialShield = blocking => ({
 });
 asset('assets/minecraft/items/shield.json', JSON.stringify({
     model:{type:'minecraft:condition', property:'minecraft:using_item',
-        on_true:specialShield(true), on_false:specialShield(false)}
+        on_true:specialShield(true), on_false:specialShield(false),
+        transformation:{left_rotation:[0,0,0,1],right_rotation:[0,0,0,1],scale:[1,-1,-1],translation:[0,0,0]}}
 },null,2));
 // Vanilla enchanted apples share the ordinary apple texture; point this model
 // to the dedicated pink/gold sprite so the two items remain distinguishable.
@@ -203,9 +204,9 @@ for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
 asset('pack.png', png(64, 64, icon));
 asset('pack.mcmeta', JSON.stringify({ pack: {
     description: 'PVPSE Ignite 16x | Short swords & clear PvP essentials',
-    min_format: [75, 0], max_format: [75, 0]
+    min_format: [84, 0], max_format: [84, 0]
 }}, null, 2) + '\n');
-asset('README.txt', 'PVPSE Ignite 16x — Minecraft Java 1.21.11\n\nOriginal 16x art: seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples, ender pearl, XP bottle, end crystal and cobweb. Bow stages: orange (early), gold (middle), green (fully drawn).\nLowered shield in both hands, resting and blocking; vanilla banner rendering is preserved.\nOrange guards, dark outlines, distinct material colors. Other textures stay vanilla.\n\nInstall the ZIP in .minecraft/resourcepacks, then enable it above other packs.\nThis changes appearance only. It does not change reach, damage or attack timing.\nDisable the client custom crosshair if you prefer the vanilla crosshair.\n\nCopyright and permissions: see the PVPSE repository LICENSE.\n');
+asset('README.txt', 'PVPSE Ignite 16x — Minecraft Java 26.1.2\n\nOriginal 16x art: seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples, ender pearl, XP bottle, end crystal and cobweb. Bow stages: orange (early), gold (middle), green (fully drawn).\nLowered shield in both hands, resting and blocking; vanilla banner rendering is preserved.\nOrange guards, dark outlines, distinct material colors. Other textures stay vanilla.\n\nInstall the ZIP in .minecraft/resourcepacks, then enable it above other packs.\nThis changes appearance only. It does not change reach, damage or attack timing.\nDisable the client custom crosshair if you prefer the vanilla crosshair.\n\nCopyright and permissions: see the PVPSE repository LICENSE.\n');
 asset('LICENSE', readFileSync(join(root, 'LICENSE')));
 for (const [name, data] of files) { const target = join(out, name); mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, data); }
 // Deterministic ZIP (stored entries); Minecraft accepts standard ZIP containers.
@@ -226,7 +227,7 @@ end.writeUInt32LE(0x06054b50); end.writeUInt16LE(files.size, 8); end.writeUInt16
 end.writeUInt32LE(directory.length, 12); end.writeUInt32LE(offset, 16);
 mkdirSync(join(root, 'dist'), { recursive: true });
 const zip = Buffer.concat([...entries, directory, end]);
-writeFileSync(join(root, 'dist/PVPSE-Ignite-16x-1.21.11.zip'), zip);
+writeFileSync(join(root, 'dist/PVPSE-Ignite-16x-26.1.2.zip'), zip);
 assert.equal(files.size, 28);
 for (const [name, data] of files) {
     if (name.endsWith('.json') || name.endsWith('.mcmeta')) JSON.parse(data.toString());
@@ -246,5 +247,5 @@ previews.forEach(({pixels}, index) => {
     }
 });
 writeFileSync(join(root,'dist/PVPSE-Ignite-preview.png'),png(columns*cell,rows*cell,sheet));
-assert.equal(JSON.parse(files.get('pack.mcmeta')).pack.min_format[0], 75);
+assert.equal(JSON.parse(files.get('pack.mcmeta')).pack.min_format[0], 84);
 console.log('Validated ' + files.size + ' pack entries; ZIP: ' + zip.length + ' bytes');

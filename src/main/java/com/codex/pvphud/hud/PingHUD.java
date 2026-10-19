@@ -1,23 +1,23 @@
 package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.Theme;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.chat.Component;
 
 public final class PingHUD extends HudElement {
     public PingHUD() { super("ping", "Ping", 74, 84); }
-    protected void renderElement(DrawContext c, MinecraftClient mc, Theme t, boolean editor, float alpha) {
+    protected void renderElement(GuiGraphicsExtractor c, Minecraft mc, Theme t, boolean editor, float alpha) {
         HudStyles.card(c, t, width(mc), height(mc), alpha);
-        HudStyles.label(c, mc, Text.literal("PING "), 6, 6, t.mutedText());
-        HudStyles.label(c, mc, Text.literal(ping(mc) + "ms"), 33, 6, t.accent());
+        HudStyles.label(c, mc, Component.literal("PING "), 6, 6, t.mutedText());
+        HudStyles.label(c, mc, Component.literal(ping(mc) + "ms"), 33, 6, t.accent());
     }
-    private int ping(MinecraftClient mc) {
-        if (mc.getNetworkHandler() == null || mc.player == null) return 0;
-        PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid());
+    private int ping(Minecraft mc) {
+        if (mc.getConnection() == null || mc.player == null) return 0;
+        PlayerInfo entry = mc.getConnection().getPlayerInfo(mc.player.getUUID());
         return entry == null ? 0 : entry.getLatency();
     }
-    public int width(MinecraftClient mc) { return 76; }
-    public int height(MinecraftClient mc) { return 21; }
+    public int width(Minecraft mc) { return 76; }
+    public int height(Minecraft mc) { return 21; }
 }

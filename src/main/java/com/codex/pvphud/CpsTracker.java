@@ -2,7 +2,7 @@ package com.codex.pvphud;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
 final class CpsTracker {
@@ -11,12 +11,12 @@ final class CpsTracker {
     private boolean leftWasDown;
     private boolean rightWasDown;
 
-    void tick(MinecraftClient client) {
+    void tick(Minecraft client) {
         if (client.getWindow() == null) {
             return;
         }
 
-        long window = client.getWindow().getHandle();
+        long window = client.getWindow().handle();
         boolean leftDown = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean rightDown = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
         long now = System.currentTimeMillis();

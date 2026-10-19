@@ -3,8 +3,7 @@ package com.codex.pvphud.waypoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-
+import net.minecraft.client.Minecraft;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -52,21 +51,21 @@ public final class WaypointManager {
         waypoints.set(index, new Waypoint(p.name(), p.x(), p.y(), p.z(), p.dimension(), p.world(), color ? COLORS[next] : p.color(), color ? p.hidden() : !p.hidden()));
         save();
     }
-    private static String worldKey(MinecraftClient client) {
-        if (client.getCurrentServerEntry() != null) return "server:" + client.getCurrentServerEntry().address.toLowerCase(java.util.Locale.ROOT);
-        if (client.getServer() != null) return "local:" + client.getServer().getSavePath(net.minecraft.util.WorldSavePath.ROOT).toAbsolutePath().normalize();
+    private static String worldKey(Minecraft client) {
+        if (client.getCurrentServer() != null) return "server:" + client.getCurrentServer().ip.toLowerCase(java.util.Locale.ROOT);
+        if (client.getSingleplayerServer() != null) return "local:" + client.getSingleplayerServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toAbsolutePath().normalize();
         return "unknown";
     }
-    public synchronized List<Waypoint> visible(MinecraftClient client) {
-        if (client.player == null || client.world == null) return List.of();
-        String dimension = client.world.getRegistryKey().getValue().toString(), world = worldKey(client);
+    public synchronized List<Waypoint> visible(Minecraft client) {
+        if (client.player == null || client.level == null) return List.of();
+        String dimension = client.level.dimension().identifier().toString(), world = worldKey(client);
         return waypoints.stream().filter(p -> !p.hidden() && dimension.equals(p.dimension()) && (p.world() == null || p.world().equals(world)))
-                .sorted(Comparator.<Waypoint>comparingInt(p -> tracked(p) ? 0 : 1).thenComparingDouble(p -> client.player.squaredDistanceTo(p.x(), p.y(), p.z())))
+                .sorted(Comparator.<Waypoint>comparingInt(p -> tracked(p) ? 0 : 1).thenComparingDouble(p -> client.player.distanceToSqr(p.x(), p.y(), p.z())))
                 .toList();
     }
-    public void tick(MinecraftClient client) {
-        if (client.player == null || client.world == null) { wasDead = false; return; }
-        boolean dead = client.player.isDead();
+    public void tick(Minecraft client) {
+        if (client.player == null || client.level == null) { wasDead = false; return; }
+        boolean dead = client.player.isDeadOrDying();
         if (dead && !wasDead && deathMarkers) {
             addCurrent(client, "Death " + java.time.LocalTime.now().withNano(0));
             com.codex.pvphud.notification.NotificationManager.getInstance().push("Death marker saved", "Your last position is on the radar");
@@ -74,14 +73,14 @@ public final class WaypointManager {
         wasDead = dead;
     }
 
-    public synchronized Waypoint addCurrent(MinecraftClient client) {
+    public synchronized Waypoint addCurrent(Minecraft client) {
         return addCurrent(client, "");
     }
 
-    public synchronized Waypoint addCurrent(MinecraftClient client, String requestedName) {
-        if (client.player == null || client.world == null) return null;
-        var pos = client.player.getBlockPos();
-        String dimension = client.world.getRegistryKey().getValue().toString();
+    public synchronized Waypoint addCurrent(Minecraft client, String requestedName) {
+        if (client.player == null || client.level == null) return null;
+        var pos = client.player.blockPosition();
+        String dimension = client.level.dimension().identifier().toString();
         String cleanName = requestedName == null ? "" : requestedName.strip();
         if (cleanName.isBlank()) cleanName = "Waypoint " + (waypoints.size() + 1);
         if (cleanName.length() > 24) cleanName = cleanName.substring(0, 24);
