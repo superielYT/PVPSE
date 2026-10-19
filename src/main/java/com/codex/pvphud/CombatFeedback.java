@@ -13,6 +13,9 @@ final class CombatFeedback {
     private static final Random RANDOM = new Random();
     private final List<Particle> particles = new ArrayList<>();
     private Player pendingTarget;
+    private Player observedPlayer;
+    private Player killCandidate;
+    private int killWatchTicks;
     private int pendingHurtTime;
     private int pendingTicks;
     private boolean attackWasDown;
@@ -26,13 +29,14 @@ final class CombatFeedback {
             return;
         }
 
+        if (observedPlayer != client.player) { reset(); observedPlayer = client.player; }
         float health = client.player.getHealth() + client.player.getAbsorptionAmount();
         if (previousHealth >= 0.0F && health < previousHealth - 0.01F && config.showDamageFlash) {
             damageFlashLife = 1.0F;
         }
         previousHealth = health;
 
-        boolean attackDown = client.options.keyAttack.isDown();
+        boolean attackDown = client.screen == null && client.options.keyAttack.isDown();
         if (attackDown && !attackWasDown && client.hitResult instanceof EntityHitResult hit
                 && hit.getEntity() instanceof Player player && player != client.player) {
             pendingTarget = player;
@@ -44,15 +48,20 @@ final class CombatFeedback {
         if (pendingTarget != null) {
             if (pendingTarget.hurtTime > pendingHurtTime) {
                 if (config.showHitMarker) hitMarkerLife = 1.0F;
-                if ((!pendingTarget.isAlive() || pendingTarget.getHealth() <= 0.0F) && config.showKillParticles) {
-                    spawnParticles(config.particleAmount);
-                }
+                killCandidate = pendingTarget;
+                killWatchTicks = 20;
                 pendingTarget = null;
             } else if (--pendingTicks <= 0 || pendingTarget.isRemoved()) {
                 pendingTarget = null;
             }
         }
 
+        if (killCandidate != null) {
+            if (!killCandidate.isAlive() || killCandidate.getHealth() <= 0) {
+                if (config.showKillParticles) spawnParticles(config.particleAmount);
+                killCandidate = null;
+            } else if (--killWatchTicks <= 0 || killCandidate.isRemoved()) killCandidate = null;
+        }
         hitMarkerLife = Math.max(0.0F, hitMarkerLife - 0.16F);
         damageFlashLife = Math.max(0.0F, damageFlashLife - 0.12F);
         Iterator<Particle> it = particles.iterator();
@@ -127,6 +136,10 @@ final class CombatFeedback {
     }
 
     private void reset() {
+        observedPlayer = null;
+        attackWasDown = false;
+        killCandidate = null;
+        killWatchTicks = 0;
         previousHealth = -1.0F;
         pendingTarget = null;
         pendingTicks = 0;

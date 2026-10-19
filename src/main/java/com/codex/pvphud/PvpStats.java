@@ -1,6 +1,5 @@
 package com.codex.pvphud;
 
-import com.codex.pvphud.notification.NotificationManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
@@ -8,10 +7,12 @@ import net.minecraft.world.phys.EntityHitResult;
 public final class PvpStats {
     private static final PvpStats INSTANCE = new PvpStats();
     private LivingEntity pendingTarget;
+    private LivingEntity comboTarget;
+    private LivingEntity observedPlayer;
+    private double pendingReach;
     private int pendingHurtTime;
     private int pendingTicks;
     private boolean attackWasDown;
-    private boolean lowHealthWarning;
     private int combo;
     private double lastReach;
     private long lastHitAt;
@@ -27,18 +28,22 @@ public final class PvpStats {
             reset();
             return;
         }
-        boolean attackDown = client.options.keyAttack.isDown();
+        if (observedPlayer != client.player) { reset(); observedPlayer = client.player; }
+        boolean attackDown = client.screen == null && client.options.keyAttack.isDown();
         if (attackDown && !attackWasDown && client.hitResult instanceof EntityHitResult hit
                 && hit.getEntity() instanceof LivingEntity living && living != client.player) {
             pendingTarget = living;
             pendingHurtTime = living.hurtTime;
             pendingTicks = 6;
-            lastReach = client.player.getEyePosition().distanceTo(hit.getLocation());
+            pendingReach = client.player.getEyePosition().distanceTo(hit.getLocation());
         }
         attackWasDown = attackDown;
 
         if (pendingTarget != null) {
             if (pendingTarget.hurtTime > pendingHurtTime) {
+                if (comboTarget != pendingTarget) combo = 0;
+                comboTarget = pendingTarget;
+                lastReach = pendingReach;
                 combo++;
                 lastHitAt = System.currentTimeMillis();
                 pendingTarget = null;
@@ -49,13 +54,6 @@ public final class PvpStats {
         }
         if (combo > 0 && System.currentTimeMillis() - lastHitAt > 3_000L) combo = 0;
 
-        float health = client.player.getHealth() + client.player.getAbsorptionAmount();
-        if (health <= 6.0F && !lowHealthWarning) {
-            lowHealthWarning = true;
-            NotificationManager.getInstance().push("Low health", String.format("%.1f hearts left", health / 2.0F));
-        } else if (health > 8.0F) {
-            lowHealthWarning = false;
-        }
     }
 
     public int combo() { return combo; }
@@ -63,9 +61,11 @@ public final class PvpStats {
 
     private void reset() {
         pendingTarget = null;
+        comboTarget = null;
+        observedPlayer = null;
+        pendingReach = 0;
         pendingTicks = 0;
         attackWasDown = false;
-        lowHealthWarning = false;
         combo = 0;
         lastReach = 0;
     }

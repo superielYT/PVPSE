@@ -21,6 +21,7 @@ public final class CustomTheme implements Theme {
             CustomTheme theme = GSON.fromJson(reader, CustomTheme.class);
             return theme == null ? new CustomTheme() : theme;
         } catch (IOException | RuntimeException ignored) {
+            com.codex.pvphud.config.JsonStorage.backup(PATH);
             return new CustomTheme();
         }
     }
@@ -31,12 +32,7 @@ public final class CustomTheme implements Theme {
     }
 
     public synchronized void save() {
-        try {
-            Files.createDirectories(PATH.getParent());
-            try (Writer writer = Files.newBufferedWriter(PATH)) {
-                GSON.toJson(this, writer);
-            }
-        } catch (IOException ignored) {}
+        com.codex.pvphud.config.JsonStorage.write(PATH, this);
     }
 
     public String id() { return "custom"; }

@@ -20,6 +20,7 @@ public final class ModuleButton {
     private int y;
     private int width;
     private boolean expanded;
+    private int renderedHeight = 24;
     private SettingComponent dragging;
 
     public ModuleButton(HudElement element) {
@@ -53,6 +54,7 @@ public final class ModuleButton {
         RoundedRenderer.fill(context, x + width - 26, y + 7, 18, 10, 5, element.enabled() ? theme.accent() : 0xFF3A414B);
         context.text(client.font, Component.literal(expanded ? "–" : "+"), x + width - 40, y + 7, theme.mutedText(), false);
         int visible = Math.round(settings.size() * 22 * expansion.value());
+        renderedHeight = 24 + visible;
         if (visible > 0) {
             context.enableScissor(x, y + 24, x + width, y + 24 + visible);
             int sy = y + 26;
@@ -71,8 +73,8 @@ public final class ModuleButton {
             if (button == 1) expanded = !expanded;
             return true;
         }
-        if (expanded && mouseY >= y + 26 && mouseY < y + totalHeight()) {
-            for (SettingComponent setting : settings) if (setting.click(mouseX, mouseY, button)) {
+        if (expanded && mouseY >= y + 26 && mouseY < y + renderedHeight) {
+            for (SettingComponent setting : settings) if (setting.y + setting.height() <= y + renderedHeight && setting.click(mouseX, mouseY, button)) {
                 if (setting.draggable()) dragging = setting;
                 return true;
             }

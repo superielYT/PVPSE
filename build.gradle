@@ -43,7 +43,7 @@ jar {
 sourceSets {
     radarTest {
         compileClasspath = sourceSets.main.output
-        runtimeClasspath = output + compileClasspath
+        runtimeClasspath = output + compileClasspath + configurations.runtimeClasspath
     }
 }
 
@@ -53,3 +53,10 @@ tasks.register("testRadar", JavaExec) {
     mainClass = "com.codex.pvphud.waypoint.RadarMathTest"
 }
 check.dependsOn testRadar
+
+tasks.register("testRegression", JavaExec) {
+    dependsOn radarTestClasses
+    classpath = sourceSets.radarTest.runtimeClasspath
+    mainClass = "com.codex.pvphud.RegressionTest"
+}
+check.dependsOn testRegression

@@ -55,18 +55,31 @@ jobs:
         run: |
           node tools/build-pvp-pack.mjs
           python -m zipfile -t dist/PVPSE-Ignite-16x-26.1.2.zip
+          python -m zipfile -t dist/PVPSE-Ignite-32x-26.1.2.zip
 
       - name: Upload PvP resource pack
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-Ignite-16x-26.1.2
+          name: PVPSE-Ignite-packs-26.1.2
           path: |
             dist/PVPSE-Ignite-16x-26.1.2.zip
+            dist/PVPSE-Ignite-32x-26.1.2.zip
             dist/PVPSE-Ignite-preview.png
           if-no-files-found: error
 
       - name: Build
         run: gradle build
+
+      - name: Client startup smoke test
+        run: python tools/client-smoke.py
+
+      - name: Upload client startup log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PVPSE-client-startup-log
+          path: build/client-smoke.log
+          if-no-files-found: ignore
 
       - name: Upload mod JAR
         uses: actions/upload-artifact@v4
@@ -92,6 +105,7 @@ jobs:
           files: |
             build/libs/PVPSE-${{ steps.version.outputs.version }}.jar
             dist/PVPSE-Ignite-16x-26.1.2.zip
+            dist/PVPSE-Ignite-32x-26.1.2.zip
             dist/PVPSE-Ignite-preview.png
           fail_on_unmatched_files: true
           make_latest: true

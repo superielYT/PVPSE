@@ -19,12 +19,13 @@ public final class PotionHUD extends HudElement {
         if (effects.isEmpty()) HudStyles.label(c, mc, Component.literal("No active effects"), 6, y, t.mutedText());
         for (MobEffectInstance effect : effects) {
             int seconds = effect.getDuration() / 20;
-            String line = Component.translatable(effect.getDescriptionId()).getString() + "  " + seconds / 60 + ":" + String.format("%02d", seconds % 60);
-            HudStyles.label(c, mc, Component.literal(line), 6, y, t.text());
+            String duration = effect.isInfiniteDuration() ? "\u221e" : seconds / 60 + ":" + String.format("%02d", seconds % 60);
+            String line = Component.translatable(effect.getDescriptionId()).getString() + "  " + duration;
+            HudStyles.label(c, mc, Component.literal(mc.font.plainSubstrByWidth(line, width(mc) - 12)), 6, y, t.text());
             y += 12;
         }
     }
-    private int heightFor(List<MobEffectInstance> effects, Minecraft mc) { return 12 + Math.max(1, effects.size()) * 12; }
+    private int heightFor(List<MobEffectInstance> effects, Minecraft mc) { return 12 + Math.max(1, Math.min(5, effects.size())) * 12; }
     public int width(Minecraft mc) { return 118; }
     public int height(Minecraft mc) { return heightFor(mc.player == null ? List.of() : List.copyOf(mc.player.getActiveEffects()), mc); }
 }
