@@ -1,3 +1,24 @@
+# PVPSE Client v2.0.0
+
+## Minecraft 26.1.2
+- Requires Minecraft Java 26.1.2, Java 25, Fabric Loader 0.19.3+ and Fabric API 0.155.2+26.1.2.
+- Migrated Minecraft references to the official unobfuscated names.
+- Updated HUD, custom screens, key mappings and world rendering integration.
+- Retains the cleaner menus, PvP indicators, sword/mace hitbox display, profiles and waypoints from 1.9.
+
+## Ignite 16x for 26.1.2
+- Resource pack format 84 with the updated shield coordinate transformation.
+- Short swords, lowered shields, lucky-cat totem, PvP food and clear bow charge stages.
+- Download the ZIP from this release and enable it in Resource Packs.
+
+## Installation
+- Put PVPSE-2.0.0.jar in the mods folder of a Fabric 26.1.2 instance alongside matching Fabric API.
+- Put PVPSE-Ignite-16x-26.1.2.zip in resourcepacks and enable it.
+- PVPSE 1.9.0 remains available for Minecraft 1.21.11.
+- Minecraft in-game visual playtesting is still required.
+
+---
+
 # PVPSE Client v1.9.0
 
 ## Bow and melee follow-up

@@ -15,24 +15,31 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/** Visualizes real entity bounds without changing collision or attack behavior. */
+/** Snapshots actual bounds during extraction; drawing never reads live entities. */
 public final class MeleeHitboxRenderer {
     private static boolean registered;
     private static HudManager hudManager;
     private static HudConfig config;
+    private static final Frame EMPTY = new Frame(Vec3.ZERO, List.of());
+    private static volatile Frame frame = EMPTY;
+    private record Outline(AABB box, int color, float width) {}
+    private record Frame(Vec3 camera, List<Outline> outlines) {}
     private MeleeHitboxRenderer() {}
 
     public static void register(HudManager manager, HudConfig settings) {
         hudManager = manager; config = settings;
         if (registered) return;
         registered = true;
-        LevelRenderEvents.AFTER_ENTITIES.register(MeleeHitboxRenderer::render);
+        LevelRenderEvents.END_EXTRACTION.register(context -> extract());
+        LevelRenderEvents.END_MAIN.register(MeleeHitboxRenderer::render);
     }
 
-    private static void render(LevelRenderContext context) {
+    private static void extract() {
+        frame = EMPTY;
         Minecraft client = Minecraft.getInstance();
         if (hudManager == null || config == null || client.player == null || client.level == null
                 || !config.enabled || client.options.hideGui || client.screen != null
@@ -43,7 +50,6 @@ public final class MeleeHitboxRenderer {
         var held = client.player.getMainHandItem();
         boolean mace = held.getItem() instanceof MaceItem;
         if (!(mace && config.hitboxMace) && !(held.is(ItemTags.SWORDS) && config.hitboxSwords)) return;
-
         Entity selected = client.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
         double range = module.value();
         Vec3 eye = client.player.getEyePosition();
@@ -54,33 +60,44 @@ public final class MeleeHitboxRenderer {
                     .sorted(Comparator.comparingDouble(entity -> distanceSquared(eye, entity.getBoundingBox())))
                     .limit(16).toList();
         float tick = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        Vec3 camera = client.gameRenderer.getMainCamera().position();
-        context.poseStack().pushPose();
-        try {
-            context.poseStack().translate(-camera.x, -camera.y, -camera.z);
-            for (Entity target : targets) {
-                if (!eligible(target, client, eye, range)) continue;
-                // Match rendered movement between ticks, including airborne mace fights.
-                Vec3 smooth = target.getPosition(tick);
-                AABB box = target.getBoundingBox().move(smooth.x - target.getX(),
-                        smooth.y - target.getY(), smooth.z - target.getZ());
-                int color = 0xAA91A6BA;
-                if (target == selected) {
-                    color = 0xFF46E0A0;
-                    if (config.hitboxStateColors) {
-                        boolean ready = client.player.getAttackStrengthScale(tick) >= 0.95F;
-                        color = !ready ? 0xFFFFB454
-                                : mace && client.player.fallDistance > 1.5 ? 0xFFD89CFF : 0xFF46E0A0;
-                    }
-                }
-                outline(context, box, color, config.hitboxLineWidth);
-                if (config.hitboxEyeLine) {
-                    double eyeY = smooth.y + target.getEyeY() - target.getY();
-                    // A thin ring marks the eye level; entity bounds stay unchanged.
-                    outline(context, new AABB(box.minX, eyeY - 0.002, box.minZ,
-                            box.maxX, eyeY + 0.002, box.maxZ), color, 1.0F);
+        var outlines = new ArrayList<Outline>();
+        for (Entity target : targets) {
+            if (!eligible(target, client, eye, range)) continue;
+            Vec3 smooth = target.getPosition(tick);
+            AABB box = target.getBoundingBox().move(smooth.x - target.getX(),
+                    smooth.y - target.getY(), smooth.z - target.getZ());
+            int color = 0xAA91A6BA;
+            if (target == selected) {
+                color = 0xFF46E0A0;
+                if (config.hitboxStateColors) {
+                    boolean ready = client.player.getAttackStrengthScale(tick) >= 0.95F;
+                    color = !ready ? 0xFFFFB454
+                            : mace && client.player.fallDistance > 1.5 ? 0xFFD89CFF : 0xFF46E0A0;
                 }
             }
+            outlines.add(new Outline(box, color, config.hitboxLineWidth));
+            if (config.hitboxEyeLine) {
+                double eyeY = smooth.y + target.getEyeY() - target.getY();
+                outlines.add(new Outline(new AABB(box.minX, eyeY - 0.002, box.minZ,
+                        box.maxX, eyeY + 0.002, box.maxZ), color, 1.0F));
+            }
+        }
+        frame = new Frame(client.gameRenderer.getMainCamera().position(), List.copyOf(outlines));
+    }
+
+    private static void render(LevelRenderContext context) {
+        Frame current = frame;
+        if (current.outlines().isEmpty()) return;
+        context.poseStack().pushPose();
+        try {
+            Vec3 camera = current.camera();
+            context.poseStack().translate(-camera.x, -camera.y, -camera.z);
+            var buffer = context.bufferSource().getBuffer(RenderTypes.lines());
+            for (Outline outline : current.outlines()) {
+                ShapeRenderer.renderShape(context.poseStack(), buffer, Shapes.create(outline.box()),
+                        0, 0, 0, outline.color(), outline.width());
+            }
+            context.bufferSource().endBatch(RenderTypes.lines());
         } finally {
             context.poseStack().popPose();
         }
@@ -98,11 +115,5 @@ public final class MeleeHitboxRenderer {
         double dy = point.y - Math.clamp(point.y, box.minY, box.maxY);
         double dz = point.z - Math.clamp(point.z, box.minZ, box.maxZ);
         return dx * dx + dy * dy + dz * dz;
-    }
-
-    private static void outline(LevelRenderContext context, AABB box, int color, float width) {
-        ShapeRenderer.renderShape(context.poseStack(),
-                context.bufferSource().getBuffer(RenderTypes.lines()), Shapes.create(box),
-                0, 0, 0, color, width);
     }
 }

@@ -82,7 +82,7 @@ public final class PvpHudClient implements ClientModInitializer {
                 CrosshairRenderer.drawCentered(context, config);
                 return;
             }
-            original.render(context, tickCounter);
+            original.extractRenderState(context, tickCounter);
         });
         HudElementRegistry.replaceElement(VanillaHudElements.MISC_OVERLAYS, original -> (context, tickCounter) -> {
             Minecraft client = Minecraft.getInstance();
@@ -91,7 +91,7 @@ public final class PvpHudClient implements ClientModInitializer {
                     && client.player != null
                     && client.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD)
                     .is(net.minecraft.world.item.Items.CARVED_PUMPKIN);
-            if (!hidePumpkin) original.render(context, tickCounter);
+            if (!hidePumpkin) original.extractRenderState(context, tickCounter);
         });
 
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, HUD_ID, this::renderHud);
