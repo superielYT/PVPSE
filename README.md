@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v2.0.0)
+## Installation (v2.1.0)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.0.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.1.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -40,7 +40,7 @@ RANGE cycles 32/64/128/256/512 blocks from the radar center to its edge. NORTH U
 
 New waypoints are isolated by server/world and dimension. Older waypoints stay accessible and display "legacy". The minimap is a waypoint radar with grid and heading, without terrain or entity scanning. Right-click Waypoint in the module list for position, scale and reset controls.
 
-## General settings (2.0.0)
+## General settings (2.1.0)
 
 Open Right Shift > SETTINGS & PROFILES for global switches, profile switching, copying your current HUD/theme to a new profile, and resetting HUD positions/scales. Profiles do not include global feedback, waypoint or custom crosshair files. Your active profile is remembered; the former default.json migrates automatically to the profiles folder.
 
@@ -62,7 +62,7 @@ Previously granted MIT rights and third-party licenses remain unaffected.
 A public GitHub repository can still be viewed and forked under GitHub's
 terms. A copyright notice does not technically prevent copying.
 
-## Cleaner customization and PvP visibility (2.0.0)
+## Cleaner customization and PvP visibility (2.1.0)
 
 The Right Shift menu now has a navigation sidebar, search and ALL / HUD /
 TOOLS / ON module filters. Use the + control or right-click for module settings.
@@ -77,29 +77,29 @@ Settings are split into General, Combat, Effects and Profiles:
 - Alerts and effects are global; profiles retain their existing HUD/theme scope.
 - Combat indicators hide in menus, spectator mode, F1 and (if enabled) F3.
 
-## PVPSE Ignite 16x resource pack
+## PVPSE Ignite resource packs
 
-Download [PVPSE-Ignite-16x-26.1.2.zip](https://github.com/superielYT/PVPSE/releases/download/v2.0.0/PVPSE-Ignite-16x-26.1.2.zip).
-Place the ZIP in your Minecraft resourcepacks folder and enable it above other packs.
+Choose one edition for **Minecraft Java 26.1.2**:
+- [Ignite 32x Smooth](https://github.com/superielYT/PVPSE/releases/download/v2.1.0/PVPSE-Ignite-32x-26.1.2.zip): richer shading, highlights and resolved edges.
+- [Ignite 16x Lite](https://github.com/superielYT/PVPSE/releases/download/v2.1.0/PVPSE-Ignite-16x-26.1.2.zip): the same original art with smaller textures.
 
-Includes seven short swords, a lucky-cat totem, golden carrot, golden and enchanted
-apples, ender pearl, XP bottle, end crystal and a crisp cobweb. The shield is lowered
-in both hands, at rest and while blocking. Shield banners still use vanilla rendering.
-All pixel art is original. Unchanged textures and shield rendering come from Minecraft.
-
-Targets **Minecraft Java 26.1.2 / resource pack format 84.0**. It changes appearance,
-not damage, reach or attack timing. Other packs overriding the same items may conflict.
+Enable ONE edition above other packs. Both include short swords, a lucky-cat totem,
+glossy golden foods, pearl, XP bottle, crystal, mace, open cobweb and low shields.
+Bows use eight draw stages; green appears at the full 20-tick draw. Attack timing,
+reach and damage remain vanilla. Vanilla shield banners are preserved.
 
 ![Ignite item preview](dist/PVPSE-Ignite-preview.png)
 
-Regenerate and validate the textures and ZIP with Node 22:
-`node tools/build-pvp-pack.mjs`. GitHub Actions builds the mod and uploads the pack.
-The release includes the generated pack ZIP for direct downloading.
+Regenerate both editions with Node 22: `node tools/build-pvp-pack.mjs`.
+Generation validates every PNG CRC and decoded size, JSON, model entries and ZIP determinism.
+Actions checks ZIP integrity with Python, compiles the mod, runs regression and geometry
+checks, then starts a real Minecraft client in a virtual display to catch startup crashes.
+That smoke test does not simulate gameplay or validate all server/mod combinations.
 
 ## Bow charge textures and melee hitbox display
 
-Ignite now includes idle and three bow pulling sprites: orange for the initial
-draw, gold after 13 ticks and green at the full 20-tick draw. Resource-pack
+Ignite now includes idle and eight bow pulling sprites: progressively brighter gold during the
+draw, then green at the full 20-tick draw. Resource-pack
 item selection changes only the visual state; firing behavior stays vanilla.
 
 Open SETTINGS & PROFILES > HITBOX:
@@ -115,3 +115,15 @@ Open SETTINGS & PROFILES > HITBOX:
 - Hidden in menus, spectator mode, F1, disabled HUD and optionally F3.
 - Weapon/display preferences are global; module enabled state and range are
   saved with HUD profiles. This is a visual overlay and changes no reach or collision.
+
+## Bug fixes (2.1)
+
+- Brightness now uses Minecraft's valid 0–100% gamma range and restores your original value when disabled. The feature ID/keybind is kept for existing profiles.
+- Global settings, custom crosshair and theme saves use atomic replacement; malformed settings are backed up before recovery.
+- Invalid crosshair imports cannot partly mutate the current crosshair; imported colors remain visible.
+- Removed duplicate legacy low-health notifications that ignored the alert switch.
+- Feedback resets when the player changes; death particles watch briefly after the confirmed hit instead of checking death only on the hit tick. Confirmation is a client estimate, not authoritative kill credit.
+- Reach updates on confirmed hurt feedback; combos reset when changing targets.
+- Invalid or incomplete profiles restore defaults rather than inheriting the previous layout/theme.
+- Numeric crosshair/opacity settings are clamped; panel opacity now maps percentages to full 0–255 alpha.
+- Partially hidden module controls cannot receive clicks; potion rows fit the visible card and handle infinite effects.

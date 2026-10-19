@@ -1,3 +1,30 @@
+# PVPSE Client v2.1.0
+
+## Cooler, smoother Ignite packs
+- New original shaded art: short swords with beveled blades, glossy PvP food, lucky-cat totem, pearl, XP, crystal, mace and open cobweb.
+- Smooth 32x and lightweight 16x editions share the same style. Enable one at a time.
+- Eight native bow drawing stages, with green reserved for the full 20-tick draw.
+- Low shields retain the Minecraft 26.1.2 transformation and vanilla banner renderer.
+
+## Bug fixes
+- Valid gamma/brightness range; existing profiles and keybind IDs preserved.
+- Atomic settings, crosshair and theme saves, with malformed global-config backups.
+- Invalid crosshair imports are validated completely before applying; imported colors stay opaque.
+- Removed legacy low-health notifications that ignored the new switch.
+- Reset feedback across player changes and watch delayed target death for particles.
+- Confirm reach before displaying it; reset combos across targets.
+- Reset incomplete profile layouts and missing themes to defaults.
+- Fix percentage opacity and clamp invalid crosshair settings.
+- Prevent clicks on controls hidden during expansion; constrain potion-card rows.
+
+## Checks and installation
+- Minecraft Java 26.1.2, Java 25, Fabric Loader 0.19.3+ and Fabric API 0.155.2+26.1.2.
+- Put PVPSE-2.1.0.jar in mods and ONE Ignite ZIP in resourcepacks.
+- Includes regression, geometry, pack integrity and real-client startup checks.
+- Startup testing does not cover full gameplay, multiplayer or every mod combination.
+
+---
+
 # PVPSE Client v2.0.0
 
 ## Minecraft 26.1.2

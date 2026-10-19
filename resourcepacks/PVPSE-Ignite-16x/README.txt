@@ -1,11 +1,7 @@
-PVPSE Ignite 16x — Minecraft Java 26.1.2
+PVPSE Ignite 16x Lite — Minecraft Java 26.1.2
 
-Original 16x art: seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples, ender pearl, XP bottle, end crystal and cobweb. Bow stages: orange (early), gold (middle), green (fully drawn).
-Lowered shield in both hands, resting and blocking; vanilla banner rendering is preserved.
-Orange guards, dark outlines, distinct material colors. Other textures stay vanilla.
+Original 32x art with shaded short swords, a lucky-cat totem, glossy PvP food, pearls, XP, crystals, mace and open cobwebs. Eight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.
 
-Install the ZIP in .minecraft/resourcepacks, then enable it above other packs.
-This changes appearance only. It does not change reach, damage or attack timing.
-Disable the client custom crosshair if you prefer the vanilla crosshair.
+Install the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Use Smooth 32x for richer detail or Lite 16x for smaller textures. No reach, damage or attack timing changes.
 
-Copyright and permissions: see the PVPSE repository LICENSE.
+Copyright: see LICENSE.

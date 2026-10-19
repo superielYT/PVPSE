@@ -90,6 +90,7 @@ final class HudConfig {
         try (Reader reader = Files.newBufferedReader(PATH)) {
             HudConfig config = GSON.fromJson(reader, HudConfig.class);
             if (config == null) {
+                com.codex.pvphud.config.JsonStorage.backup(PATH);
                 return new HudConfig();
             }
             config.ensureWidgets();

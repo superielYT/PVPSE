@@ -7,6 +7,9 @@ import net.minecraft.world.phys.EntityHitResult;
 public final class PvpStats {
     private static final PvpStats INSTANCE = new PvpStats();
     private LivingEntity pendingTarget;
+    private LivingEntity comboTarget;
+    private LivingEntity observedPlayer;
+    private double pendingReach;
     private int pendingHurtTime;
     private int pendingTicks;
     private boolean attackWasDown;
@@ -25,18 +28,22 @@ public final class PvpStats {
             reset();
             return;
         }
+        if (observedPlayer != client.player) { reset(); observedPlayer = client.player; }
         boolean attackDown = client.screen == null && client.options.keyAttack.isDown();
         if (attackDown && !attackWasDown && client.hitResult instanceof EntityHitResult hit
                 && hit.getEntity() instanceof LivingEntity living && living != client.player) {
             pendingTarget = living;
             pendingHurtTime = living.hurtTime;
             pendingTicks = 6;
-            lastReach = client.player.getEyePosition().distanceTo(hit.getLocation());
+            pendingReach = client.player.getEyePosition().distanceTo(hit.getLocation());
         }
         attackWasDown = attackDown;
 
         if (pendingTarget != null) {
             if (pendingTarget.hurtTime > pendingHurtTime) {
+                if (comboTarget != pendingTarget) combo = 0;
+                comboTarget = pendingTarget;
+                lastReach = pendingReach;
                 combo++;
                 lastHitAt = System.currentTimeMillis();
                 pendingTarget = null;
@@ -54,6 +61,9 @@ public final class PvpStats {
 
     private void reset() {
         pendingTarget = null;
+        comboTarget = null;
+        observedPlayer = null;
+        pendingReach = 0;
         pendingTicks = 0;
         attackWasDown = false;
         combo = 0;

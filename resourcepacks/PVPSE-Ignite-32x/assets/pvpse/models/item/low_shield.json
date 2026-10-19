@@ -1,0 +1,39 @@
+{
+  "parent": "minecraft:item/shield",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        180,
+        5
+      ],
+      "translation": [
+        -10,
+        -5,
+        -10
+      ],
+      "scale": [
+        1.05,
+        1.05,
+        1.05
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        180,
+        5
+      ],
+      "translation": [
+        10,
+        -7,
+        -10
+      ],
+      "scale": [
+        1.05,
+        1.05,
+        1.05
+      ]
+    }
+  }
+}

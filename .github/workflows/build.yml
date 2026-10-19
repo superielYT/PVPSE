@@ -60,7 +60,7 @@ jobs:
       - name: Upload PvP resource pack
         uses: actions/upload-artifact@v4
         with:
-          name: PVPSE-Ignite-16x-26.1.2
+          name: PVPSE-Ignite-packs-26.1.2
           path: |
             dist/PVPSE-Ignite-16x-26.1.2.zip
             dist/PVPSE-Ignite-32x-26.1.2.zip
