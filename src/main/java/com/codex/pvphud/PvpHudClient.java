@@ -66,15 +66,15 @@ public final class PvpHudClient implements ClientModInitializer {
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
             if (screen instanceof net.minecraft.client.gui.screens.TitleScreen
                     || screen instanceof net.minecraft.client.gui.screens.PauseScreen) {
-                net.fabricmc.fabric.api.client.screen.v1.Screens.getButtons(screen).add(
+                net.fabricmc.fabric.api.client.screen.v1.Screens.getWidgets(screen).add(
                         com.codex.pvphud.gui.PvpButton.styled(net.minecraft.network.chat.Component.literal("PVPSE"),
                                 button -> openMenu(screen)).bounds(8, 8, 86, 20).build());
             }
         });
         net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> {
-            dispatcher.register(net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal("pvpse")
+            dispatcher.register(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("pvpse")
                     .executes(ctx -> { Minecraft.getInstance().schedule(() -> openMenu(null)); return 1; })
-                    .then(net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal("restore")
+                    .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("restore")
                             .executes(ctx -> { restoreHud(); return 1; })));
         });
         zoomKey = registerKey("key.pvp_hud_client.zoom", GLFW.GLFW_KEY_Z);
@@ -140,16 +140,16 @@ public final class PvpHudClient implements ClientModInitializer {
         if (client.player == null) joinHintShown = false;
         else if (!joinHintShown) {
             joinHintShown = true;
-            client.player.displayClientMessage(net.minecraft.network.chat.Component.literal(
+            client.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                     "PVPSE loaded | Right Shift / F8 / /pvpse opens the menu | HUD: "
-                            + (config.enabled ? "ON" : "OFF") + " | Use Restore HUD if hidden"), false);
+                            + (config.enabled ? "ON" : "OFF") + " | Use Restore HUD if hidden"));
         }
         while (toggleHudKey.consumeClick()) {
             config.enabled = !config.enabled;
             config.save();
-            if (client.player != null) client.player.displayClientMessage(
+            if (client.player != null) client.player.sendOverlayMessage(
                     net.minecraft.network.chat.Component.literal("PVPSE HUD " + (config.enabled ? "ON" : "OFF")
-                            + " | F8 opens settings"), true);
+                            + " | F8 opens settings"));
         }
         while (openConfigKey.consumeClick()) {
             if (client.screen == null) openMenu(null);

@@ -21,7 +21,7 @@ public final class PvpButton extends Button {
     public static Layout styled(Component label, OnPress action) { return new Layout(label, action); }
 
     @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
+    protected void extractContents(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         hover.animateTo(active && (isHovered() || isFocused()) ? 1 : 0);
         float t = hover.value();
