@@ -1,3 +1,22 @@
+# PVPSE Client v2.2.0
+
+## HUD themes and style
+- Optional Clear Glass theme alongside every existing theme.
+- Refined shared panel surfaces, softer glow, subtle accent lines and readable text.
+- New STYLE tab: HUD opacity (20–100%), accent lines, panel shadows and text shadows.
+- Minimal HUD preset and one-click style reset.
+- Appearance preferences are saved per profile and copied with the current profile.
+- Fixed overlapping translucent rounded panels and forced glass opacity.
+
+## Downloads and requirements
+- Minecraft Java 26.1.2, Java 25, Fabric Loader 0.19.3+ and matching Fabric API.
+- Install PVPSE-2.2.0.jar in mods.
+- Includes Ignite 32x Smooth and 16x Lite packs. Enable one edition.
+- Automated build, regression, pack and client startup checks run before publication.
+- Full gameplay and visual testing still needs to be done in Minecraft.
+
+---
+
 # PVPSE Client v2.1.0
 
 ## Cooler, smoother Ignite packs

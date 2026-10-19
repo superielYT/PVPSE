@@ -19,6 +19,13 @@ public final class ThemeManager {
     );
     private final AtomicReference<Theme> current = new AtomicReference<>(themes.getFirst());
 
+    private HudAppearance appearance = new HudAppearance();
+    public HudAppearance appearance() { return appearance; }
+    public void setAppearance(HudAppearance value) {
+        appearance = value == null ? new HudAppearance() : value;
+        appearance.normalize();
+    }
+
     private ThemeManager() {}
 
     public static ThemeManager getInstance() {

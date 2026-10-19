@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 final class ClientSettingsScreen extends Screen {
-    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, PROFILES }
+    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES }
     private final Screen parent;
     private final HudConfig config;
     private final ConfigManager profiles;
@@ -80,6 +80,23 @@ final class ClientSettingsScreen extends Screen {
                     config.showHitMarker = true; config.save(); rebuildWidgets();
                 });
             }
+            case STYLE -> {
+                var style = ThemeManager.getInstance().appearance();
+                action(x(), y, w(), "Theme: " + ThemeManager.getInstance().getTheme().displayName() + " >", () -> {
+                    ThemeManager.getInstance().cycle(); profiles.save(hud); rebuildWidgets();
+                });
+                number(x(), y + 25, half, "HUD opacity %", () -> style.opacity, v -> style.opacity = v, 20, 100, 10);
+                toggle(x() + half + 6, y + 25, half, "Accent lines", () -> style.accents, v -> style.accents = v);
+                toggle(x(), y + 50, half, "Panel shadows", () -> style.shadows, v -> style.shadows = v);
+                toggle(x() + half + 6, y + 50, half, "Text shadow", () -> style.textShadow, v -> style.textShadow = v);
+                action(x(), y + 75, half, "MINIMAL HUD", () -> {
+                    style.opacity = 60; style.accents = false; style.shadows = false;
+                    style.textShadow = true; profiles.save(hud); rebuildWidgets();
+                });
+                action(x() + half + 6, y + 75, half, "RESET STYLE", () -> {
+                    ThemeManager.getInstance().setAppearance(null); profiles.save(hud); rebuildWidgets();
+                });
+            }
             case PROFILES -> {
                 action(x(), y, w(), "Profile: " + profiles.activeProfile() + " >", () -> {
                     rememberDraft();
@@ -137,9 +154,10 @@ final class ClientSettingsScreen extends Screen {
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
             case HITBOX -> "Green: ready | Amber: cooldown | Purple: falling mace";
             case EFFECTS -> "Click a value to increase it; maximum wraps to minimum";
+            case STYLE -> "HUD appearance is saved per profile. Clear Glass is optional.";
             case PROFILES -> "Profiles store HUD, utilities and theme. Alerts are global.";
         };
-        int footer = top() + ((tab == Tab.EFFECTS || tab == Tab.HITBOX) ? 103 : 82);
+        int footer = top() + ((tab == Tab.EFFECTS || tab == Tab.HITBOX || tab == Tab.STYLE) ? 103 : 82);
         if (footer < height - 39) {
             String message = status.isBlank() ? helper : status;
             c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());

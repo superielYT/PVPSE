@@ -16,6 +16,15 @@ public final class RegressionTest {
         catch (IllegalArgumentException expected) {}
     }
     public static void main(String[] args) throws Exception {
+        var style = new com.codex.pvphud.theme.HudAppearance();
+        require(style.panelColor(0x48121A24, 1) == 0x48121A24, "Glass alpha must be preserved");
+        style.opacity = 50;
+        require(style.panelColor(0x48121A24, 1) == 0x24121A24, "Opacity must multiply theme alpha");
+        require(style.panelColor(0x48121A24, 0) == 0x00121A24, "Hidden HUD must have no panel alpha");
+        style.opacity = -500; style.normalize();
+        require(style.opacity == 20, "Invalid opacity lower bound");
+        style.opacity = 500; style.normalize();
+        require(style.opacity == 100, "Invalid opacity upper bound");
         byte[] pixels = new byte[29]; pixels[14] = 1;
         String data = Base64.getUrlEncoder().withoutPadding().encodeToString(pixels);
         String prefix = "PVPSE1:" + data + ":";

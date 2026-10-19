@@ -43,6 +43,7 @@ public final class ConfigManager {
             return;
         }
         if (profile.theme == null || !ThemeManager.getInstance().setTheme(profile.theme)) ThemeManager.getInstance().setTheme("ignite");
+        ThemeManager.getInstance().setAppearance(profile.appearance);
         hudManager.elements().forEach(HudElement::resetSettings);
         if (profile.hud == null) return;
         for (HudElement element : hudManager.elements()) {
@@ -59,6 +60,7 @@ public final class ConfigManager {
     public synchronized boolean save(HudManager hudManager) {
         ConfigProfile profile = new ConfigProfile(activeProfile);
         profile.theme = ThemeManager.getInstance().getTheme().id();
+        profile.appearance = ThemeManager.getInstance().appearance();
         for (HudElement element : hudManager.elements()) {
             ConfigProfile.HudState state = new ConfigProfile.HudState(
                     element.enabled(), element.x(), element.y(), element.scale());
