@@ -25,6 +25,14 @@ public final class RegressionTest {
         require(style.opacity == 20, "Invalid opacity lower bound");
         style.opacity = 500; style.normalize();
         require(style.opacity == 100, "Invalid opacity upper bound");
+        var gson = new com.google.gson.Gson();
+        var profile = new com.codex.pvphud.config.ConfigProfile("glass-pvp");
+        profile.theme = "glass"; profile.appearance.opacity = 40; profile.appearance.accents = false;
+        var restored = gson.fromJson(gson.toJson(profile), com.codex.pvphud.config.ConfigProfile.class);
+        require(restored.theme.equals("glass") && restored.appearance.opacity == 40
+                && !restored.appearance.accents, "Profile style did not survive JSON round trip");
+        var legacy = gson.fromJson("{\"theme\":\"ignite\"}", com.codex.pvphud.config.ConfigProfile.class);
+        require(legacy.appearance != null && legacy.appearance.opacity == 100, "Old profiles need default style");
         byte[] pixels = new byte[29]; pixels[14] = 1;
         String data = Base64.getUrlEncoder().withoutPadding().encodeToString(pixels);
         String prefix = "PVPSE1:" + data + ":";
