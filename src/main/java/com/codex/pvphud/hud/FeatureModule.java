@@ -18,8 +18,8 @@ public final class FeatureModule extends HudElement {
     public FeatureModule(Type type, String name, float x, float y, double value) {
         super("feature_" + type.name().toLowerCase(Locale.ROOT), name, x, y);
         this.type = type;
-        this.value = value;
-        this.defaultValue = value;
+        this.defaultValue = Math.clamp(value, minimum(), maximum());
+        this.value = defaultValue;
     }
 
     protected void renderElement(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode, float alpha) {
@@ -45,8 +45,8 @@ public final class FeatureModule extends HudElement {
             default -> "Value";
         };
     }
-    public double minimum() { return type == Type.ZOOM ? 10.0 : type == Type.MELEE_HITBOXES ? 2.0 : 1.0; }
-    public double maximum() { return type == Type.ZOOM ? 70.0 : type == Type.MELEE_HITBOXES ? 12.0 : 16.0; }
+    public double minimum() { return type == Type.ZOOM ? 10.0 : type == Type.MELEE_HITBOXES ? 2.0 : 0.0; }
+    public double maximum() { return type == Type.ZOOM ? 70.0 : type == Type.MELEE_HITBOXES ? 12.0 : 1.0; }
     public double value() { return value; }
     @Override public void resetSettings() { super.resetSettings(); value = defaultValue; }
     public void setValue(double value) { if (Double.isFinite(value)) this.value = Math.clamp(value, minimum(), maximum()); }

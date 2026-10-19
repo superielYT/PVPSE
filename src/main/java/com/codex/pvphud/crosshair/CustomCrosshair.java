@@ -60,18 +60,13 @@ public final class CustomCrosshair {
     public synchronized boolean useThemeColor() { return useThemeColor; }
     public synchronized int color() { return color; }
     public synchronized void setColor(int color, boolean useThemeColor) {
-        this.color = color;
+        this.color = 0xFF000000 | color & 0xFFFFFF;
         this.useThemeColor = useThemeColor;
         save();
     }
 
     public synchronized void save() {
-        try {
-            Files.createDirectories(PATH.getParent());
-            try (Writer writer = Files.newBufferedWriter(PATH)) {
-                GSON.toJson(this, writer);
-            }
-        } catch (IOException ignored) {}
+        com.codex.pvphud.config.JsonStorage.write(PATH, this);
     }
 
     public synchronized String exportCode() {
@@ -89,20 +84,12 @@ public final class CustomCrosshair {
 
     public synchronized boolean importCode(String code) {
         try {
-            String[] parts = code == null ? new String[0] : code.trim().split(":");
-            if (parts.length != 4 || !"PVPSE1".equals(parts[0])) return false;
-            byte[] data = Base64.getUrlDecoder().decode(parts[1]);
-            if (data.length != (GRID_SIZE * GRID_SIZE + 7) / 8) return false;
-            boolean[][] imported = new boolean[GRID_SIZE][GRID_SIZE];
-            for (int bit = 0; bit < GRID_SIZE * GRID_SIZE; bit++) {
-                imported[bit / GRID_SIZE][bit % GRID_SIZE] = (data[bit / 8] & 1 << bit % 8) != 0;
-            }
-            color = (int) Long.parseLong(parts[2], 16);
-            int flags = Integer.parseInt(parts[3]);
-            mirrorHorizontal = (flags & 1) != 0;
-            mirrorVertical = (flags & 2) != 0;
-            useThemeColor = (flags & 4) != 0;
-            pixels = imported;
+            var decoded = CrosshairCode.decode(code);
+            color = decoded.color();
+            mirrorHorizontal = (decoded.flags() & 1) != 0;
+            mirrorVertical = (decoded.flags() & 2) != 0;
+            useThemeColor = (decoded.flags() & 4) != 0;
+            pixels = decoded.pixels();
             enabled = true;
             save();
             return true;
@@ -127,6 +114,7 @@ public final class CustomCrosshair {
             for (boolean[] row : loaded.pixels) if (row == null || row.length != GRID_SIZE) return new CustomCrosshair();
             return loaded;
         } catch (IOException | RuntimeException ignored) {
+            com.codex.pvphud.config.JsonStorage.backup(PATH);
             return new CustomCrosshair();
         }
     }

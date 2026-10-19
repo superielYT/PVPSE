@@ -11,7 +11,6 @@ public final class PvpStats {
     private int pendingHurtTime;
     private int pendingTicks;
     private boolean attackWasDown;
-    private boolean lowHealthWarning;
     private int combo;
     private double lastReach;
     private long lastHitAt;
@@ -27,7 +26,7 @@ public final class PvpStats {
             reset();
             return;
         }
-        boolean attackDown = client.options.keyAttack.isDown();
+        boolean attackDown = client.screen == null && client.options.keyAttack.isDown();
         if (attackDown && !attackWasDown && client.hitResult instanceof EntityHitResult hit
                 && hit.getEntity() instanceof LivingEntity living && living != client.player) {
             pendingTarget = living;
@@ -49,13 +48,6 @@ public final class PvpStats {
         }
         if (combo > 0 && System.currentTimeMillis() - lastHitAt > 3_000L) combo = 0;
 
-        float health = client.player.getHealth() + client.player.getAbsorptionAmount();
-        if (health <= 6.0F && !lowHealthWarning) {
-            lowHealthWarning = true;
-            NotificationManager.getInstance().push("Low health", String.format("%.1f hearts left", health / 2.0F));
-        } else if (health > 8.0F) {
-            lowHealthWarning = false;
-        }
     }
 
     public int combo() { return combo; }

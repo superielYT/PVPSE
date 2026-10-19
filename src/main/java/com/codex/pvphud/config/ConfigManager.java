@@ -42,7 +42,8 @@ public final class ConfigManager {
             save(hudManager);
             return;
         }
-        if (profile.theme != null) ThemeManager.getInstance().setTheme(profile.theme);
+        if (profile.theme == null || !ThemeManager.getInstance().setTheme(profile.theme)) ThemeManager.getInstance().setTheme("ignite");
+        hudManager.elements().forEach(HudElement::resetSettings);
         if (profile.hud == null) return;
         for (HudElement element : hudManager.elements()) {
             element.resetSettings();
@@ -51,7 +52,7 @@ public final class ConfigManager {
             element.setEnabled(state.enabled);
             element.setPosition(state.x, state.y);
             element.setScale(state.scale);
-            if (element instanceof FeatureModule feature && state.value > 0) feature.setValue(state.value);
+            if (element instanceof FeatureModule feature && feature.adjustable() && Double.isFinite(state.value) && state.value >= feature.minimum()) feature.setValue(state.value);
         }
     }
 

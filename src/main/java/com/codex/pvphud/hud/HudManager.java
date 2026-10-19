@@ -28,7 +28,7 @@ public final class HudManager {
         register(new FeatureModule(FeatureModule.Type.WAYPOINT, "Waypoint", 198, 250, 0));
         register(new FeatureModule(FeatureModule.Type.ZOOM, "Zoom", 10, 292, 30));
         register(new FeatureModule(FeatureModule.Type.NO_PUMPKIN, "No Pumpkin", 10, 318, 0));
-        register(new FeatureModule(FeatureModule.Type.FULLBRIGHT, "Fullbright", 10, 344, 12));
+        register(new FeatureModule(FeatureModule.Type.FULLBRIGHT, "Brightness", 10, 344, 1));
         register(new FeatureModule(FeatureModule.Type.MELEE_HITBOXES, "Melee Hitboxes", 10, 370, 5));
     }
 

@@ -95,11 +95,16 @@ final class HudConfig {
             config.ensureWidgets();
             return config;
         } catch (IOException | RuntimeException ignored) {
+            com.codex.pvphud.config.JsonStorage.backup(PATH);
             return new HudConfig();
         }
     }
 
     void ensureWidgets() {
+        if (theme == null) theme = Theme.CYBER;
+        if (crosshairStyle == null) crosshairStyle = CrosshairStyle.DIAMOND;
+        crosshairSize = Math.clamp(crosshairSize, MIN_CROSSHAIR_SIZE, MAX_CROSSHAIR_SIZE);
+        panelOpacity = Math.clamp(panelOpacity, MIN_OPACITY, MAX_OPACITY);
         hitboxLineWidth = Math.clamp(hitboxLineWidth, 1, 4);
         lowHealthThreshold = Math.clamp(lowHealthThreshold, 2, 16);
         armorWarningPercent = Math.clamp(armorWarningPercent, 5, 50);
@@ -117,13 +122,7 @@ final class HudConfig {
     }
 
     void save() {
-        try {
-            Files.createDirectories(PATH.getParent());
-            try (Writer writer = Files.newBufferedWriter(PATH)) {
-                GSON.toJson(this, writer);
-            }
-        } catch (IOException ignored) {
-        }
+        com.codex.pvphud.config.JsonStorage.write(PATH, this);
     }
 
     WidgetLayout layout(HudWidgetId id) {
@@ -195,7 +194,7 @@ final class HudConfig {
     int backgroundColor() {
         int alpha = Math.clamp(panelOpacity, MIN_OPACITY, MAX_OPACITY);
         int themeBackground = ThemeManager.getInstance().getTheme().panel();
-        return (alpha << 24) | (themeBackground & 0xFFFFFF);
+        return (Math.round(alpha * 255.0F / 100) << 24) | (themeBackground & 0xFFFFFF);
     }
 
     enum Corner {

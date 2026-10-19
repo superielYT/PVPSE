@@ -74,7 +74,7 @@ public abstract class SettingComponent {
         private final FeatureModule feature;
         public FeatureValue(FeatureModule feature) { super(feature); this.feature = feature; }
         public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
-            c.text(mc.font, Component.literal(mc.font.plainSubstrByWidth(feature.valueName() + " " + Math.round(feature.value()), width / 2 - 3)), x, y + 4, t.text(), false);
+            c.text(mc.font, Component.literal(mc.font.plainSubstrByWidth(feature.valueName() + " " + (feature.type() == FeatureModule.Type.FULLBRIGHT ? Math.round(feature.value() * 100) + "%" : Math.round(feature.value()) + ""), width / 2 - 3)), x, y + 4, t.text(), false);
             int sx = x + width / 2;
             int sw = Math.max(1, width - width / 2 - 4);
             c.fill(sx, y + 9, sx + sw, y + 11, 0xFF343B45);
