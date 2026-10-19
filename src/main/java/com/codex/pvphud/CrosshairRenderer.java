@@ -3,7 +3,7 @@ package com.codex.pvphud;
 import com.codex.pvphud.crosshair.CustomCrosshair;
 import com.codex.pvphud.theme.ThemeManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 
@@ -11,7 +11,7 @@ final class CrosshairRenderer {
     private CrosshairRenderer() {
     }
 
-    static void draw(GuiGraphics context, int cx, int cy, HudConfig config, boolean useTargetColor) {
+    static void draw(GuiGraphicsExtractor context, int cx, int cy, HudConfig config, boolean useTargetColor) {
         if (!config.showCrosshair || config.crosshairStyle == HudConfig.CrosshairStyle.OFF) {
             return;
         }
@@ -63,7 +63,7 @@ final class CrosshairRenderer {
         }
     }
 
-    static void drawCentered(GuiGraphics context, HudConfig config) {
+    static void drawCentered(GuiGraphicsExtractor context, HudConfig config) {
         int cx = context.guiWidth() / 2;
         int cy = context.guiHeight() / 2;
         draw(context, cx, cy, config, true);
@@ -78,11 +78,11 @@ final class CrosshairRenderer {
         return client.hitResult instanceof EntityHitResult hit && hit.getEntity() instanceof Player;
     }
 
-    private static void line(GuiGraphics context, int x1, int y1, int x2, int y2, int color) {
+    private static void line(GuiGraphicsExtractor context, int x1, int y1, int x2, int y2, int color) {
         context.fill(x1, y1, x2, y2, color);
     }
 
-    private static void drawCustom(GuiGraphics context, int cx, int cy, CustomCrosshair custom, int color) {
+    private static void drawCustom(GuiGraphicsExtractor context, int cx, int cy, CustomCrosshair custom, int color) {
         int center = CustomCrosshair.GRID_SIZE / 2;
         for (int y = 0; y < CustomCrosshair.GRID_SIZE; y++) {
             for (int x = 0; x < CustomCrosshair.GRID_SIZE; x++) {

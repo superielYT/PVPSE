@@ -1,6 +1,6 @@
 package com.codex.pvphud;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -48,10 +48,10 @@ final class HudEditorScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         context.fill(0, 0, width, height, 0x55000000);
-        context.drawCenteredString(font, title, width / 2, 8, config.textColor());
-        context.drawCenteredString(font, Component.translatable("screen.pvp_hud_client.editor_hint"),
+        context.centeredText(font, title, width / 2, 8, config.textColor());
+        context.centeredText(font, Component.translatable("screen.pvp_hud_client.editor_hint"),
                 width / 2, 20, config.mutedColor());
 
         if (minecraft != null) {
@@ -65,7 +65,7 @@ final class HudEditorScreen extends Screen {
 
         context.fill(0, height - 36, width, height, 0xCC0A0C10);
         context.fill(0, height - 36, width, height - 35, config.accentColor());
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     @Override

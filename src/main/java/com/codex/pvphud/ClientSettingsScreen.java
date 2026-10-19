@@ -7,7 +7,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -127,11 +127,11 @@ final class ClientSettingsScreen extends Screen {
     }
     private void rememberDraft() { if (profileName != null) draftName = profileName.getValue(); }
 
-    public void render(GuiGraphics c, int mx, int my, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, theme.background());
         c.fill(x() - 8, top() - 32, x() + w() + 8, Math.min(height - 34, top() + 122), theme.panel());
-        c.drawString(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 44, theme.accent());
+        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 44, theme.accent());
         String helper = switch (tab) {
             case GENERAL -> "Your display and visibility preferences";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
@@ -142,9 +142,9 @@ final class ClientSettingsScreen extends Screen {
         int footer = top() + ((tab == Tab.EFFECTS || tab == Tab.HITBOX) ? 103 : 82);
         if (footer < height - 39) {
             String message = status.isBlank() ? helper : status;
-            c.drawString(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());
+            c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());
         }
-        super.render(c, mx, my, delta);
+        super.extractRenderState(c, mx, my, delta);
     }
     public void removed() { rememberDraft(); config.save(); profiles.save(hud); super.removed(); }
     public void onClose() { if (minecraft != null) minecraft.setScreen(parent); }

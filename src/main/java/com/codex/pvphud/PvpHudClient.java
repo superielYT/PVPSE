@@ -11,13 +11,13 @@ import com.codex.pvphud.waypoint.WaypointOverlay;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -44,13 +44,13 @@ public final class PvpHudClient implements ClientModInitializer {
     public void onInitializeClient() {
         config = HudConfig.load();
         profileManager.load(hudManager);
-        toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        toggleHudKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.pvp_hud_client.toggle_hud",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_H,
                 CATEGORY
         ));
-        openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        openConfigKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.pvp_hud_client.open_config",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT_SHIFT,
@@ -129,7 +129,7 @@ public final class PvpHudClient implements ClientModInitializer {
     }
 
     private KeyMapping registerKey(String translation, int key) {
-        return KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        return KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 translation, InputConstants.Type.KEYSYM, key, CATEGORY
         ));
     }
@@ -166,7 +166,7 @@ public final class PvpHudClient implements ClientModInitializer {
         }
     }
 
-    private void renderHud(GuiGraphics context, DeltaTracker tickCounter) {
+    private void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
         if (client.options.hideGui || (config.hideOnDebug && client.getDebugOverlay().showDebugScreen())
                 || client.screen instanceof com.codex.pvphud.hud.HudEditor) {

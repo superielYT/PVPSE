@@ -2,14 +2,14 @@ package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.Theme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 
 public final class TargetHUD extends HudElement {
     public TargetHUD() { super("target", "Target", 150, 112); }
-    protected void renderElement(GuiGraphics c, Minecraft mc, Theme t, boolean editor, float alpha) {
+    protected void renderElement(GuiGraphicsExtractor c, Minecraft mc, Theme t, boolean editor, float alpha) {
         LivingEntity target = mc.hitResult instanceof EntityHitResult hit && hit.getEntity() instanceof LivingEntity living ? living : null;
         if (target == null && !editor) return;
         HudStyles.card(c, t, width(mc), height(mc), alpha);

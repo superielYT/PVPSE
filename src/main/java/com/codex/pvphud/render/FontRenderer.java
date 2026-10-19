@@ -1,7 +1,7 @@
 package com.codex.pvphud.render;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public final class FontRenderer {
@@ -19,11 +19,11 @@ public final class FontRenderer {
         return delegate.lineHeight;
     }
 
-    public void draw(GuiGraphics context, Component text, int x, int y, int color) {
-        context.drawString(delegate, text, x, y, color, false);
+    public void draw(GuiGraphicsExtractor context, Component text, int x, int y, int color) {
+        context.text(delegate, text, x, y, color, false);
     }
 
-    public void drawShadow(GuiGraphics context, Component text, int x, int y, int color) {
-        context.drawString(delegate, text, x, y, color);
+    public void drawShadow(GuiGraphicsExtractor context, Component text, int x, int y, int color) {
+        context.text(delegate, text, x, y, color);
     }
 }

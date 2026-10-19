@@ -1,6 +1,6 @@
 package com.codex.pvphud;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -189,7 +189,7 @@ final class HudConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         float progress = Math.min(1.0f, (animTick + delta) / ANIM_DURATION);
         float ease = 1f - (1f - progress) * (1f - progress); // ease-out quad
 
@@ -218,17 +218,17 @@ final class HudConfigScreen extends Screen {
             int previewCy = contentTop + 60;
             context.fill(previewCx - 28, previewCy - 28, previewCx + 28, previewCy + 28, 0xFF0A0C10);
             context.fill(previewCx - 28, previewCy - 28, previewCx + 28, previewCy - 27, config.accentColor());
-            context.drawCenteredString(font,
+            context.centeredText(font,
                 Component.translatable("screen.pvp_hud_client.preview"),
                 previewCx, previewCy - 38, config.mutedColor());
             CrosshairRenderer.draw(context, previewCx, previewCy, config, false);
         }
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
         context.pose().popMatrix();
     }
 
-    private void drawLogo(GuiGraphics context, int panelX, int panelW, float ease) {
+    private void drawLogo(GuiGraphicsExtractor context, int panelX, int panelW, float ease) {
         context.fill(panelX, 0, panelX + panelW, LOGO_H, 0xFF0A0C12);
         int lineW = (int) (panelW * ease);
         context.fill(panelX, 0, panelX + lineW, 2, config.accentColor());
@@ -236,10 +236,10 @@ final class HudConfigScreen extends Screen {
         context.pose().pushMatrix();
         context.pose().translate(panelX + panelW / 2.0F, 7);
         context.pose().scale(1.65F, 1.65F);
-        context.drawCenteredString(font, Component.literal("PVPSE"), 0, 0, config.accentColor());
+        context.centeredText(font, Component.literal("PVPSE"), 0, 0, config.accentColor());
         context.pose().popMatrix();
 
-        context.drawCenteredString(font,
+        context.centeredText(font,
             Component.literal("PVP CLIENT  •  1.21"), panelX + panelW / 2, LOGO_H - 12, config.mutedColor());
     }
 

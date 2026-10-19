@@ -9,7 +9,7 @@ import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.theme.Theme;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public final class ModuleButton {
@@ -43,15 +43,15 @@ public final class ModuleButton {
         }
         this.settings = List.copyOf(controls);
     }
-    public void render(GuiGraphics context, Minecraft client, Theme theme, int x, int y, int width, int mouseX, int mouseY) {
+    public void render(GuiGraphicsExtractor context, Minecraft client, Theme theme, int x, int y, int width, int mouseX, int mouseY) {
         this.x = x; this.y = y; this.width = width;
         expansion.animateTo(expanded ? 1 : 0);
         boolean hover = RenderUtil.hovered(mouseX, mouseY, x, y, width, 24);
         RoundedRenderer.fill(context, x, y, width, totalHeight(), 5, hover ? 0xEE252C35 : 0xDD1A2028);
-        context.drawString(client.font, Component.literal(client.font.plainSubstrByWidth(element.name(), Math.max(1, width - 56))), x + 8, y + 8,
+        context.text(client.font, Component.literal(client.font.plainSubstrByWidth(element.name(), Math.max(1, width - 56))), x + 8, y + 8,
                 element.enabled() ? theme.text() : theme.mutedText(), false);
         RoundedRenderer.fill(context, x + width - 26, y + 7, 18, 10, 5, element.enabled() ? theme.accent() : 0xFF3A414B);
-        context.drawString(client.font, Component.literal(expanded ? "–" : "+"), x + width - 40, y + 7, theme.mutedText(), false);
+        context.text(client.font, Component.literal(expanded ? "–" : "+"), x + width - 40, y + 7, theme.mutedText(), false);
         int visible = Math.round(settings.size() * 22 * expansion.value());
         if (visible > 0) {
             context.enableScissor(x, y + 24, x + width, y + 24 + visible);

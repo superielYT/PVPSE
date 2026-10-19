@@ -5,7 +5,7 @@ import com.codex.pvphud.waypoint.WaypointManager;
 
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public final class FeatureModule extends HudElement {
@@ -22,13 +22,13 @@ public final class FeatureModule extends HudElement {
         this.defaultValue = value;
     }
 
-    protected void renderElement(GuiGraphics context, Minecraft client, Theme theme, boolean editorMode, float alpha) {
+    protected void renderElement(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode, float alpha) {
         if (type != Type.WAYPOINT && !editorMode) return;
         HudStyles.card(context, theme, width(client), height(client), alpha);
-        context.drawString(client.font, Component.literal(nameText()), 7, 7, theme.text());
+        context.text(client.font, Component.literal(nameText()), 7, 7, theme.text());
         if (type == Type.WAYPOINT) {
             String detail = "";
-            context.drawString(client.font, Component.literal(detail), 7, 19, theme.accent());
+            context.text(client.font, Component.literal(detail), 7, 19, theme.accent());
             com.codex.pvphud.waypoint.WaypointRadar.render(context, client, theme);
         }
     }

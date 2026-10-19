@@ -3,7 +3,7 @@ package com.codex.pvphud.theme;
 import com.codex.pvphud.notification.NotificationManager;
 import com.codex.pvphud.render.RenderUtil;
 import com.codex.pvphud.render.RoundedRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -30,21 +30,21 @@ public final class ThemeEditorScreen extends Screen {
         panelY = height / 2 - 92;
     }
 
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         CustomTheme custom = ThemeManager.getInstance().customTheme();
         context.fill(0, 0, width, height, custom.background());
         RenderUtil.panel(context, panelX, panelY, 300, 184, custom);
-        context.drawCenteredString(font, title, width / 2, panelY + 12, custom.accent());
+        context.centeredText(font, title, width / 2, panelY + 12, custom.accent());
         drawSlider(context, panelY + 44, "RED", red, 0xFFFF4B4B);
         drawSlider(context, panelY + 75, "GREEN", green, 0xFF45E58B);
         drawSlider(context, panelY + 106, "BLUE", blue, 0xFF4B9DFF);
         int preview = 0xFF000000 | red << 16 | green << 8 | blue;
         RoundedRenderer.fill(context, panelX + 18, panelY + 141, 112, 28, 7, preview);
-        context.drawCenteredString(font, Component.literal(String.format("#%02X%02X%02X", red, green, blue)),
+        context.centeredText(font, Component.literal(String.format("#%02X%02X%02X", red, green, blue)),
                 panelX + 74, panelY + 151, 0xFFFFFFFF);
         drawButton(context, panelX + 170, panelY + 141, 52, "APPLY", mouseX, mouseY, custom);
         drawButton(context, panelX + 228, panelY + 141, 52, "DONE", mouseX, mouseY, custom);
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
@@ -82,9 +82,9 @@ public final class ThemeEditorScreen extends Screen {
         NotificationManager.getInstance().push("Theme applied", String.format("#%02X%02X%02X", red, green, blue));
     }
 
-    private void drawSlider(GuiGraphics context, int y, String label, int value, int color) {
+    private void drawSlider(GuiGraphicsExtractor context, int y, String label, int value, int color) {
         CustomTheme theme = ThemeManager.getInstance().customTheme();
-        context.drawString(font, Component.literal(label + "  " + value), panelX + 18, y, theme.text());
+        context.text(font, Component.literal(label + "  " + value), panelX + 18, y, theme.text());
         int x = panelX + 92;
         int width = 188;
         context.fill(x, y + 5, x + width, y + 9, 0xFF333B45);
@@ -102,10 +102,10 @@ public final class ThemeEditorScreen extends Screen {
         return true;
     }
 
-    private void drawButton(GuiGraphics context, int x, int y, int width, String label, int mouseX, int mouseY, Theme theme) {
+    private void drawButton(GuiGraphicsExtractor context, int x, int y, int width, String label, int mouseX, int mouseY, Theme theme) {
         RoundedRenderer.fill(context, x, y, width, 28, 6,
                 inside(mouseX, mouseY, x, y, width, 28) ? theme.accentSecondary() : theme.panelHeader());
-        context.drawCenteredString(font, Component.literal(label), x + width / 2, y + 10, theme.text());
+        context.centeredText(font, Component.literal(label), x + width / 2, y + 10, theme.text());
     }
 
     private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {

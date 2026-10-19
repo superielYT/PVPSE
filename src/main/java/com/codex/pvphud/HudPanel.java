@@ -2,7 +2,7 @@ package com.codex.pvphud;
 
 import java.util.List;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 final class HudPanel {
@@ -11,7 +11,7 @@ final class HudPanel {
     private HudPanel() {
     }
 
-    static int draw(GuiGraphics context, Font text, int x, int y, Component title, List<Line> lines, HudConfig config, boolean editorOverlay) {
+    static int draw(GuiGraphicsExtractor context, Font text, int x, int y, Component title, List<Line> lines, HudConfig config, boolean editorOverlay) {
         if (lines.isEmpty()) {
             return 0;
         }
@@ -23,7 +23,7 @@ final class HudPanel {
         return size[1] + GAP;
     }
 
-    static int drawChips(GuiGraphics context, Font text, int x, int y, Component title, List<Chip> chips, HudConfig config, boolean editorOverlay) {
+    static int drawChips(GuiGraphicsExtractor context, Font text, int x, int y, Component title, List<Chip> chips, HudConfig config, boolean editorOverlay) {
         if (chips.isEmpty()) {
             return 0;
         }
@@ -51,7 +51,7 @@ final class HudPanel {
         return measureChipPanel(text, title, chips, compact)[1];
     }
 
-    static void drawProgressBar(GuiGraphics context, int x, int y, int width, int height, float percent, HudConfig config, boolean danger) {
+    static void drawProgressBar(GuiGraphicsExtractor context, int x, int y, int width, int height, float percent, HudConfig config, boolean danger) {
         int fill = Math.min(width, Math.max(0, Math.round(width * percent)));
         context.fill(x, y, x + width, y + height, 0x66000000);
         int color = danger ? config.dangerColor() : lerpColor(config.accentColor(), config.dangerColor(), 1.0F - percent);
@@ -62,13 +62,13 @@ final class HudPanel {
         context.fill(x, y, x + fill, y + 1, 0x88FFFFFF);
     }
 
-    static void drawCloseButton(GuiGraphics context, int x, int y, boolean hovered) {
+    static void drawCloseButton(GuiGraphicsExtractor context, int x, int y, boolean hovered) {
         int bg = hovered ? 0xFFFF4757 : 0xAAFF4757;
         context.fill(x, y, x + 8, y + 8, bg);
         context.fill(x + 2, y + 3, x + 6, y + 4, 0xFFFFFFFF);
     }
 
-    static void drawEditorOutline(GuiGraphics context, int x, int y, int width, int height, HudConfig config, boolean hovered) {
+    static void drawEditorOutline(GuiGraphicsExtractor context, int x, int y, int width, int height, HudConfig config, boolean hovered) {
         int color = hovered ? config.accentColor() : withAlpha(config.accentColor(), 0x88);
         context.fill(x - 1, y - 1, x + width + 1, y, color);
         context.fill(x - 1, y + height, x + width + 1, y + height + 1, color);
@@ -76,11 +76,11 @@ final class HudPanel {
         context.fill(x + width, y, x + width + 1, y + height, color);
     }
 
-    static void drawWidgetFrame(GuiGraphics context, int x, int y, int width, int height, HudConfig config, boolean editorOverlay) {
+    static void drawWidgetFrame(GuiGraphicsExtractor context, int x, int y, int width, int height, HudConfig config, boolean editorOverlay) {
         drawCoolFrame(context, x, y, width, height, config, editorOverlay);
     }
 
-    private static void drawCoolFrame(GuiGraphics context, int x, int y, int width, int height, HudConfig config, boolean editorOverlay) {
+    private static void drawCoolFrame(GuiGraphicsExtractor context, int x, int y, int width, int height, HudConfig config, boolean editorOverlay) {
         int background = config.backgroundColor();
         context.fill(x + 3, y + 3, x + width + 3, y + height + 3, 0x44000000);
         context.fill(x, y, x + width, y + height, background);
@@ -94,25 +94,25 @@ final class HudPanel {
         }
     }
 
-    private static void drawTitle(GuiGraphics context, Font text, int x, int y, Component title, int width, HudConfig config, boolean editorOverlay) {
-        context.drawString(text, title, x + 6, y + 4, config.accentColor(), false);
+    private static void drawTitle(GuiGraphicsExtractor context, Font text, int x, int y, Component title, int width, HudConfig config, boolean editorOverlay) {
+        context.text(text, title, x + 6, y + 4, config.accentColor(), false);
         if (editorOverlay) {
             drawCloseButton(context, x + width - 10, y + 3, false);
         }
         context.fill(x + 6, y + 14, x + width - 6, y + 15, 0x33FFFFFF);
     }
 
-    private static void drawLines(GuiGraphics context, Font text, int x, int y, List<Line> lines, int width, HudConfig config) {
+    private static void drawLines(GuiGraphicsExtractor context, Font text, int x, int y, List<Line> lines, int width, HudConfig config) {
         int pad = config.compact ? 5 : 6;
         int lineHeight = config.compact ? text.lineHeight + 2 : text.lineHeight + 3;
         int drawY = y + 17;
         for (Line line : lines) {
-            context.drawString(text, line.text(), x + pad, drawY, line.color(config), false);
+            context.text(text, line.text(), x + pad, drawY, line.color(config), false);
             drawY += lineHeight;
         }
     }
 
-    private static void drawChipsContent(GuiGraphics context, Font text, int x, int y, List<Chip> chips, int width, HudConfig config) {
+    private static void drawChipsContent(GuiGraphicsExtractor context, Font text, int x, int y, List<Chip> chips, int width, HudConfig config) {
         int pad = config.compact ? 5 : 6;
         int chipPadX = 5;
         int chipPadY = 3;
@@ -137,8 +137,8 @@ final class HudPanel {
             int bg = chip.danger() ? 0x55FF647C : 0x44000000;
             context.fill(chipX, chipY, chipX + chipWidth, chipY + chipHeight, bg);
             context.fill(chipX, chipY, chipX + chipWidth, chipY + 1, chip.danger() ? config.dangerColor() : config.accentColor());
-            context.drawString(text, chip.label(), chipX + chipPadX, chipY + chipPadY, config.mutedColor(), false);
-            context.drawString(text, chip.value(), chipX + chipPadX + labelWidth + 4, chipY + chipPadY, chip.danger() ? config.dangerColor() : config.textColor(), false);
+            context.text(text, chip.label(), chipX + chipPadX, chipY + chipPadY, config.mutedColor(), false);
+            context.text(text, chip.value(), chipX + chipPadX + labelWidth + 4, chipY + chipPadY, chip.danger() ? config.dangerColor() : config.textColor(), false);
 
             chipX += chipWidth + chipGap;
             rowWidth += chipWidth + chipGap;

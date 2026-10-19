@@ -2,7 +2,7 @@ package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.Theme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public final class CPSHUD extends HudElement {
@@ -12,7 +12,7 @@ public final class CPSHUD extends HudElement {
     private int right;
     private long windowStarted = System.currentTimeMillis();
     public CPSHUD() { super("cps", "CPS", 154, 84); }
-    protected void renderElement(GuiGraphics c, Minecraft mc, Theme t, boolean editor, float alpha) {
+    protected void renderElement(GuiGraphicsExtractor c, Minecraft mc, Theme t, boolean editor, float alpha) {
         update(mc);
         HudStyles.card(c, t, width(mc), height(mc), alpha);
         HudStyles.label(c, mc, Component.literal("CPS "), 6, 6, t.mutedText());

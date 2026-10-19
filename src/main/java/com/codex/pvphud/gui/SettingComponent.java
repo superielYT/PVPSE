@@ -6,7 +6,7 @@ import com.codex.pvphud.FeatureKeybinds;
 import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.theme.Theme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public abstract class SettingComponent {
@@ -27,7 +27,7 @@ public abstract class SettingComponent {
         return this;
     }
 
-    public abstract void render(GuiGraphics context, Minecraft client, Theme theme, int mouseX, int mouseY);
+    public abstract void render(GuiGraphicsExtractor context, Minecraft client, Theme theme, int mouseX, int mouseY);
     public abstract boolean click(double mouseX, double mouseY, int button);
     public boolean draggable() { return this instanceof Scale || this instanceof FeatureValue || this instanceof Position; }
     public void drag(double mouseX) { click(Math.clamp(mouseX, x, x + width - 1), y + height / 2.0, 0); }
@@ -35,8 +35,8 @@ public abstract class SettingComponent {
 
     public static final class Toggle extends SettingComponent {
         public Toggle(HudElement element) { super(element); }
-        public void render(GuiGraphics c, Minecraft mc, Theme t, int mx, int my) {
-            c.drawString(mc.font, Component.literal("Visible"), x, y + 6, t.text(), false);
+        public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
+            c.text(mc.font, Component.literal("Visible"), x, y + 6, t.text(), false);
             int track = element.enabled() ? t.accent() : 0xFF3A414B;
             RoundedRenderer.fill(c, x + width - 34, y + 3, 30, 14, 7, track);
             RoundedRenderer.fill(c, x + width - (element.enabled() ? 18 : 31), y + 5, 10, 10, 5, 0xFFF8F8F8);
@@ -52,8 +52,8 @@ public abstract class SettingComponent {
 
     public static final class Scale extends SettingComponent {
         public Scale(HudElement element) { super(element); }
-        public void render(GuiGraphics c, Minecraft mc, Theme t, int mx, int my) {
-            c.drawString(mc.font, Component.literal(mc.font.plainSubstrByWidth(String.format(java.util.Locale.ROOT, "Scale %.2f", element.scale()), width / 2 - 3)), x, y + 4, t.text(), false);
+        public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
+            c.text(mc.font, Component.literal(mc.font.plainSubstrByWidth(String.format(java.util.Locale.ROOT, "Scale %.2f", element.scale()), width / 2 - 3)), x, y + 4, t.text(), false);
             int sx = x + width / 2;
             int sw = width - width / 2 - 4;
             c.fill(sx, y + 9, sx + sw, y + 11, 0xFF343B45);
@@ -73,8 +73,8 @@ public abstract class SettingComponent {
     public static final class FeatureValue extends SettingComponent {
         private final FeatureModule feature;
         public FeatureValue(FeatureModule feature) { super(feature); this.feature = feature; }
-        public void render(GuiGraphics c, Minecraft mc, Theme t, int mx, int my) {
-            c.drawString(mc.font, Component.literal(mc.font.plainSubstrByWidth(feature.valueName() + " " + Math.round(feature.value()), width / 2 - 3)), x, y + 4, t.text(), false);
+        public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
+            c.text(mc.font, Component.literal(mc.font.plainSubstrByWidth(feature.valueName() + " " + Math.round(feature.value()), width / 2 - 3)), x, y + 4, t.text(), false);
             int sx = x + width / 2;
             int sw = Math.max(1, width - width / 2 - 4);
             c.fill(sx, y + 9, sx + sw, y + 11, 0xFF343B45);
@@ -93,15 +93,15 @@ public abstract class SettingComponent {
     public static final class Keybind extends SettingComponent {
         private final FeatureModule feature;
         public Keybind(FeatureModule feature) { super(feature); this.feature = feature; }
-        public void render(GuiGraphics c, Minecraft mc, Theme t, int mx, int my) {
-            c.drawString(mc.font, Component.literal("Keybind"), x, y + 6, t.text(), false);
+        public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
+            c.text(mc.font, Component.literal("Keybind"), x, y + 6, t.text(), false);
             var binding = FeatureKeybinds.key(feature.type());
             String label = FeatureKeybinds.listening(feature.type()) ? "LISTENING..."
                     : binding == null ? "NONE" : binding.getTranslatedKeyMessage().getString();
             int buttonWidth = Math.max(68, mc.font.width(label) + 12);
             RoundedRenderer.fill(c, x + width - buttonWidth, y + 2, buttonWidth, 16, 4,
                     FeatureKeybinds.listening(feature.type()) ? t.accent() : t.panelHeader());
-            c.drawCenteredString(mc.font, Component.literal(label),
+            c.centeredText(mc.font, Component.literal(label),
                     x + width - buttonWidth / 2, y + 6, t.text());
         }
         public boolean click(double mx, double my, int button) {
@@ -116,9 +116,9 @@ public abstract class SettingComponent {
     public static final class Position extends SettingComponent {
         private final boolean horizontal;
         public Position(HudElement element, boolean horizontal) { super(element); this.horizontal = horizontal; }
-        public void render(GuiGraphics c, Minecraft mc, Theme t, int mx, int my) {
+        public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
             float position = horizontal ? element.x() : element.y();
-            c.drawString(mc.font, Component.literal((horizontal ? "X " : "Y ") + Math.round(position)), x, y + 6, t.text(), false);
+            c.text(mc.font, Component.literal((horizontal ? "X " : "Y ") + Math.round(position)), x, y + 6, t.text(), false);
             float limit = Math.max(1, (horizontal ? mc.getWindow().getGuiScaledWidth() : mc.getWindow().getGuiScaledHeight()) - (horizontal ? element.width(mc) : element.height(mc)) * element.scale());
             int start = x + width / 2, length = Math.max(1, width - width / 2 - 4);
             c.fill(start, y + 9, start + length, y + 11, t.panelHeader());
@@ -137,9 +137,9 @@ public abstract class SettingComponent {
 
     public static final class ResetLayout extends SettingComponent {
         public ResetLayout(HudElement element) { super(element); }
-        public void render(GuiGraphics c, Minecraft mc, Theme t, int mx, int my) {
+        public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
             RoundedRenderer.fill(c, x, y + 2, width, 16, 4, inside(mx, my) ? t.accentSecondary() : t.panelHeader());
-            c.drawCenteredString(mc.font, Component.literal("Reset position & scale"), x + width / 2, y + 6, t.text());
+            c.centeredText(mc.font, Component.literal("Reset position & scale"), x + width / 2, y + 6, t.text());
         }
         public boolean click(double mx, double my, int button) {
             if (button != 0 || !inside(mx, my)) return false;

@@ -2,8 +2,8 @@ package com.codex.pvphud;
 
 import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.hud.HudManager;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -29,10 +29,10 @@ public final class MeleeHitboxRenderer {
         hudManager = manager; config = settings;
         if (registered) return;
         registered = true;
-        WorldRenderEvents.AFTER_ENTITIES.register(MeleeHitboxRenderer::render);
+        LevelRenderEvents.AFTER_ENTITIES.register(MeleeHitboxRenderer::render);
     }
 
-    private static void render(WorldRenderContext context) {
+    private static void render(LevelRenderContext context) {
         Minecraft client = Minecraft.getInstance();
         if (hudManager == null || config == null || client.player == null || client.level == null
                 || !config.enabled || client.options.hideGui || client.screen != null
@@ -55,9 +55,9 @@ public final class MeleeHitboxRenderer {
                     .limit(16).toList();
         float tick = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         Vec3 camera = client.gameRenderer.getMainCamera().position();
-        context.matrices().pushPose();
+        context.poseStack().pushPose();
         try {
-            context.matrices().translate(-camera.x, -camera.y, -camera.z);
+            context.poseStack().translate(-camera.x, -camera.y, -camera.z);
             for (Entity target : targets) {
                 if (!eligible(target, client, eye, range)) continue;
                 // Match rendered movement between ticks, including airborne mace fights.
@@ -82,7 +82,7 @@ public final class MeleeHitboxRenderer {
                 }
             }
         } finally {
-            context.matrices().popPose();
+            context.poseStack().popPose();
         }
     }
 
@@ -100,9 +100,9 @@ public final class MeleeHitboxRenderer {
         return dx * dx + dy * dy + dz * dz;
     }
 
-    private static void outline(WorldRenderContext context, AABB box, int color, float width) {
-        ShapeRenderer.renderShape(context.matrices(),
-                context.consumers().getBuffer(RenderTypes.lines()), Shapes.create(box),
+    private static void outline(LevelRenderContext context, AABB box, int color, float width) {
+        ShapeRenderer.renderShape(context.poseStack(),
+                context.bufferSource().getBuffer(RenderTypes.lines()), Shapes.create(box),
                 0, 0, 0, color, width);
     }
 }

@@ -1,7 +1,7 @@
 package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.ThemeManager;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -33,14 +33,14 @@ public final class HudEditor extends Screen {
         manager.layoutElements().forEach(e -> original.put(e, new Layout(e.x(), e.y(), e.scale(), e.enabled())));
     }
 
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         context.fill(0, 0, width, height, theme.background());
         RoundedRenderer.fill(context, 8, 7, width - 16, 26, 7, theme.panelHeader());
-        context.drawString(font, title, 18, 16, theme.accent());
+        context.text(font, title, 18, 16, theme.accent());
         drawAction(context, width - BUTTON_WIDTH * 2 - 24, 10, "THEME", mouseX, mouseY, theme.accentSecondary());
         drawAction(context, width - BUTTON_WIDTH - 16, 10, "DONE", mouseX, mouseY, theme.accent());
-        context.drawCenteredString(font,
+        context.centeredText(font,
                 Component.literal("Drag / corner: resize | Arrows: nudge | R: reset | Ctrl+Z: undo"),
                 width / 2, TOP_BAR_HEIGHT + 2, theme.mutedText());
         if (minecraft != null) {
@@ -49,7 +49,7 @@ public final class HudEditor extends Screen {
             if (guideY != null) context.fill(0, guideY, width, guideY + 1, theme.accentSecondary());
             for (HudElement element : manager.layoutElements()) drawElementOutline(context, element, element == selected, theme);
         }
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
@@ -137,13 +137,13 @@ public final class HudEditor extends Screen {
 
     public boolean isPauseScreen() { return false; }
 
-    private void drawAction(GuiGraphics context, int x, int y, String label, int mouseX, int mouseY, int color) {
+    private void drawAction(GuiGraphicsExtractor context, int x, int y, String label, int mouseX, int mouseY, int color) {
         boolean hover = inside(mouseX, mouseY, x, y, BUTTON_WIDTH, 20);
         RoundedRenderer.fill(context, x, y, BUTTON_WIDTH, 20, 5, hover ? color : (0xCC000000 | color & 0xFFFFFF));
-        context.drawCenteredString(font, Component.literal(label), x + BUTTON_WIDTH / 2, y + 6, 0xFFF8F8F8);
+        context.centeredText(font, Component.literal(label), x + BUTTON_WIDTH / 2, y + 6, 0xFFF8F8F8);
     }
 
-    private void drawElementOutline(GuiGraphics context, HudElement element, boolean active, com.codex.pvphud.theme.Theme theme) {
+    private void drawElementOutline(GuiGraphicsExtractor context, HudElement element, boolean active, com.codex.pvphud.theme.Theme theme) {
         int x = Math.round(element.x());
         int y = Math.round(element.y());
         int w = Math.round(element.width(minecraft) * element.scale());
@@ -156,7 +156,7 @@ public final class HudEditor extends Screen {
         RoundedRenderer.fill(context, x + w - 5, y + h - 5, 9, 9, 3, color);
         if (active) {
             String scale = String.format(java.util.Locale.ROOT, "%.2fx", element.scale());
-            context.drawString(font, Component.literal(scale), x + w + 7, y + h - 4, theme.text());
+            context.text(font, Component.literal(scale), x + w + 7, y + h - 4, theme.text());
         }
     }
 

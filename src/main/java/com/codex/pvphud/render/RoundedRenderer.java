@@ -1,11 +1,11 @@
 package com.codex.pvphud.render;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public final class RoundedRenderer {
     private RoundedRenderer() {}
 
-    public static void fill(GuiGraphics context, int x, int y, int width, int height, int radius, int color) {
+    public static void fill(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
         if (width <= 0 || height <= 0) return;
         int r = Math.clamp(radius, 0, Math.min(width, height) / 2);
         if (r == 0) {

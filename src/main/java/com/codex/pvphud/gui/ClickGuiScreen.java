@@ -8,7 +8,7 @@ import com.codex.pvphud.theme.ThemeManager;
 import com.codex.pvphud.theme.ThemeEditorScreen;
 import com.codex.pvphud.waypoint.WaypointScreen;
 import java.util.function.Function;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -65,23 +65,23 @@ public final class ClickGuiScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal(font.plainSubstrByWidth(label, sidebarWidth() - 10)), b -> action.run())
                 .bounds(12, y, sidebarWidth(), 20).build());
     }
-    public void render(GuiGraphics c, int mx, int my, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, theme.background());
         c.fill(0, 0, sidebarWidth() + 24, height, theme.panel());
         c.fill(sidebarWidth() + 23, 0, sidebarWidth() + 24, height, theme.panelHeader());
-        c.drawString(font, Component.literal("PVPSE"), 16, 15, theme.accent());
-        c.drawString(font, Component.literal(font.plainSubstrByWidth("CUSTOMIZE YOUR CLIENT", contentWidth())), contentX(), 16, theme.mutedText());
+        c.text(font, Component.literal("PVPSE"), 16, 15, theme.accent());
+        c.text(font, Component.literal(font.plainSubstrByWidth("CUSTOMIZE YOUR CLIENT", contentWidth())), contentX(), 16, theme.mutedText());
         hudPanel.render(c, minecraft, theme, contentX(), 85, contentWidth(), height - 116, mx, my, query);
         if (height > 225) {
             String hint = "Click: toggle   |   Right-click / +: settings";
-            c.drawString(font, Component.literal(font.plainSubstrByWidth(hint, contentWidth())), contentX(), height - 22, theme.mutedText());
+            c.text(font, Component.literal(font.plainSubstrByWidth(hint, contentWidth())), contentX(), height - 22, theme.mutedText());
         }
         if (height > 280) {
             long enabled = hudManager.elements().stream().filter(e -> e.enabled()).count();
-            c.drawString(font, Component.literal(enabled + " modules enabled"), 16, 206, theme.mutedText());
+            c.text(font, Component.literal(enabled + " modules enabled"), 16, 206, theme.mutedText());
         }
-        super.render(c, mx, my, delta);
+        super.extractRenderState(c, mx, my, delta);
     }
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         if (super.mouseClicked(click, doubled)) return true;

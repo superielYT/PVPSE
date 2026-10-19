@@ -5,7 +5,7 @@ import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.notification.NotificationManager;
 import com.codex.pvphud.theme.Theme;
 import com.codex.pvphud.theme.ThemeManager;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -42,12 +42,12 @@ public final class CrosshairDrawerScreen extends Screen {
         gridY = CONTENT_TOP - scrollOffset;
     }
 
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         gridY = CONTENT_TOP - scrollOffset;
         Theme theme = ThemeManager.getInstance().getTheme();
         context.fill(0, 0, width, height, theme.background());
         RenderUtil.panel(context, gridX - 12, gridY - 35, GRID * CELL + 24, GRID * CELL + 120, theme);
-        context.drawCenteredString(font, title, width / 2, gridY - 25, theme.accent());
+        context.centeredText(font, title, width / 2, gridY - 25, theme.accent());
 
         for (int y = 0; y < GRID; y++) {
             for (int x = 0; x < GRID; x++) {
@@ -72,7 +72,7 @@ public final class CrosshairDrawerScreen extends Screen {
         drawButton(context, gridX + 98, controlsY + 50, 92, "PASTE CODE", theme, mouseX, mouseY);
 
         int paletteX = gridX + GRID * CELL + 22;
-        context.drawString(font, Component.literal("COLOR"), paletteX, gridY, theme.text());
+        context.text(font, Component.literal("COLOR"), paletteX, gridY, theme.text());
         drawColor(context, paletteX, gridY + 18, 0, theme.accent(), crosshair.useThemeColor(), theme);
         for (int i = 0; i < PALETTE.length; i++) {
             drawColor(context, paletteX, gridY + 42 + i * 24, i + 1, PALETTE[i],
@@ -80,10 +80,10 @@ public final class CrosshairDrawerScreen extends Screen {
         }
         drawButton(context, width - 76, 14, 60, "DONE", theme, mouseX, mouseY);
         drawScrollbar(context, theme);
-        context.drawCenteredString(font,
+        context.centeredText(font,
                 Component.literal("Left click draws • right click erases • drag to paint"),
                 width / 2, height - 18, theme.mutedText());
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
@@ -169,30 +169,30 @@ public final class CrosshairDrawerScreen extends Screen {
         return inside(mouseX, mouseY, gridX, gridY, GRID * CELL, GRID * CELL);
     }
 
-    private void drawToggle(GuiGraphics context, int x, int y, int width, String label, boolean active,
+    private void drawToggle(GuiGraphicsExtractor context, int x, int y, int width, String label, boolean active,
                             Theme theme, int mouseX, int mouseY) {
         int color = active ? theme.accent() : (inside(mouseX, mouseY, x, y, width, 20) ? theme.panelHeader() : theme.panel());
         RoundedRenderer.fill(context, x, y, width, 20, 5, color);
-        context.drawCenteredString(font, Component.literal(label), x + width / 2, y + 6,
+        context.centeredText(font, Component.literal(label), x + width / 2, y + 6,
                 active ? 0xFF101216 : theme.text());
     }
 
-    private void drawButton(GuiGraphics context, int x, int y, int width, String label, Theme theme, int mouseX, int mouseY) {
+    private void drawButton(GuiGraphicsExtractor context, int x, int y, int width, String label, Theme theme, int mouseX, int mouseY) {
         RoundedRenderer.fill(context, x, y, width, 20, 5,
                 inside(mouseX, mouseY, x, y, width, 20) ? theme.accentSecondary() : theme.panelHeader());
-        context.drawCenteredString(font, Component.literal(label), x + width / 2, y + 6, theme.text());
+        context.centeredText(font, Component.literal(label), x + width / 2, y + 6, theme.text());
     }
 
-    private void drawColor(GuiGraphics context, int x, int y, int index, int color, boolean selected, Theme theme) {
+    private void drawColor(GuiGraphicsExtractor context, int x, int y, int index, int color, boolean selected, Theme theme) {
         RoundedRenderer.fill(context, x, y, 20, 20, 5, color);
         if (selected) {
             context.fill(x - 2, y - 2, x + 22, y, theme.text());
             context.fill(x - 2, y + 20, x + 22, y + 22, theme.text());
         }
-        if (index == 0) context.drawString(font, Component.literal("T"), x + 7, y + 6, 0xFF101216);
+        if (index == 0) context.text(font, Component.literal("T"), x + 7, y + 6, 0xFF101216);
     }
 
-    private void drawScrollbar(GuiGraphics context, Theme theme) {
+    private void drawScrollbar(GuiGraphicsExtractor context, Theme theme) {
         int maximum = maximumScroll();
         if (maximum <= 0) return;
         scrollbarTop = 46;

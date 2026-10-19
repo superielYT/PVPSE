@@ -1,7 +1,7 @@
 package com.codex.pvphud;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 
@@ -11,7 +11,7 @@ final class PvpIndicators {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
     };
 
-    static void render(GuiGraphics c, Minecraft client, HudConfig config) {
+    static void render(GuiGraphicsExtractor c, Minecraft client, HudConfig config) {
         if (client.player == null || client.screen != null || client.player.isSpectator()) return;
         int cx = c.guiWidth() / 2;
         int cy = c.guiHeight() / 2;
@@ -43,10 +43,10 @@ final class PvpIndicators {
         }
     }
 
-    private static void warning(GuiGraphics c, Minecraft client, String message, int cx, int y, int color) {
+    private static void warning(GuiGraphicsExtractor c, Minecraft client, String message, int cx, int y, int color) {
         int half = client.font.width(message) / 2 + 9;
         c.fill(cx - half, y - 4, cx + half, y + 13, 0xDE11161E);
         c.fill(cx - half, y - 4, cx - half + 2, y + 13, color);
-        c.drawCenteredString(client.font, Component.literal(message), cx, y, color);
+        c.centeredText(client.font, Component.literal(message), cx, y, color);
     }
 }

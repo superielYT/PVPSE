@@ -1,7 +1,7 @@
 package com.codex.pvphud.waypoint;
 
 import com.codex.pvphud.theme.ThemeManager;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -47,10 +47,10 @@ public final class WaypointScreen extends Screen {
         }
     }
     private void clamp() { scroll = Math.clamp(scroll, 0, Math.max(0, manager.waypoints().size() * 40 - Math.max(0, height - 174))); }
-    public void render(GuiGraphics c, int mx, int my, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var t = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, t.background());
-        c.drawCenteredString(font, title, width / 2, 15, t.accent());
+        c.centeredText(font, title, width / 2, 15, t.accent());
         clamp();
         if (height > 174) {
             c.enableScissor(left(), 138, left() + panelWidth(), height - 36);
@@ -60,16 +60,16 @@ public final class WaypointScreen extends Screen {
                 c.fill(left(), y, left() + panelWidth() - 5, y + 36, selected == i ? t.panelHeader() : t.panel());
                 c.fill(left(), y, left() + 3, y + 36, p.tint());
                 String name = (manager.tracked(p) ? "> " : "") + p.name() + (p.hidden() ? " [hidden]" : "");
-                c.drawString(font, Component.literal(font.plainSubstrByWidth(name, panelWidth() - 20)), left() + 9, y + 5, p.tint());
+                c.text(font, Component.literal(font.plainSubstrByWidth(name, panelWidth() - 20)), left() + 9, y + 5, p.tint());
                 String detail = p.x() + ", " + p.y() + ", " + p.z() + " | " + p.dimension().replace("minecraft:", "") + (p.world() == null ? " | legacy" : " | " + (p.world().startsWith("server:") ? p.world().substring(7) : "singleplayer"));
-                c.drawString(font, Component.literal(font.plainSubstrByWidth(detail, panelWidth() - 20)), left() + 9, y + 21, t.mutedText());
+                c.text(font, Component.literal(font.plainSubstrByWidth(detail, panelWidth() - 20)), left() + 9, y + 21, t.mutedText());
             }
-            if (points.isEmpty()) c.drawCenteredString(font, Component.literal("Press ADD HERE to save your location"), width / 2, 148, t.mutedText());
+            if (points.isEmpty()) c.centeredText(font, Component.literal("Press ADD HERE to save your location"), width / 2, 148, t.mutedText());
             c.disableScissor();
             int available = height - 174, total = points.size() * 40;
             if (total > available) { int thumb = Math.max(12, available * available / total); int y = 138 + (available - thumb) * scroll / Math.max(1, total - available); c.fill(left() + panelWidth() - 3, y, left() + panelWidth(), y + thumb, t.accent()); }
         }
-        super.render(c, mx, my, delta);
+        super.extractRenderState(c, mx, my, delta);
     }
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         if (super.mouseClicked(click, doubled)) return true;

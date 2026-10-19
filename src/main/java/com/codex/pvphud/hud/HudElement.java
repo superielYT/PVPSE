@@ -3,7 +3,7 @@ package com.codex.pvphud.hud;
 import com.codex.pvphud.animation.FadeAnimation;
 import com.codex.pvphud.theme.Theme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public abstract class HudElement {
     private final String id;
@@ -25,7 +25,7 @@ public abstract class HudElement {
         this.defaultY = y;
     }
 
-    public final void render(GuiGraphics context, Minecraft client, Theme theme, boolean editorMode) {
+    public final void render(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode) {
         visibility.setVisible(enabled || editorMode);
         float alpha = visibility.value();
         if (alpha <= 0.01F) return;
@@ -36,7 +36,7 @@ public abstract class HudElement {
         context.pose().popMatrix();
     }
 
-    protected abstract void renderElement(GuiGraphics context, Minecraft client, Theme theme, boolean editorMode, float alpha);
+    protected abstract void renderElement(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode, float alpha);
     public abstract int width(Minecraft client);
     public abstract int height(Minecraft client);
 

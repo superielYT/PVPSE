@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 
@@ -66,7 +66,7 @@ final class CombatFeedback {
         }
     }
 
-    void render(GuiGraphics context, HudConfig config) {
+    void render(GuiGraphicsExtractor context, HudConfig config) {
         int w = context.guiWidth();
         int h = context.guiHeight();
         int cx = w / 2;
@@ -112,7 +112,7 @@ final class CombatFeedback {
         }
     }
 
-    private static void line(GuiGraphics context, int x1, int y1, int x2, int y2, int color) {
+    private static void line(GuiGraphicsExtractor context, int x1, int y1, int x2, int y2, int color) {
         int minX = Math.min(x1, x2);
         int maxX = Math.max(x1, x2);
         int minY = Math.min(y1, y2);

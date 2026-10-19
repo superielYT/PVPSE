@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -27,7 +27,7 @@ final class HudRenderer {
         return lastBounds;
     }
 
-    List<WidgetBounds> render(GuiGraphics context, Minecraft client, HudConfig config, CpsTracker cps, boolean editorMode) {
+    List<WidgetBounds> render(GuiGraphicsExtractor context, Minecraft client, HudConfig config, CpsTracker cps, boolean editorMode) {
         lastBounds.clear();
         if (client.player == null || client.level == null || !config.enabled) {
             return lastBounds;
@@ -67,7 +67,7 @@ final class HudRenderer {
         return lastBounds;
     }
 
-    private void drawCombat(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+    private void drawCombat(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
                             Minecraft client, CpsTracker cps) {
         Component title = Component.translatable("hud.pvp_hud_client.widget.combat");
         List<HudPanel.Chip> chips = new ArrayList<>();
@@ -80,7 +80,7 @@ final class HudRenderer {
         placeChipWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.COMBAT, title, chips);
     }
 
-    private void drawPlayer(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
+    private void drawPlayer(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
         WidgetLayout layout = config.layout(HudWidgetId.PLAYER);
         if (!layout.visible && !editorMode) {
             return;
@@ -109,12 +109,12 @@ final class HudRenderer {
         if (config.showHealthBar) {
             int barY = y + height - 10;
             HudPanel.drawProgressBar(context, x + 6, barY, width - 12, 4, hpPercent, config, lowHp);
-            context.drawString(text, Component.literal(Math.round(hpPercent * 100) + "%"), x + width - 28, barY - 1, lowHp ? config.dangerColor() : config.mutedColor(), false);
+            context.text(text, Component.literal(Math.round(hpPercent * 100) + "%"), x + width - 28, barY - 1, lowHp ? config.dangerColor() : config.mutedColor(), false);
         }
         addBounds(HudWidgetId.PLAYER, x, y, width, height, layout, editorMode);
     }
 
-    private void drawLocation(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+    private void drawLocation(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
                                 Player player, Minecraft client) {
         Component title = Component.translatable("hud.pvp_hud_client.widget.location");
         List<HudPanel.Chip> chips = List.of(
@@ -126,7 +126,7 @@ final class HudRenderer {
         placeChipWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.LOCATION, title, chips);
     }
 
-    private void drawHeld(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, ItemStack stack) {
+    private void drawHeld(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, ItemStack stack) {
         WidgetLayout layout = config.layout(HudWidgetId.HELD);
         if (!layout.visible && !editorMode) {
             return;
@@ -151,17 +151,17 @@ final class HudRenderer {
         if (config.showDurabilityBars) {
             int barY = y + height - 10;
             HudPanel.drawProgressBar(context, x + 6, barY, width - 12, 4, percent / 100.0F, config, low);
-            context.drawString(text, Component.literal(percent + "%"), x + width - 28, barY - 1, low ? config.dangerColor() : config.mutedColor(), false);
+            context.text(text, Component.literal(percent + "%"), x + width - 28, barY - 1, low ? config.dangerColor() : config.mutedColor(), false);
         }
         addBounds(HudWidgetId.HELD, x, y, width, height, layout, editorMode);
     }
 
-    private void drawTarget(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, TargetInfo target) {
+    private void drawTarget(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, TargetInfo target) {
         placeChipWidget(context, text, screenW, screenH, config, editorMode, HudWidgetId.TARGET,
                 Component.translatable("hud.pvp_hud_client.widget.target"), target.chips());
     }
 
-    private void drawEffects(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
+    private void drawEffects(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
         List<HudPanel.Line> effects = player.getActiveEffects().stream()
                 .sorted(Comparator.comparing(effect -> effect.getEffect().value().getDescriptionId()))
                 .limit(5)
@@ -172,7 +172,7 @@ final class HudRenderer {
                 Component.translatable("hud.pvp_hud_client.widget.effects"), effects);
     }
 
-    private void drawArmor(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
+    private void drawArmor(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode, Player player) {
         WidgetLayout layout = config.layout(HudWidgetId.ARMOR);
         if (!layout.visible && !editorMode) {
             return;
@@ -185,7 +185,7 @@ final class HudRenderer {
         int y = toY(layout.y, screenH);
 
         HudPanel.drawWidgetFrame(context, x, y, width, height, config, editorMode);
-        context.drawString(text, Component.translatable("hud.pvp_hud_client.widget.armor"), x + 6, y + 4, config.accentColor(), false);
+        context.text(text, Component.translatable("hud.pvp_hud_client.widget.armor"), x + 6, y + 4, config.accentColor(), false);
         if (editorMode) {
             HudPanel.drawCloseButton(context, x + width - 10, y + 3, false);
         }
@@ -196,14 +196,14 @@ final class HudRenderer {
             ItemStack stack = player.getItemBySlot(armorSlot);
             int itemX = x + 6 + slot * slotWidth;
             if (!stack.isEmpty()) {
-                context.renderItem(stack, itemX, y + 17);
-                context.renderItemDecorations(text, stack, itemX, y + 17);
+                context.item(stack, itemX, y + 17);
+                context.itemDecorations(text, stack, itemX, y + 17);
                 if (stack.isDamageableItem()) {
                     int percent = durabilityPercent(stack);
                     boolean low = percent < 20;
                     if (config.showDurabilityBars) {
                         HudPanel.drawProgressBar(context, itemX, y + 34, 18, 3, percent / 100.0F, config, low);
-                        context.drawString(text, Component.literal(percent + "%"), itemX, y + 39, low ? config.dangerColor() : config.mutedColor(), false);
+                        context.text(text, Component.literal(percent + "%"), itemX, y + 39, low ? config.dangerColor() : config.mutedColor(), false);
                     }
                 }
             }
@@ -213,7 +213,7 @@ final class HudRenderer {
         addBounds(HudWidgetId.ARMOR, x, y, width, height, layout, editorMode);
     }
 
-    private void drawStack(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+    private void drawStack(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
                            Minecraft client, Player player, CpsTracker cps) {
         List<HudPanel.Line> rows = new ArrayList<>();
         rows.add(HudPanel.Line.normal(Component.translatable("hud.pvp_hud_client.stats_short",
@@ -228,7 +228,7 @@ final class HudRenderer {
                 Component.translatable("hud.pvp_hud_client.title"), rows);
     }
 
-    private void placeChipWidget(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+    private void placeChipWidget(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
                                  HudWidgetId id, Component title, List<HudPanel.Chip> chips) {
         WidgetLayout layout = config.layout(id);
         if (!layout.visible && !editorMode) {
@@ -243,7 +243,7 @@ final class HudRenderer {
         addBounds(id, x, y, width, height, layout, editorMode);
     }
 
-    private void placeLineWidget(GuiGraphics context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
+    private void placeLineWidget(GuiGraphicsExtractor context, Font text, int screenW, int screenH, HudConfig config, boolean editorMode,
                                  HudWidgetId id, Component title, List<HudPanel.Line> lines) {
         WidgetLayout layout = config.layout(id);
         if (!layout.visible && !editorMode) {

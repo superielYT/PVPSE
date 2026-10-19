@@ -4,13 +4,13 @@ import com.codex.pvphud.theme.Theme;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 
 public final class PotionHUD extends HudElement {
     public PotionHUD() { super("potions", "Potions", 150, 188); }
-    protected void renderElement(GuiGraphics c, Minecraft mc, Theme t, boolean editor, float alpha) {
+    protected void renderElement(GuiGraphicsExtractor c, Minecraft mc, Theme t, boolean editor, float alpha) {
         List<MobEffectInstance> effects = mc.player.getActiveEffects().stream()
                 .sorted(Comparator.comparing(effect -> effect.getEffect().value().getDescriptionId())).limit(5).toList();
         if (effects.isEmpty() && !editor) return;

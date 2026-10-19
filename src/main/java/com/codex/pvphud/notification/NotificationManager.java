@@ -5,7 +5,7 @@ import com.codex.pvphud.theme.Theme;
 import com.codex.pvphud.theme.ThemeManager;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public final class NotificationManager {
@@ -24,7 +24,7 @@ public final class NotificationManager {
         while (notices.size() > 4) notices.pollLast();
     }
 
-    public void render(GuiGraphics context, Minecraft client) {
+    public void render(GuiGraphicsExtractor context, Minecraft client) {
         long now = System.currentTimeMillis();
         notices.removeIf(notice -> now - notice.createdAt() >= LIFETIME_MS);
         Theme theme = ThemeManager.getInstance().getTheme();
@@ -40,8 +40,8 @@ public final class NotificationManager {
             if (y < 4) break;
             RoundedRenderer.fill(context, x, y, boxWidth, 40, 7, theme.panel());
             context.fill(x, y, x + 3, y + 40, theme.accent());
-            context.drawString(client.font, Component.literal(client.font.plainSubstrByWidth(notice.title(), boxWidth - 20)), x + 10, y + 7, theme.accent());
-            context.drawString(client.font, Component.literal(client.font.plainSubstrByWidth(notice.message(), boxWidth - 20)), x + 10, y + 22, theme.mutedText());
+            context.text(client.font, Component.literal(client.font.plainSubstrByWidth(notice.title(), boxWidth - 20)), x + 10, y + 7, theme.accent());
+            context.text(client.font, Component.literal(client.font.plainSubstrByWidth(notice.message(), boxWidth - 20)), x + 10, y + 22, theme.mutedText());
         }
     }
 

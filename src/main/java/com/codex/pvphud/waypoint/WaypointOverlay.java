@@ -4,13 +4,13 @@ import com.codex.pvphud.render.RoundedRenderer;
 import com.codex.pvphud.theme.Theme;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public final class WaypointOverlay {
     private WaypointOverlay() {}
 
-    public static void render(GuiGraphics context, Minecraft client, Theme theme) {
+    public static void render(GuiGraphicsExtractor context, Minecraft client, Theme theme) {
         if (client.player == null || client.level == null || !WaypointManager.getInstance().labels()) return;
         String dimension = client.level.dimension().identifier().toString();
         int index = 0;
@@ -32,7 +32,7 @@ public final class WaypointOverlay {
             if (Math.cos(relative) < 0) x = Math.sin(relative) < 0 ? width / 2 + 4 : context.guiWidth() - width / 2 - 4;
             x = Math.clamp(x, width / 2 + 4, context.guiWidth() - width / 2 - 4);
             RoundedRenderer.fill(context, x - width / 2, y, width, 15, 4, theme.panel());
-            context.drawCenteredString(client.font, Component.literal(label), x, y + 4, point.tint());
+            context.centeredText(client.font, Component.literal(label), x, y + 4, point.tint());
         }
     }
 
