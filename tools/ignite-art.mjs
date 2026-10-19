@@ -46,33 +46,46 @@ export function drawArt(){
         ['golden','#e9b44d','#fff4b5'],['diamond','#38cbbd','#d0fff1'],
         ['netherite','#72617e','#d2b7e1']
     ];
+    // Compact fantasy blades: broad readable edge, short tip, inset rune and wrapped hilt.
     for(const [material,base,edge]of materials)add('item/'+material+'_sword',material.toUpperCase(),c=>{
-        const map=([u,v])=>[7+(u+v)*.7071,26+(u-v)*.7071];
+        const map=([u,v])=>[6+(u+v)*.7071,28+(u-v)*.7071];
         const poly=(p,col)=>c.poly(p.map(map),col);
-        poly([[-2.9,9],[-2.9,20],[0,26],[2.9,20],[2.9,9]],ink);
-        poly([[-2,10],[-2,20],[0,24.6],[2,20],[2,10]],rgba(base));
-        poly([[-2,10],[-2,20],[0,24.6],[0,10]],rgba(edge));
-        poly([[.7,10],[.7,20.5],[1.6,19.4],[1.6,10]],mix(rgba(base),ink,.25));
-        poly([[-1.8,.7],[-1.8,8.5],[1.8,8.5],[1.8,.7]],ink);
-        poly([[-.9,1.5],[-.9,7.8],[.9,7.8],[.9,1.5]],rgba('#a56849'));
-        for(let v=2;v<7;v+=1.7)c.line(map([-.8,v]),map([.8,v+.6]),.55,gold);
-        poly([[-5,7.5],[-5.4,10],[-3.8,10.9],[-2,9.6],[2,9.6],[3.8,10.9],[5.4,10],[5,7.5]],ink);
-        poly([[-4.3,8],[-4.5,9.4],[-3.7,9.8],[-1.6,8.8],[1.6,8.8],[3.7,9.8],[4.5,9.4],[4.3,8]],gold);
-        c.ellipse(...map([0,8.6]),1.2,1.2,rgba(base));
-        c.ellipse(...map([0,1]),1.4,1.4,gold);
-        c.ellipse(...map([-.4,1]),.5,.5,shine);
+        const dark=mix(rgba(base),rgba('#172638'),.65),trim=mix(rgba(base),rgba('#e7efff'),.35);
+        poly([[-3.4,9],[-3.4,18.5],[0,23],[3.4,18.5],[3.4,9]],rgba('#182433'));
+        poly([[-2.5,10],[-2.5,18.4],[0,21.7],[2.5,18.4],[2.5,10]],rgba(base));
+        poly([[-2.5,10],[-2.5,18.4],[0,21.7],[0,10]],rgba(edge));
+        poly([[.4,10],[.4,18.4],[0,20.5],[2,18],[2,10]],dark);
+        c.line(map([-1.9,11]),map([-1.9,17.8]),.6,rgba('#f2ffff'));
+        poly([[-1,14],[0,15.8],[1,14],[0,12.5]],mix(rgba(edge),rgba('#ffffff'),.6));
+        poly([[-2,1.2],[-2,8.5],[2,8.5],[2,1.2]],rgba('#182433'));
+        poly([[-1.1,2],[-1.1,7.6],[1.1,7.6],[1.1,2]],dark);
+        for(let v=2.3;v<7;v+=1.6)c.line(map([-1,v]),map([1,v+.6]),.7,trim);
+        poly([[-5.7,7.8],[-5.7,10.6],[-3.5,10.4],[-2,9.2],[2,9.2],[3.5,10.4],[5.7,10.6],[5.7,7.8],[3,7.6],[-3,7.6]],rgba('#182433'));
+        poly([[-4.8,8.5],[-4.8,9.4],[-3.3,9.5],[-1.4,8.5],[1.4,8.5],[3.3,9.5],[4.8,9.4],[4.8,8.5]],trim);
+        c.ellipse(...map([0,8.5]),1.3,1.3,dark);
+        c.ellipse(...map([-.25,8.2]),.75,.75,rgba(edge));
+        poly([[-2,.5],[0,-.7],[2,.5],[0,2.3]],trim);
     });
     for(const enchanted of [false,true])add('item/'+(enchanted?'enchanted_golden_apple':'golden_apple'),enchanted?'ENCHANTED':'GOLD APPLE',c=>{
-        const base=rgba(enchanted?'#f4b57c':'#f1bd4f'),shadow=rgba(enchanted?'#c965a5':'#cf7b37');
-        c.line([16,9],[18,3],2.8,ink);c.line([16.5,8],[18,3],1.2,rgba('#92664c'));
-        c.poly([[18,5],[21,2],[26,3],[23,6]],ink);c.poly([[19,5],[22,3],[25,3.7],[22,5.3]],rgba('#9eca70'));
-        c.ellipse(11.5,15.4,8.1,9.2,ink);c.ellipse(20,15.5,8,9.2,ink);
-        c.ellipse(15.7,22,8.6,6.2,ink);
-        const fill=(x,y)=>mix(base,shadow,(x+y-21)/27);
-        c.ellipse(11.7,15.6,7.2,8.3,fill);c.ellipse(19.8,15.6,7.1,8.3,fill);c.ellipse(15.7,21.8,7.7,5.2,fill);
-        c.ellipse(10.4,12.7,2.3,3.2,shine);c.ellipse(9,11.4,1,1.3,rgba('#fff9df'));
-        c.path([[21,22],[19,24],[16,24.7]],1,mix(base,shine,.3));
-        if(enchanted){c.line([25,7],[25,12],1,shine);c.line([22.5,9.5],[27.5,9.5],1,shine);}
+        const dark=rgba(enchanted?'#713659':'#82502b');
+        const base=rgba(enchanted?'#ffb9bc':'#ffd66b'),shadow=rgba(enchanted?'#dd719f':'#eda042');
+        c.line([16,8],[18,3],2.5,dark);c.line([16.5,7],[18,3],1,rgba('#ba8a4d'));
+        c.poly([[18,5],[22,2],[27,4],[23,7]],dark);
+        c.poly([[19,5],[22,3],[25.7,4],[22,5.8]],rgba(enchanted?'#b9c0ff':'#b7e6a4'));
+        const outline=[[16,8],[20,6.8],[25,8.5],[28,12],[28,20],[25,25.5],[20.5,28],[16,27],[11.5,28],[6.5,25],[4,20],[4,13],[7,9],[12,7]];
+        c.poly(outline,dark);
+        const inside=[[16,9.4],[20,8],[24.2,9.5],[26.7,12.5],[26.7,20],[24.2,24.7],[20.5,26.5],[16,25.6],[11.5,26.5],[7.5,24],[5.3,19.7],[5.3,13.3],[8,10],[12,8.3]];
+        c.poly(inside,(x,y)=>mix(base,shadow,(x+y-21)/29));
+        c.path([[8,15],[9,12],[12,11]],1.7,rgba(enchanted?'#ffe6d8':'#fff5c8'));
+        c.ellipse(8.2,17, .7,1.1,rgba('#fff3d2'));
+        // Tiny kawaii face, legible at 32x; food silhouette stays recognizable at 16x.
+        for(const x of [12,21]) { c.ellipse(x,18,1.05,1.6,dark);c.ellipse(x-.25,17.5,.3,.5,shine); }
+        c.ellipse(9.7,20.3,1.6,.7,rgba('#ef9387'));c.ellipse(23.3,20.3,1.6,.7,rgba('#ef9387'));
+        c.path([[14.6,21],[16.3,22.1],[18,21]],.7,dark);
+        if(enchanted){
+            c.poly([[4,2],[4.8,4.2],[7,5],[4.8,5.8],[4,8],[3.2,5.8],[1,5],[3.2,4.2]],rgba('#fff1b9'));
+            c.poly([[28,23],[28.6,24.5],[30.5,25],[28.6,25.7],[28,27.4],[27.4,25.7],[25.5,25],[27.4,24.5]],rgba('#fff1b9'));
+        }
     });
     add('item/golden_carrot','GOLD CARROT',c=>{
         c.path([[18,10],[21,5],[25,3]],3,ink);c.path([[20,9],[26,8],[28,4]],3,ink);
@@ -102,9 +115,20 @@ export function drawArt(){
         c.poly([[16,26],[12.8,23.1],[13,21.5],[14.5,21],[16,22],[17.5,21],[19,21.5],[19.2,23.1]],rgba('#ed9f77'));
     });
     add('item/ender_pearl','ENDER PEARL',c=>{
-        c.ellipse(16,16,12,12,ink);c.ellipse(16,16,10.8,10.8,(x,y)=>mix(rgba('#99f2de'),rgba('#247b86'),(x+y-12)/36));
-        c.path([[8,16],[9,11],[12,8],[16,7]],1.3,rgba('#d5fff1'));
-        c.path([[15,25],[21,23],[24,18]],1.3,rgba('#32687e'));c.ellipse(10.3,11,1.3,2.1,rgba('#edfff6'));
+        const rim=rgba('#1b344c');
+        c.ellipse(16,16,12.8,12.8,rim);
+        c.ellipse(16,16,11.5,11.5,(x,y)=>mix(rgba('#a3f9e0'),rgba('#3567ab'),(x+y-13)/36));
+        c.path([[7,18],[7.6,11],[12,7],[18,6]],1.2,rgba('#e2fff6'));
+        c.path([[14,26],[22,23],[26,16]],1.6,rgba('#876ed1'));
+        // Luminous crescent and tiny sleepy face rather than a flat teal ball.
+        c.ellipse(12.2,11.8,4.6,4.9,rgba('#e1ffed'));
+        c.ellipse(14.3,10.5,4.3,4.5,rgba('#8ad8da'));
+        c.path([[10,18],[11.7,19.2],[13.4,18]],.8,rim);
+        c.path([[18.5,18],[20.2,19.2],[21.9,18]],.8,rim);
+        c.ellipse(9.6,20.7,1.7,.7,rgba('#dc9ac8'));c.ellipse(22.4,20.7,1.7,.7,rgba('#dc9ac8'));
+        c.path([[14.5,22],[16,22.9],[17.5,22]],.7,rim);
+        c.poly([[22,7],[22.7,9.3],[25,10],[22.7,10.7],[22,13],[21.3,10.7],[19,10],[21.3,9.3]],rgba('#eeffed'));
+        c.ellipse(26.5,6,.6,.6,rgba('#d0fff4'));
     });
     add('item/experience_bottle','XP BOTTLE',c=>{
         c.ellipse(16,21,9,9,ink);c.poly([[11,9],[11,17],[21,17],[21,9]],ink);
@@ -130,13 +154,21 @@ export function drawArt(){
         c.ellipse(...center,1,1,rgba('#f7faff'));
     });
     add('item/mace','MACE',c=>{
-        c.line([9,27],[19,15],4,ink);c.line([9,27],[19,15],2.2,rgba('#9a7058'));
-        for(let i=0;i<4;i++)c.line([9+i*2,26-i*2.4],[11+i*2,27-i*2.4],.8,gold);
-        c.poly([[13,8],[21,3],[29,9],[29,16],[21,22],[13,16]],ink);
-        c.poly([[14,9],[21,4.5],[27.6,9.5],[21,14]],rgba('#bed7df'));
-        c.poly([[14,10],[20,14.8],[20,20],[14,15.4]],rgba('#648698'));
-        c.poly([[21,15],[27.6,10.5],[27.6,15.5],[21,20]],rgba('#91adb8'));
-        c.line([16,9],[21,6],1,shine);c.line([22,15.5],[26,13],.8,rgba('#78ddcf'));
+        const outline=rgba('#172330'),steel=rgba('#526981'),edge=rgba('#a9c6d7'),glow=rgba('#7ce9ec');
+        c.line([7,28],[19,15],5,outline);c.line([7,28],[19,15],2.7,rgba('#394258'));
+        for(let i=0;i<5;i++)c.line([7.5+i*1.7,26.7-i*1.9],[9.4+i*1.7,27.7-i*1.9],.7,edge);
+        c.ellipse(7,28,2.2,2.2,outline);c.ellipse(7,28,1.25,1.25,glow);
+        // Heavy forged wind-core head, a raised crown, bevels and a luminous inset.
+        c.poly([[10,9],[12,5],[17,6],[20,3],[27,7],[29,12],[28,19],[21,25],[12,20],[10,15]],outline);
+        c.poly([[11.6,10],[13,6.7],[17.7,7.7],[20.4,4.7],[26,8],[27.5,12],[21,17]],edge);
+        c.poly([[12,11.2],[20,17.5],[20,23],[13,19]],steel);
+        c.poly([[21.3,17.7],[27.5,13],[26.8,18.4],[21.3,23]],rgba('#293e59'));
+        c.poly([[16,10],[20,7.4],[24.7,10.8],[20.5,14.2]],steel);
+        c.line([14,9.2],[17.7,9.2],.8,rgba('#eefbff'));
+        c.line([20.5,5.6],[25.5,8.7],.8,rgba('#eefbff'));
+        c.poly([[21.7,18],[24.1,15.9],[26,16.7],[24.5,20],[22.7,21.3]],glow);
+        c.poly([[22.8,18],[24,17],[24.8,17.4],[24,19.3],[23.1,20]],rgba('#e7ffff'));
+        c.path([[14,15],[17.6,17.8],[17.6,20]],.7,glow);
     });
     for(let stage=-1;stage<8;stage++)add('item/'+(stage<0?'bow':'bow_pulling_'+stage),stage<0?'BOW':'DRAW '+(stage+1),c=>{
         const t=stage<0?0:stage/7,limbX=22-t*2;

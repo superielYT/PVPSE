@@ -22,6 +22,9 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public final class PvpHudClient implements ClientModInitializer {
+    private static PvpHudClient instance;
+    public static PvpHudClient getInstance() { return instance; }
+
     private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath("pvp_hud_client", "hud");
     private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("pvp_hud_client", "controls"));
 
@@ -32,6 +35,8 @@ public final class PvpHudClient implements ClientModInitializer {
     private HudConfig config;
     private KeyMapping toggleHudKey;
     private KeyMapping openConfigKey;
+    private KeyMapping fallbackMenuKey;
+    private boolean joinHintShown;
     private KeyMapping zoomKey;
     private KeyMapping waypointKey;
     private KeyMapping fullbrightKey;
@@ -42,6 +47,7 @@ public final class PvpHudClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        instance = this;
         config = HudConfig.load();
         profileManager.load(hudManager);
         toggleHudKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
@@ -56,6 +62,21 @@ public final class PvpHudClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_RIGHT_SHIFT,
                 CATEGORY
         ));
+        fallbackMenuKey = registerKey("key.pvp_hud_client.open_menu_fallback", GLFW.GLFW_KEY_F8);
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
+            if (screen instanceof net.minecraft.client.gui.screens.TitleScreen
+                    || screen instanceof net.minecraft.client.gui.screens.PauseScreen) {
+                net.fabricmc.fabric.api.client.screen.v1.Screens.getButtons(screen).add(
+                        com.codex.pvphud.gui.PvpButton.styled(net.minecraft.network.chat.Component.literal("PVPSE"),
+                                button -> openMenu(screen)).bounds(8, 8, 86, 20).build());
+            }
+        });
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> {
+            dispatcher.register(net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal("pvpse")
+                    .executes(ctx -> { Minecraft.getInstance().schedule(() -> openMenu(null)); return 1; })
+                    .then(net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal("restore")
+                            .executes(ctx -> { restoreHud(); return 1; })));
+        });
         zoomKey = registerKey("key.pvp_hud_client.zoom", GLFW.GLFW_KEY_Z);
         waypointKey = registerKey("key.pvp_hud_client.waypoint", GLFW.GLFW_KEY_B);
         fullbrightKey = registerKey("key.pvp_hud_client.fullbright", GLFW.GLFW_KEY_V);
@@ -116,16 +137,41 @@ public final class PvpHudClient implements ClientModInitializer {
             profileManager.save(hudManager);
         }
 
+        if (client.player == null) joinHintShown = false;
+        else if (!joinHintShown) {
+            joinHintShown = true;
+            client.player.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                    "PVPSE loaded | Right Shift / F8 / /pvpse opens the menu | HUD: "
+                            + (config.enabled ? "ON" : "OFF") + " | Use Restore HUD if hidden"), false);
+        }
         while (toggleHudKey.consumeClick()) {
             config.enabled = !config.enabled;
             config.save();
+            if (client.player != null) client.player.displayClientMessage(
+                    net.minecraft.network.chat.Component.literal("PVPSE HUD " + (config.enabled ? "ON" : "OFF")
+                            + " | F8 opens settings"), true);
         }
         while (openConfigKey.consumeClick()) {
-            if (client.player != null && client.screen == null) {
-                client.setScreen(new ClickGuiScreen(hudManager, () -> profileManager.save(hudManager),
-                        parent -> new ClientSettingsScreen(parent, config, profileManager, hudManager)));
-            }
+            if (client.screen == null) openMenu(null);
         }
+        while (fallbackMenuKey.consumeClick()) {
+            if (client.screen == null) openMenu(null);
+        }
+    }
+
+    public void openMenu(net.minecraft.client.gui.screens.Screen parent) {
+        Minecraft.getInstance().setScreen(new ClickGuiScreen(hudManager, () -> profileManager.save(hudManager),
+                screen -> new ClientSettingsScreen(screen, config, profileManager, hudManager), parent,
+                () -> config.enabled, () -> { config.enabled = !config.enabled; config.save(); }, this::restoreHud));
+    }
+
+    public void restoreHud() {
+        config.enabled = true;
+        config.hideOnDebug = false;
+        Minecraft.getInstance().options.hideGui = false;
+        hudManager.layoutElements().forEach(element -> { element.resetLayout(); element.setEnabled(true); });
+        config.save();
+        profileManager.save(hudManager);
     }
 
     private KeyMapping registerKey(String translation, int key) {

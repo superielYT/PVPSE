@@ -37,7 +37,7 @@ final class ClientSettingsScreen extends Screen {
         profileName = null;
         int gap = 4, tw = (w() - gap * (Tab.values().length - 1)) / Tab.values().length;
         for (Tab next : Tab.values()) {
-            var button = addRenderableWidget(Button.builder(Component.literal(next.name()), b -> {
+            var button = addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(next.name()), b -> {
                 rememberDraft(); tab = next; status = ""; rebuildWidgets();
             }).bounds(x() + next.ordinal() * (tw + gap), top() - 25, tw, 20).build());
             button.active = next != tab;
@@ -128,16 +128,16 @@ final class ClientSettingsScreen extends Screen {
     }
 
     private void action(int x, int y, int width, String label, Runnable action) {
-        addRenderableWidget(Button.builder(Component.literal(label), b -> action.run()).bounds(x, y, width, 20).build());
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(label), b -> action.run()).bounds(x, y, width, 20).build());
     }
     private void toggle(int x, int y, int width, String label, BooleanSupplier get, Consumer<Boolean> set) {
-        addRenderableWidget(Button.builder(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")), b -> {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")), b -> {
             set.accept(!get.getAsBoolean()); config.save();
             b.setMessage(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")));
         }).bounds(x, y, width, 20).build());
     }
     private void number(int x, int y, int width, String label, IntSupplier get, IntConsumer set, int min, int max, int step) {
-        addRenderableWidget(Button.builder(Component.literal(label + ": " + get.getAsInt() + " >"), b -> {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(label + ": " + get.getAsInt() + " >"), b -> {
             int next = get.getAsInt() + step; set.accept(next > max ? min : next); config.save();
             b.setMessage(Component.literal(label + ": " + get.getAsInt() + " >"));
         }).bounds(x, y, width, 20).build());

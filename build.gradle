@@ -60,3 +60,15 @@ tasks.register("testRegression", JavaExec) {
     mainClass = "com.codex.pvphud.RegressionTest"
 }
 check.dependsOn testRegression
+
+// Exercise actual screens and HUD rendering in a disposable singleplayer world.
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "pvpse-test"
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+    }
+}
+loom.runs.clientGameTest.vmArg("-Dfabric.client.gametest.disableNetworkSynchronizer=true")

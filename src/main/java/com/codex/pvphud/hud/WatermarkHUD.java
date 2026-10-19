@@ -10,7 +10,7 @@ public final class WatermarkHUD extends HudElement {
     protected void renderElement(GuiGraphicsExtractor c, Minecraft mc, Theme t, boolean editor, float alpha) {
         HudStyles.card(c, t, width(mc), height(mc), alpha);
         HudStyles.label(c, mc, Component.literal("PVPSE"), 7, 6, t.accent());
-        HudStyles.label(c, mc, Component.literal("CLIENT  •  1.21.11"), 45, 6, t.text());
+        HudStyles.label(c, mc, Component.literal("CLIENT  •  26.1.2"), 45, 6, t.text());
     }
     public int width(Minecraft mc) { return 140; }
     public int height(Minecraft mc) { return 21; }
