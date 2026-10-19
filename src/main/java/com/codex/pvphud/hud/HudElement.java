@@ -32,8 +32,11 @@ public abstract class HudElement {
         context.pose().pushMatrix();
         context.pose().translate(x, y);
         context.pose().scale(scale, scale);
-        renderElement(context, client, theme, editorMode, alpha);
-        context.pose().popMatrix();
+        try {
+            renderElement(context, client, theme, editorMode, alpha);
+        } finally {
+            context.pose().popMatrix();
+        }
     }
 
     protected abstract void renderElement(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode, float alpha);

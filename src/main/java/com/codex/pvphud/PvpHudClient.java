@@ -140,6 +140,7 @@ public final class PvpHudClient implements ClientModInitializer {
         if (client.player == null) joinHintShown = false;
         else if (!joinHintShown) {
             joinHintShown = true;
+            profileManager.initializeLayout(client, hudManager);
             client.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                     "PVPSE loaded | Right Shift / F8 / /pvpse opens the menu | HUD: "
                             + (config.enabled ? "ON" : "OFF") + " | Use Restore HUD if hidden"));
@@ -170,6 +171,7 @@ public final class PvpHudClient implements ClientModInitializer {
         config.hideOnDebug = false;
         Minecraft.getInstance().options.hideGui = false;
         hudManager.layoutElements().forEach(element -> { element.resetLayout(); element.setEnabled(true); });
+        hudManager.arrange(Minecraft.getInstance());
         config.save();
         profileManager.save(hudManager);
     }

@@ -185,5 +185,27 @@ export function drawArt(){
             c.poly([[pullX,14],[pullX+3,16],[pullX,18]],rgba('#c9b2d6'));
         }
     });
+    add('item/wind_charge','WIND CHARGE',c=>{
+        const deep=rgba('#385879'),light=rgba('#e2ffff'),blue=rgba('#94cfe6');
+        c.ellipse(16,16,11.5,11.5,deep);
+        c.ellipse(16,16,10.3,10.3,(x,y)=>mix(light,blue,(x+y-12)/35));
+        c.path([[9,14],[12,10],[19,10],[23,14],[21,19],[16,21],[12,19],[13,15],[17,14],[19,16]],2,deep);
+        c.path([[8,18],[10,22],[16,24],[22,21]],1,light);
+        c.path([[4,9],[7,6],[12,4]],1.2,blue);
+        c.path([[21,28],[26,25],[29,21]],1.2,blue);
+        c.ellipse(23,8,1,1,light);
+    });
+    for(const spectral of [false,true])add('item/'+(spectral?'spectral_arrow':'arrow'),spectral?'SPECTRAL':'ARROW',c=>{
+        const edge=rgba(spectral?'#fff3b2':'#d8f5ff'),base=rgba(spectral?'#e9b450':'#75a6c3');
+        c.line([5,27],[25,7],2.8,ink);c.line([5,27],[25,7],1.2,base);
+        c.poly([[19,6],[29,3],[26,13],[24,9]],ink);
+        c.poly([[20.8,6.7],[27.3,4.7],[25.3,11.2],[24.2,8.3]],edge);
+        c.poly([[3,21],[7,23],[10,28],[5,29],[2,26]],ink);
+        c.poly([[3.5,22.5],[6,24],[8.4,27],[5.2,27.7],[3.4,26]],base);
+        c.line([4.3,24.3],[6.5,26.4],.8,edge);
+        if(spectral){
+            c.line([26,16],[26,20],.8,edge);c.line([24,18],[28,18],.8,edge);
+        }
+    });
     return sprites;
 }

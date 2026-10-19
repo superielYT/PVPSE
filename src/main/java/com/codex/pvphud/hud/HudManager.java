@@ -62,4 +62,36 @@ public final class HudManager {
             element.render(context, client, theme, editorMode);
         }
     }
+
+    /** Pack restored widgets into columns, reserving room for the hotbar/editor tools. */
+    public void arrange(Minecraft client) {
+        var widgets = new ArrayList<>(layoutElements());
+        if (widgets.isEmpty()) return;
+        float viewportWidth = client.getWindow().getGuiScaledWidth();
+        float bottom = client.getWindow().getGuiScaledHeight() - 48;
+        for (float scale : new float[]{1, 0.9F, 0.8F, 0.7F, 0.6F, 0.5F}) {
+            float cell = widgets.stream().mapToInt(e -> e.width(client)).max().orElse(144) * scale + 6;
+            int columns = Math.max(1, (int) ((viewportWidth - 10) / cell));
+            float[] used = new float[columns];
+            java.util.Arrays.fill(used, 8);
+            var sorted = new ArrayList<>(widgets);
+            sorted.sort(java.util.Comparator.comparingInt((HudElement e) -> layoutHeight(e, client)).reversed());
+            HudElement watermark = find("watermark").orElse(null);
+            if (watermark != null) { sorted.remove(watermark); sorted.addFirst(watermark); }
+            boolean fits = true;
+            for (HudElement element : sorted) {
+                int column = 0;
+                for (int i = 1; i < columns; i++) if (used[i] < used[column]) column = i;
+                element.setScale(scale);
+                element.setPosition(8 + column * cell, used[column]);
+                used[column] += layoutHeight(element, client) * scale + 6;
+                if (used[column] - 6 > bottom) fits = false;
+            }
+            if (fits) return;
+        }
+    }
+
+    private static int layoutHeight(HudElement element, Minecraft client) {
+        return element instanceof PotionHUD ? 72 : element.height(client);
+    }
 }

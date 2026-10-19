@@ -5,6 +5,7 @@
 - Dark forged mace with a luminous wind core and wrapped handle.
 - Cute golden and enchanted apples; moon-themed ender pearl.
 - Keeps the lucky-cat totem, low shields, eight bow charge stages and both 32x/16x editions.
+- New wind-charge, arrow and spectral-arrow designs.
 
 ## Visible client access and HUD recovery
 - PVPSE button on the title and pause screens.
@@ -14,6 +15,9 @@
 - HUD toggle feedback and a first-join message explain how to open the client.
 - Menu closes back to its originating screen. Editor is clearly unavailable outside a world.
 - Correct Minecraft version in the watermark.
+- Adaptive restored/new HUD layout keeps widgets apart on small windows.
+- Armor slots now show remaining durability, low-durability warnings and clear empty-slot labels.
+- Empty waypoint radar no longer covers the HUD during gameplay; editor toolbar moved below widgets.
 
 ## Buttons and checks
 - Rounded, theme-aware buttons with animated hover, keyboard focus, native input and narration.

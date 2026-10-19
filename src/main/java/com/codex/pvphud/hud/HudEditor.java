@@ -36,13 +36,13 @@ public final class HudEditor extends Screen {
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         context.fill(0, 0, width, height, theme.background());
-        RoundedRenderer.fill(context, 8, 7, width - 16, 26, 7, theme.panelHeader());
-        context.text(font, title, 18, 16, theme.accent());
-        drawAction(context, width - BUTTON_WIDTH * 2 - 24, 10, "THEME", mouseX, mouseY, theme.accentSecondary());
-        drawAction(context, width - BUTTON_WIDTH - 16, 10, "DONE", mouseX, mouseY, theme.accent());
+        RoundedRenderer.fill(context, 8, height - 37, width - 16, 30, 7, theme.panelHeader());
+        context.text(font, Component.literal("HUD EDITOR"), 18, height - 25, theme.accent());
+        drawAction(context, width - BUTTON_WIDTH * 2 - 24, height - 32, "THEME", mouseX, mouseY, theme.accentSecondary());
+        drawAction(context, width - BUTTON_WIDTH - 16, height - 32, "DONE", mouseX, mouseY, theme.accent());
         context.centeredText(font,
                 Component.literal("Drag / corner: resize | Arrows: nudge | R: reset | Ctrl+Z: undo"),
-                width / 2, TOP_BAR_HEIGHT + 2, theme.mutedText());
+                width / 2, height - 49, theme.mutedText());
         if (minecraft != null) {
             manager.render(context, minecraft, true);
             if (guideX != null) context.fill(guideX, TOP_BAR_HEIGHT + 12, guideX + 1, height, theme.accentSecondary());
@@ -54,11 +54,11 @@ public final class HudEditor extends Screen {
 
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         if (minecraft != null && click.button() == 0) {
-            if (inside(click.x(), click.y(), width - BUTTON_WIDTH - 16, 10, BUTTON_WIDTH, 20)) {
+            if (inside(click.x(), click.y(), width - BUTTON_WIDTH - 16, height - 32, BUTTON_WIDTH, 20)) {
                 onClose();
                 return true;
             }
-            if (inside(click.x(), click.y(), width - BUTTON_WIDTH * 2 - 24, 10, BUTTON_WIDTH, 20)) {
+            if (inside(click.x(), click.y(), width - BUTTON_WIDTH * 2 - 24, height - 32, BUTTON_WIDTH, 20)) {
                 ThemeManager.getInstance().cycle();
                 return true;
             }

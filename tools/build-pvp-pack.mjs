@@ -55,7 +55,7 @@ function validatePNG(data){
     assert.equal(inflateSync(Buffer.concat(parts)).length,h*(w*4+1));
 }
 const art=drawArt();
-assert.equal(art.length,25);
+assert.equal(art.length,28);
 const icons=art.find(a=>a.name==='item/totem_of_undying').canvas;
 mkdirSync(join(root,'dist'),{recursive:true});
 for(const size of [32,16]){
@@ -90,7 +90,7 @@ for(const size of [32,16]){
         transformation:{left_rotation:[0,0,0,1],right_rotation:[0,0,0,1],scale:[1,-1,-1],translation:[0,0,0]}}});
     asset('LICENSE',readFileSync(join(root,'LICENSE')));
     asset('README.txt','PVPSE Ignite '+size+'x '+edition+' — Minecraft Java 26.1.2\n\nOriginal 32x art with shaded short swords, a lucky-cat totem, glossy PvP food, pearls, XP, crystals, mace and open cobwebs. Eight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.\n\nInstall the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Use Smooth 32x for richer detail or Lite 16x for smaller textures. No reach, damage or attack timing changes.\n\nCopyright: see LICENSE.\n');
-    assert.equal(files.size,39);
+    assert.equal(files.size,42);
     for(const [name,data]of files){
         assert.ok(!name.includes('..')&&!name.includes('\\'));
         if(name.endsWith('.json')||name.endsWith('.mcmeta'))JSON.parse(data.toString());
@@ -113,8 +113,8 @@ const glyphs={
  Y:'11110a04040404',Z:'1f01020408101f','1':'040c040404040e','2':'0e11010204081f','3':'1e01010e01011e','4':'02060a121f0202',
  '5':'1f10101e01011e','6':'0e10101e11110e','7':'1f010204080808','8':'0e11110e11110e','0':'0e11131519110e',' ':'00000000000000'
 };
-const visible=[...art.slice(0,16),art[16],art[17],art[20],art[24]];
-const cols=5,cellW=120,cellH=124,width=cols*cellW,height=4*cellH;
+const visible=[...art.slice(0,16),art[16],art[17],art[20],art[24],...art.slice(25)];
+const cols=5,cellW=120,cellH=124,width=cols*cellW,height=Math.ceil(visible.length/cols)*cellH;
 const sheet=Buffer.alloc(width*height*4);
 for(let i=0;i<sheet.length;i+=4)sheet.set([18,23,33,255],i);
 for(let index=0;index<visible.length;index++){
