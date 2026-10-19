@@ -47,3 +47,17 @@ Open Right Shift > SETTINGS & PROFILES for global switches, profile switching, c
 Drag module sliders to adjust them. In HUD EDITOR, select a widget and use arrow keys to move it one pixel, or Shift+arrow for ten. R resets its layout; Ctrl+Z restores positions, scales and visibility from the start of the editor session. Utilities stay in the module list rather than appearing as editor widgets.
 
 During keybind capture, Escape cancels and Backspace/Delete unbinds. Bindings save when Minecraft closes normally. F1 hides overlays; "Hide on F3" controls debug-screen visibility. "No damage tilt" is now optional.
+
+## Ownership and permissions
+
+Copyright (c) 2026 superielYT. All rights reserved for owner-controlled material
+covered by [LICENSE](LICENSE). Reuse, redistribution, and building derivative
+projects require prior written permission from superielYT, subject to the
+exceptions in that notice.
+
+ChatGPT/Codex and GitHub Copilot may assist only on superielYT's instructions
+for this project; this is not permission for others to reuse the project.
+
+Previously granted MIT rights and third-party licenses remain unaffected.
+A public GitHub repository can still be viewed and forked under GitHub's
+terms. A copyright notice does not technically prevent copying.
