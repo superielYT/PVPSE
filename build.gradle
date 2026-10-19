@@ -42,7 +42,7 @@ jar {
 
 sourceSets {
     radarTest {
-        compileClasspath = sourceSets.main.output
+        compileClasspath = sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath = output + compileClasspath + configurations.runtimeClasspath
     }
 }

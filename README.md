@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v2.1.0)
+## Installation (v2.2.0)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.1.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.2.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -80,8 +80,8 @@ Settings are split into General, Combat, Effects and Profiles:
 ## PVPSE Ignite resource packs
 
 Choose one edition for **Minecraft Java 26.1.2**:
-- [Ignite 32x Smooth](https://github.com/superielYT/PVPSE/releases/download/v2.1.0/PVPSE-Ignite-32x-26.1.2.zip): richer shading, highlights and resolved edges.
-- [Ignite 16x Lite](https://github.com/superielYT/PVPSE/releases/download/v2.1.0/PVPSE-Ignite-16x-26.1.2.zip): the same original art with smaller textures.
+- [Ignite 32x Smooth](https://github.com/superielYT/PVPSE/releases/download/v2.2.0/PVPSE-Ignite-32x-26.1.2.zip): richer shading, highlights and resolved edges.
+- [Ignite 16x Lite](https://github.com/superielYT/PVPSE/releases/download/v2.2.0/PVPSE-Ignite-16x-26.1.2.zip): the same original art with smaller textures.
 
 Enable ONE edition above other packs. Both include short swords, a lucky-cat totem,
 glossy golden foods, pearl, XP bottle, crystal, mace, open cobweb and low shields.
@@ -127,3 +127,12 @@ Open SETTINGS & PROFILES > HITBOX:
 - Invalid or incomplete profiles restore defaults rather than inheriting the previous layout/theme.
 - Numeric crosshair/opacity settings are clamped; panel opacity now maps percentages to full 0–255 alpha.
 - Partially hidden module controls cannot receive clicks; potion rows fit the visible card and handle infinite effects.
+
+## HUD style (2.2)
+
+Right Shift > Settings & profiles > STYLE adds Clear Glass as an optional theme.
+All previous palettes remain available with refined panel surfaces.
+Choose HUD opacity, accent lines, panel shadows and text shadow. MINIMAL HUD applies
+a restrained preset; RESET STYLE restores appearance defaults. These preferences
+are saved and copied with each HUD profile. Menu backgrounds remain independent
+of the HUD opacity control for readability.
