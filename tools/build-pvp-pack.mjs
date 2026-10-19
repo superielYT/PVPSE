@@ -144,6 +144,11 @@ asset('assets/minecraft/items/shield.json', JSON.stringify({
     model:{type:'minecraft:condition', property:'minecraft:using_item',
         on_true:specialShield(true), on_false:specialShield(false)}
 },null,2));
+// Vanilla enchanted apples share the ordinary apple texture; point this model
+// to the dedicated pink/gold sprite so the two items remain distinguishable.
+asset('assets/minecraft/models/item/enchanted_golden_apple.json', JSON.stringify({
+    parent:'minecraft:item/generated', textures:{layer0:'minecraft:item/enchanted_golden_apple'}
+},null,2));
 const icon = Buffer.alloc(64 * 64 * 4);
 for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
     const edge = x < 3 || y < 3 || x > 60 || y > 60;
@@ -180,7 +185,7 @@ end.writeUInt32LE(directory.length, 12); end.writeUInt32LE(offset, 16);
 mkdirSync(join(root, 'dist'), { recursive: true });
 const zip = Buffer.concat([...entries, directory, end]);
 writeFileSync(join(root, 'dist/PVPSE-Ignite-16x-1.21.11.zip'), zip);
-assert.equal(files.size, 22);
+assert.equal(files.size, 23);
 for (const [name, data] of files) {
     if (name.endsWith('.json') || name.endsWith('.mcmeta')) JSON.parse(data.toString());
     if (name.endsWith('.png')) assert.equal(data.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
