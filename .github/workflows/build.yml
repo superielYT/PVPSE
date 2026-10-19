@@ -73,6 +73,24 @@ jobs:
       - name: Client startup smoke test
         run: python tools/client-smoke.py
 
+      - name: Test GUI and HUD in a world
+        timeout-minutes: 6
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "true"
+          ALSOFT_DRIVERS: "null"
+        run: xvfb-run -a gradle runClientGameTest
+
+      - name: Upload GUI and HUD screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PVPSE-GUI-HUD-check
+          path: |
+            build/run/clientGameTest/screenshots/
+            build/run/clientGameTest/logs/
+            run/clientGameTest/screenshots/
+          if-no-files-found: ignore
+
       - name: Upload client startup log
         if: always()
         uses: actions/upload-artifact@v4

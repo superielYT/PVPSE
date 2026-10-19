@@ -37,7 +37,7 @@ final class ClientSettingsScreen extends Screen {
         profileName = null;
         int gap = 4, tw = (w() - gap * (Tab.values().length - 1)) / Tab.values().length;
         for (Tab next : Tab.values()) {
-            var button = addRenderableWidget(Button.builder(Component.literal(next.name()), b -> {
+            var button = addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(next.name()), b -> {
                 rememberDraft(); tab = next; status = ""; rebuildWidgets();
             }).bounds(x() + next.ordinal() * (tw + gap), top() - 25, tw, 20).build());
             button.active = next != tab;
@@ -50,6 +50,19 @@ final class ClientSettingsScreen extends Screen {
                 toggle(x(), y + 25, half, "Hide on F3", () -> config.hideOnDebug, v -> config.hideOnDebug = v);
                 toggle(x() + half + 6, y + 25, half, "No damage tilt", () -> config.suppressDamageTilt, v -> config.suppressDamageTilt = v);
                 toggle(x(), y + 50, w(), "Custom crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v);
+                action(x(), y + 75, half, "PVP PRESET", () -> {
+                    if (minecraft.player == null) { status = "Join a world first"; return; }
+                    hud.elements().stream().filter(e -> !(e instanceof com.codex.pvphud.hud.FeatureModule))
+                            .forEach(e -> e.setEnabled(!e.id().equals("array_list") && !e.id().equals("session")));
+                    config.enabled = true;
+                    hud.arrange(minecraft); config.save(); profiles.save(hud);
+                    status = "PvP HUD preset applied to this profile";
+                });
+                action(x() + half + 6, y + 75, half, "AUTO ARRANGE", () -> {
+                    if (minecraft.player == null) { status = "Join a world first"; return; }
+                    hud.arrange(minecraft); profiles.save(hud);
+                    status = "HUD arranged; module switches kept";
+                });
             }
             case COMBAT -> {
                 toggle(x(), y, w(), "Attack cooldown bar", () -> config.showAttackCooldown, v -> config.showAttackCooldown = v);
@@ -118,7 +131,11 @@ final class ClientSettingsScreen extends Screen {
                 action(x(), y + 50, w(), "Reset HUD positions & scales", () -> {
                     rememberDraft();
                     minecraft.setScreen(new ConfirmScreen(yes -> {
-                        if (yes) { hud.elements().forEach(e -> e.resetLayout()); profiles.save(hud); status = "HUD layout restored"; }
+                        if (yes) {
+                            hud.elements().forEach(e -> e.resetLayout());
+                            if (minecraft.player != null) hud.arrange(minecraft);
+                            profiles.save(hud); status = "HUD layout restored";
+                        }
                         minecraft.setScreen(this);
                     }, Component.literal("Reset HUD layout?"), Component.literal("Your module switches and other profiles are kept.")));
                 });
@@ -128,16 +145,16 @@ final class ClientSettingsScreen extends Screen {
     }
 
     private void action(int x, int y, int width, String label, Runnable action) {
-        addRenderableWidget(Button.builder(Component.literal(label), b -> action.run()).bounds(x, y, width, 20).build());
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(label), b -> action.run()).bounds(x, y, width, 20).build());
     }
     private void toggle(int x, int y, int width, String label, BooleanSupplier get, Consumer<Boolean> set) {
-        addRenderableWidget(Button.builder(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")), b -> {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")), b -> {
             set.accept(!get.getAsBoolean()); config.save();
             b.setMessage(Component.literal(label + ": " + (get.getAsBoolean() ? "ON" : "OFF")));
         }).bounds(x, y, width, 20).build());
     }
     private void number(int x, int y, int width, String label, IntSupplier get, IntConsumer set, int min, int max, int step) {
-        addRenderableWidget(Button.builder(Component.literal(label + ": " + get.getAsInt() + " >"), b -> {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(label + ": " + get.getAsInt() + " >"), b -> {
             int next = get.getAsInt() + step; set.accept(next > max ? min : next); config.save();
             b.setMessage(Component.literal(label + ": " + get.getAsInt() + " >"));
         }).bounds(x, y, width, 20).build());
@@ -157,7 +174,7 @@ final class ClientSettingsScreen extends Screen {
             case STYLE -> "HUD appearance is saved per profile. Clear Glass is optional.";
             case PROFILES -> "Profiles store HUD, utilities and theme. Alerts are global.";
         };
-        int footer = top() + ((tab == Tab.EFFECTS || tab == Tab.HITBOX || tab == Tab.STYLE) ? 103 : 82);
+        int footer = top() + ((tab == Tab.GENERAL || tab == Tab.EFFECTS || tab == Tab.HITBOX || tab == Tab.STYLE) ? 103 : 82);
         if (footer < height - 39) {
             String message = status.isBlank() ? helper : status;
             c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());

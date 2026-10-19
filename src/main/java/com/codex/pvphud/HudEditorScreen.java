@@ -24,24 +24,24 @@ final class HudEditorScreen extends Screen {
     @Override
     protected void init() {
         int barY = height - 28;
-        addRenderableWidget(Button.builder(Component.translatable("screen.pvp_hud_client.settings"), button -> {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.translatable("screen.pvp_hud_client.settings"), button -> {
             if (minecraft != null) {
                 minecraft.setScreen(new HudConfigScreen(config, this));
             }
         }).bounds(12, barY, 90, 20).build());
 
-        addRenderableWidget(Button.builder(Component.translatable("screen.pvp_hud_client.reset_layout"), button -> {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.translatable("screen.pvp_hud_client.reset_layout"), button -> {
             config.resetAllWidgets();
         }).bounds(108, barY, 100, 20).build());
 
-        addRenderableWidget(Button.builder(Component.translatable("screen.pvp_hud_client.show_all"), button -> {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.translatable("screen.pvp_hud_client.show_all"), button -> {
             for (HudWidgetId id : HudWidgetId.values()) {
                 config.layout(id).visible = true;
             }
             config.save();
         }).bounds(214, barY, 90, 20).build());
 
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.translatable("gui.done"), button -> onClose())
                 .bounds(width - 102, barY, 90, 20).build());
 
         super.init();

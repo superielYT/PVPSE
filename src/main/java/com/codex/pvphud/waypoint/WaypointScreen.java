@@ -36,14 +36,14 @@ public final class WaypointScreen extends Screen {
         row(108, new String[]{"RANGE " + manager.mapRange() + "m", manager.northUp() ? "NORTH UP" : "ROTATING", manager.labels() ? "LABELS ON" : "LABELS OFF", manager.deathMarkers() ? "DEATH ON" : "DEATH OFF"}, new Runnable[]{
             () -> { manager.cycleRange(); rebuildWidgets(); }, () -> { manager.toggleNorth(); rebuildWidgets(); },
             () -> { manager.toggleLabels(); rebuildWidgets(); }, () -> { manager.toggleDeaths(); rebuildWidgets(); }});
-        addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose()).bounds(left(), height - 26, panelWidth(), 20).build());
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal("Done"), b -> onClose()).bounds(left(), height - 26, panelWidth(), 20).build());
         clamp();
     }
     private boolean valid() { return selected >= 0 && selected < manager.waypoints().size(); }
     private void row(int y, String[] labels, Runnable[] actions) {
         int w = (panelWidth() - 12) / 4;
         for (int i = 0; i < labels.length; i++) { final int index = i;
-            addRenderableWidget(Button.builder(Component.literal(labels[i]), b -> actions[index].run()).bounds(left() + i * (w + 4), y, w, 20).build());
+            addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(labels[i]), b -> actions[index].run()).bounds(left() + i * (w + 4), y, w, 20).build());
         }
     }
     private void clamp() { scroll = Math.clamp(scroll, 0, Math.max(0, manager.waypoints().size() * 40 - Math.max(0, height - 174))); }

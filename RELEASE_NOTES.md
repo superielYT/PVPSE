@@ -1,3 +1,34 @@
+# PVPSE Client v2.3.0
+
+## Rebuilt PvP art
+- Shorter broad-edged swords with material-matched guards and inset details.
+- Dark forged mace with a luminous wind core and wrapped handle.
+- Cute golden and enchanted apples; moon-themed ender pearl.
+- Keeps the lucky-cat totem, low shields, eight bow charge stages and both 32x/16x editions.
+- New wind-charge, arrow and spectral-arrow designs.
+
+## Visible client access and HUD recovery
+- PVPSE button on the title and pause screens.
+- Right Shift, F8 and /pvpse open the menu; /pvpse restore restores HUD visibility.
+- Explicit HUD ON/OFF control and confirmed Restore HUD action in the sidebar.
+- Restore enables and repositions the current profile's HUD, clears F1 hiding and disables hide-on-F3.
+- HUD toggle feedback and a first-join message explain how to open the client.
+- Menu closes back to its originating screen. Editor is clearly unavailable outside a world.
+- Correct Minecraft version in the watermark.
+- Adaptive restored/new HUD layout keeps widgets apart on small windows.
+- Armor slots now show remaining durability, low-durability warnings and clear empty-slot labels.
+- Empty waypoint radar no longer covers the HUD during gameplay; editor toolbar moved below widgets.
+
+## Buttons and checks
+- PvP HUD preset removes the extra module list/session card; Auto Arrange keeps your switches.
+- Rounded, theme-aware buttons with animated hover, keyboard focus, native input and narration.
+- Themed module cards with clear toggle thumbs.
+- GUI and singleplayer HUD game tests capture screenshots and check actual watermark pixels.
+- Minecraft Java 26.1.2; Java 25; Fabric Loader 0.19.3+; matching Fabric API.
+- Install PVPSE-2.3.0.jar in mods. A resourcepack ZIP alone cannot add the GUI or HUD.
+
+---
+
 # PVPSE Client v2.2.0
 
 ## HUD themes and style

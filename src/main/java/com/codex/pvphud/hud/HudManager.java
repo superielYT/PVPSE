@@ -62,4 +62,48 @@ public final class HudManager {
             element.render(context, client, theme, editorMode);
         }
     }
+
+    /** Pack restored widgets without overlap, reserving room for hotbar/editor tools. */
+    public void arrange(Minecraft client) {
+        var widgets = new ArrayList<>(layoutElements());
+        if (widgets.isEmpty()) return;
+        float viewportWidth = client.getWindow().getGuiScaledWidth();
+        float bottom = client.getWindow().getGuiScaledHeight() - 48;
+        for (float scale : new float[]{1, 0.9F, 0.8F, 0.7F, 0.6F, 0.5F}) {
+            var placed = new ArrayList<Placement>();
+            var sorted = new ArrayList<>(widgets);
+            sorted.sort(java.util.Comparator.comparingInt((HudElement e) -> layoutHeight(e, client)).reversed());
+            HudElement watermark = find("watermark").orElse(null);
+            if (watermark != null) { sorted.remove(watermark); sorted.addFirst(watermark); }
+            boolean fits = true;
+            for (HudElement element : sorted) {
+                var xs = new java.util.TreeSet<Float>();
+                var ys = new java.util.TreeSet<Float>();
+                xs.add(8F); ys.add(8F);
+                placed.forEach(p -> { xs.add(p.x + p.width + 6); ys.add(p.y + p.height + 6); });
+                Placement selected = null;
+                search: for (float y : ys) for (float x : xs) {
+                    var candidate = new Placement(x, y, element.width(client) * scale, layoutHeight(element, client) * scale);
+                    if (x + candidate.width > viewportWidth - 8 || y + candidate.height > bottom) continue;
+                    if (placed.stream().noneMatch(candidate::overlaps)) { selected = candidate; break search; }
+                }
+                if (selected == null) { fits = false; break; }
+                element.setScale(scale);
+                element.setPosition(selected.x, selected.y);
+                placed.add(selected);
+            }
+            if (fits) return;
+        }
+    }
+
+    private record Placement(float x, float y, float width, float height) {
+        boolean overlaps(Placement other) {
+            return x < other.x + other.width + 5 && x + width + 5 > other.x
+                    && y < other.y + other.height + 5 && y + height + 5 > other.y;
+        }
+    }
+
+    private static int layoutHeight(HudElement element, Minecraft client) {
+        return element instanceof PotionHUD ? 72 : element.height(client);
+    }
 }

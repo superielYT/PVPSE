@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v2.2.0)
+## Installation (v2.3.0)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.2.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.3.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -80,8 +80,8 @@ Settings are split into General, Combat, Effects and Profiles:
 ## PVPSE Ignite resource packs
 
 Choose one edition for **Minecraft Java 26.1.2**:
-- [Ignite 32x Smooth](https://github.com/superielYT/PVPSE/releases/download/v2.2.0/PVPSE-Ignite-32x-26.1.2.zip): richer shading, highlights and resolved edges.
-- [Ignite 16x Lite](https://github.com/superielYT/PVPSE/releases/download/v2.2.0/PVPSE-Ignite-16x-26.1.2.zip): the same original art with smaller textures.
+- [Ignite 32x Smooth](https://github.com/superielYT/PVPSE/releases/download/v2.3.0/PVPSE-Ignite-32x-26.1.2.zip): richer shading, highlights and resolved edges.
+- [Ignite 16x Lite](https://github.com/superielYT/PVPSE/releases/download/v2.3.0/PVPSE-Ignite-16x-26.1.2.zip): the same original art with smaller textures.
 
 Enable ONE edition above other packs. Both include short swords, a lucky-cat totem,
 glossy golden foods, pearl, XP bottle, crystal, mace, open cobweb and low shields.
@@ -136,3 +136,18 @@ Choose HUD opacity, accent lines, panel shadows and text shadow. MINIMAL HUD app
 a restrained preset; RESET STYLE restores appearance defaults. These preferences
 are saved and copied with each HUD profile. Menu backgrounds remain independent
 of the HUD opacity control for readability.
+
+## Cannot see the GUI or HUD? (2.3)
+
+The client JAR belongs in **mods**, with Fabric API. The Ignite ZIP belongs in
+**resourcepacks** and changes textures only: it cannot install the client GUI/HUD.
+Restart Minecraft after replacing the old PVPSE JAR (keep only one version).
+
+Look for **PVPSE** in the upper-left of the title or pause menu. In a world,
+**Right Shift**, **F8**, or **/pvpse** opens the menu. **HUD: ON/OFF** controls
+visibility. **RESTORE HUD** (or **/pvpse restore**) enables and repositions the
+current profile's HUD and clears F1/debug hiding. The other profiles and selected
+theme remain unchanged. HUD editing requires joining a world.
+
+2.3 includes new short swords, wind-core mace, cute apples and moon pearl,
+while preserving the lucky-cat totem. Buttons now follow your selected theme.

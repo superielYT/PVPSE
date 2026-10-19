@@ -1,7 +1,7 @@
 {
   "category.pvp_hud_client.controls": "PvP HUD Client",
   "key.pvp_hud_client.toggle_hud": "Toggle PvP HUD",
-  "key.pvp_hud_client.open_config": "Open PvP HUD Editor",
+  "key.pvp_hud_client.open_config": "Open PVPSE menu",
   "screen.pvp_hud_client.config": "PvP HUD Settings",
   "screen.pvp_hud_client.editor": "PvP HUD Editor",
   "screen.pvp_hud_client.editor_hint": "Drag widgets to move | Click X to hide | Settings for more options",
@@ -78,5 +78,6 @@
   "screen.pvp_hud_client.animated_themes": "Animated themes",
   "screen.pvp_hud_client.hit_marker": "Hit marker",
   "screen.pvp_hud_client.damage_flash": "Damage flash",
-  "screen.pvp_hud_client.kill_particles": "Kill particles"
+  "screen.pvp_hud_client.kill_particles": "Kill particles",
+  "key.pvp_hud_client.open_menu_fallback": "Open PVPSE menu (fallback)"
 }

@@ -23,7 +23,7 @@ final class HudConfig {
     boolean enabled = true;
     boolean suppressDamageTilt = true;
     boolean notifications = true;
-    boolean hideOnDebug = true;
+    boolean hideOnDebug = false;
     boolean hitboxSwords = true;
     boolean hitboxMace = true;
     boolean hitboxTargetOnly = true;

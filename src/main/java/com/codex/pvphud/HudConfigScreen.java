@@ -71,7 +71,7 @@ final class HudConfigScreen extends Screen {
         for (int i = 0; i < TAB_KEYS.length; i++) {
             final int idx = i;
             int tx = panelX + i * tabW;
-            addRenderableWidget(Button.builder(Component.translatable(TAB_KEYS[i]), b -> {
+            addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.translatable(TAB_KEYS[i]), b -> {
                 activeTab = idx;
                 scrollOffset = 0;
                 clearAndBuild();
@@ -98,9 +98,9 @@ final class HudConfigScreen extends Screen {
 
         // Bottom buttons
         int btnY = height - 28;
-        addRenderableWidget(Button.builder(Component.translatable("gui.back"), b -> goBack())
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.translatable("gui.back"), b -> goBack())
                 .bounds(panelX, btnY, panelW / 2 - 4, 20).build());
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.translatable("gui.done"), b -> onClose())
                 .bounds(panelX + panelW / 2 + 4, btnY, panelW / 2 - 4, 20).build());
     }
 
@@ -174,7 +174,7 @@ final class HudConfigScreen extends Screen {
     }
 
     private Button toggle(int x, int y, int w, String key, BooleanSupplier getter, BooleanConsumer setter) {
-        return Button.builder(stateText(key, getter.get()), b -> {
+        return com.codex.pvphud.gui.PvpButton.styled(stateText(key, getter.get()), b -> {
             setter.accept(!getter.get());
             config.save();
             b.setMessage(stateText(key, getter.get()));

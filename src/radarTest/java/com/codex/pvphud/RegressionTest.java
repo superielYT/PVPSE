@@ -16,6 +16,11 @@ public final class RegressionTest {
         catch (IllegalArgumentException expected) {}
     }
     public static void main(String[] args) throws Exception {
+        require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(0, 100) == 100, "Fresh armor percent");
+        require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(90, 100) == 10, "Damaged armor percent");
+        require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(100, 100) == 0, "Broken armor percent");
+        require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(0, 0) == 0, "Zero durability safety");
+        require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(-100, 100) == 100, "Armor upper clamp");
         var style = new com.codex.pvphud.theme.HudAppearance();
         require(style.panelColor(0x48121A24, 1) == 0x48121A24, "Glass alpha must be preserved");
         style.opacity = 50;

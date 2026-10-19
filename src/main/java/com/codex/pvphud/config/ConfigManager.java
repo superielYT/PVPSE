@@ -22,6 +22,7 @@ public final class ConfigManager {
     private final Path base = FabricLoader.getInstance().getConfigDir().resolve("pvpse");
     private final Path directory = base.resolve("profiles");
     private String activeProfile = "default";
+    private boolean needsInitialLayout;
 
     public ConfigManager() {
         try {
@@ -34,6 +35,14 @@ public final class ConfigManager {
                 if (!name.isBlank() && Files.exists(path(name))) activeProfile = name;
             }
         } catch (IOException ignored) {}
+        needsInitialLayout = !Files.exists(path(activeProfile));
+    }
+
+    public synchronized void initializeLayout(net.minecraft.client.Minecraft client, HudManager hud) {
+        if (!needsInitialLayout) return;
+        needsInitialLayout = false;
+        hud.arrange(client);
+        save(hud);
     }
 
     public synchronized void load(HudManager hudManager) {
