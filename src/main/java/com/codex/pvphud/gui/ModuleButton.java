@@ -49,7 +49,7 @@ public final class ModuleButton {
         expansion.animateTo(expanded ? 1 : 0);
         boolean hover = RenderUtil.hovered(mouseX, mouseY, x, y, width, 24);
         RoundedRenderer.fill(context, x, y, width, totalHeight(), 5, hover ? 0xEE252C35 : 0xDD1A2028);
-        context.drawText(client.textRenderer, Text.literal(element.name()), x + 8, y + 8,
+        context.drawText(client.textRenderer, Text.literal(client.textRenderer.trimToWidth(element.name(), Math.max(1, width - 56))), x + 8, y + 8,
                 element.enabled() ? theme.text() : theme.mutedText(), false);
         RoundedRenderer.fill(context, x + width - 26, y + 7, 18, 10, 5, element.enabled() ? theme.accent() : 0xFF3A414B);
         context.drawText(client.textRenderer, Text.literal(expanded ? "–" : "+"), x + width - 40, y + 7, theme.mutedText(), false);

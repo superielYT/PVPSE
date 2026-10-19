@@ -1,3 +1,45 @@
+# PVPSE Client v1.9.0
+
+## Bow and melee follow-up
+- Orange/gold/green bow charge textures, with green at full 20-tick draw.
+- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1–4 line width.
+- Separate sword/mace switches, cooldown/falling colors and optional nearby-visible mode.
+- Hitboxes respect HUD visibility and use eye-to-box display distance.
+
+
+## Cleaner customization
+- Navigation sidebar with HUD editor, crosshair studio, waypoints, settings and themes.
+- Searchable ALL / HUD / TOOLS / ON module filters; counts and scroll reset per filter.
+- Module names fit their rows. Settings use General, Combat, Effects and Profiles tabs.
+
+## PvP visibility and settings
+- Optional attack cooldown bar beneath the crosshair, visible only while recharging.
+- Optional low-health alert (2–16 HP; two HP per heart, excluding absorption).
+- Optional equipped-armor alert (5–50% remaining durability).
+- Adjustable hit marker size, damage-flash opacity and kill-particle count.
+- Minimal Effects preset turns off flash and particles while keeping hit markers.
+- Combat feedback respects the HUD toggle and hides while menus are open.
+- Alerts/effects are global; HUD and theme profiles keep their existing scope.
+
+## Ignite 16x resource pack
+- Minecraft Java 1.21.11 / pack format 75.0.
+- Seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples,
+  ender pearl, XP bottle, end crystal and high contrast cobweb.
+- Lower shield for both hands while resting and blocking, retaining banner rendering.
+- Original pixel art, editable source, deterministic Node generator and ready-to-use ZIP.
+- Download dist/PVPSE-Ignite-16x-1.21.11.zip or the resource-pack Actions artifact.
+
+## Permissions
+- All-rights-reserved notice for owner-controlled material, with owner-directed
+  ChatGPT/Codex and Copilot assistance; prior MIT and third-party rights remain intact.
+
+## Validation
+- Java compilation, existing radar tests and pack generation run in GitHub Actions.
+- ZIP integrity is checked independently with Python's zipfile.
+- Minecraft in-game appearance and shield positioning still need visual playtesting.
+
+---
+
 # PVPSE Client v1.8.0
 
 ## General usability and stability

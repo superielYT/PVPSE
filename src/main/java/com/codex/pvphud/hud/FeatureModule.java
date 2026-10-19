@@ -42,7 +42,7 @@ public final class FeatureModule extends HudElement {
         return switch (type) {
             case ZOOM -> "Zoom FOV";
             case FULLBRIGHT -> "Brightness";
-            case MELEE_HITBOXES -> "Range";
+            case MELEE_HITBOXES -> "View range";
             default -> "Value";
         };
     }

@@ -24,6 +24,19 @@ final class HudConfig {
     boolean suppressDamageTilt = true;
     boolean notifications = true;
     boolean hideOnDebug = true;
+    boolean hitboxSwords = true;
+    boolean hitboxMace = true;
+    boolean hitboxTargetOnly = true;
+    boolean hitboxEyeLine = true;
+    boolean hitboxStateColors = true;
+    int hitboxLineWidth = 2;
+    boolean showAttackCooldown = true;
+    boolean showLowHealthWarning = true;
+    boolean showArmorWarning = true;
+    int lowHealthThreshold = 6;
+    int armorWarningPercent = 15;
+    int damageFlashOpacity = 60;
+    int hitMarkerSize = 6;
     boolean showCoords = true;
     boolean showArmor = true;
     boolean showPotions = true;
@@ -87,6 +100,12 @@ final class HudConfig {
     }
 
     void ensureWidgets() {
+        hitboxLineWidth = Math.clamp(hitboxLineWidth, 1, 4);
+        lowHealthThreshold = Math.clamp(lowHealthThreshold, 2, 16);
+        armorWarningPercent = Math.clamp(armorWarningPercent, 5, 50);
+        damageFlashOpacity = Math.clamp(damageFlashOpacity, 10, 100);
+        hitMarkerSize = Math.clamp(hitMarkerSize, 3, 10);
+        particleAmount = Math.clamp(particleAmount, 4, 48);
         if (combat == null) combat = new WidgetLayout(0.02f, 0.03f);
         if (player == null) player = new WidgetLayout(0.02f, 0.12f);
         if (location == null) location = new WidgetLayout(0.74f, 0.03f);

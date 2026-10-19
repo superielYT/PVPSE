@@ -1,0 +1,39 @@
+{
+  "parent": "minecraft:item/shield_blocking",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        180,
+        -5
+      ],
+      "translation": [
+        -15,
+        -1,
+        -11
+      ],
+      "scale": [
+        1.05,
+        1.05,
+        1.05
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        180,
+        -5
+      ],
+      "translation": [
+        5,
+        -1,
+        -11
+      ],
+      "scale": [
+        1.05,
+        1.05,
+        1.05
+      ]
+    }
+  }
+}

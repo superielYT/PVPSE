@@ -74,7 +74,7 @@ final class CombatFeedback {
         int cy = h / 2;
 
         if (damageFlashLife > 0.0F && config.showDamageFlash) {
-            int alpha = Math.min(100, Math.round(90 * damageFlashLife));
+            int alpha = Math.round(255 * config.damageFlashOpacity / 100.0F * damageFlashLife);
             int color = (alpha << 24) | 0x00FF2438;
             int edge = Math.max(8, Math.min(w, h) / 14);
             context.fill(0, 0, w, edge, color);
@@ -86,7 +86,7 @@ final class CombatFeedback {
         if (hitMarkerLife > 0.0F && config.showHitMarker) {
             int alpha = Math.min(255, Math.round(255 * hitMarkerLife));
             int color = (alpha << 24) | 0xFFFFFF;
-            int size = 5 + Math.round((1.0F - hitMarkerLife) * 2.0F);
+            int size = config.hitMarkerSize + Math.round((1.0F - hitMarkerLife) * 2.0F);
             line(context, cx - size, cy - size, cx - 2, cy - 2, color);
             line(context, cx + 2, cy + 2, cx + size + 1, cy + size + 1, color);
             line(context, cx + 2, cy - 2, cx + size + 1, cy - size - 1, color);
