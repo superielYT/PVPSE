@@ -14,9 +14,17 @@ public final class ThemeManager {
             new CyberpunkTheme(),
             new FrostTheme(),
             new SakuraTheme(),
-            customTheme
+            customTheme,
+            new GlassTheme()
     );
     private final AtomicReference<Theme> current = new AtomicReference<>(themes.getFirst());
+
+    private HudAppearance appearance = new HudAppearance();
+    public HudAppearance appearance() { return appearance; }
+    public void setAppearance(HudAppearance value) {
+        appearance = value == null ? new HudAppearance() : value;
+        appearance.normalize();
+    }
 
     private ThemeManager() {}
 

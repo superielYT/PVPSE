@@ -6,6 +6,7 @@ import java.util.Map;
 public final class ConfigProfile {
     public String name = "default";
     public String theme = "ignite";
+    public com.codex.pvphud.theme.HudAppearance appearance = new com.codex.pvphud.theme.HudAppearance();
     public Map<String, HudState> hud = new LinkedHashMap<>();
 
     public ConfigProfile() {}

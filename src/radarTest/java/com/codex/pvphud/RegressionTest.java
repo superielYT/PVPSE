@@ -16,6 +16,23 @@ public final class RegressionTest {
         catch (IllegalArgumentException expected) {}
     }
     public static void main(String[] args) throws Exception {
+        var style = new com.codex.pvphud.theme.HudAppearance();
+        require(style.panelColor(0x48121A24, 1) == 0x48121A24, "Glass alpha must be preserved");
+        style.opacity = 50;
+        require(style.panelColor(0x48121A24, 1) == 0x24121A24, "Opacity must multiply theme alpha");
+        require(style.panelColor(0x48121A24, 0) == 0x00121A24, "Hidden HUD must have no panel alpha");
+        style.opacity = -500; style.normalize();
+        require(style.opacity == 20, "Invalid opacity lower bound");
+        style.opacity = 500; style.normalize();
+        require(style.opacity == 100, "Invalid opacity upper bound");
+        var gson = new com.google.gson.Gson();
+        var profile = new com.codex.pvphud.config.ConfigProfile("glass-pvp");
+        profile.theme = "glass"; profile.appearance.opacity = 40; profile.appearance.accents = false;
+        var restored = gson.fromJson(gson.toJson(profile), com.codex.pvphud.config.ConfigProfile.class);
+        require(restored.theme.equals("glass") && restored.appearance.opacity == 40
+                && !restored.appearance.accents, "Profile style did not survive JSON round trip");
+        var legacy = gson.fromJson("{\"theme\":\"ignite\"}", com.codex.pvphud.config.ConfigProfile.class);
+        require(legacy.appearance != null && legacy.appearance.opacity == 100, "Old profiles need default style");
         byte[] pixels = new byte[29]; pixels[14] = 1;
         String data = Base64.getUrlEncoder().withoutPadding().encodeToString(pixels);
         String prefix = "PVPSE1:" + data + ":";

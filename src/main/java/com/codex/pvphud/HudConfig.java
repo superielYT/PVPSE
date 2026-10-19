@@ -195,7 +195,7 @@ final class HudConfig {
     int backgroundColor() {
         int alpha = Math.clamp(panelOpacity, MIN_OPACITY, MAX_OPACITY);
         int themeBackground = ThemeManager.getInstance().getTheme().panel();
-        return (Math.round(alpha * 255.0F / 100) << 24) | (themeBackground & 0xFFFFFF);
+        return (Math.round(alpha * (themeBackground >>> 24) / 100.0F) << 24) | (themeBackground & 0xFFFFFF);
     }
 
     enum Corner {
