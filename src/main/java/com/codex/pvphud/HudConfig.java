@@ -24,6 +24,12 @@ final class HudConfig {
     boolean suppressDamageTilt = true;
     boolean notifications = true;
     boolean hideOnDebug = true;
+    boolean hitboxSwords = true;
+    boolean hitboxMace = true;
+    boolean hitboxTargetOnly = true;
+    boolean hitboxEyeLine = true;
+    boolean hitboxStateColors = true;
+    int hitboxLineWidth = 2;
     boolean showAttackCooldown = true;
     boolean showLowHealthWarning = true;
     boolean showArmorWarning = true;
@@ -94,6 +100,7 @@ final class HudConfig {
     }
 
     void ensureWidgets() {
+        hitboxLineWidth = Math.clamp(hitboxLineWidth, 1, 4);
         lowHealthThreshold = Math.clamp(lowHealthThreshold, 2, 16);
         armorWarningPercent = Math.clamp(armorWarningPercent, 5, 50);
         damageFlashOpacity = Math.clamp(damageFlashOpacity, 10, 100);

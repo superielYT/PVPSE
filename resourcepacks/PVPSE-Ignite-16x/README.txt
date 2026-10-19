@@ -1,6 +1,6 @@
 PVPSE Ignite 16x — Minecraft Java 1.21.11
 
-Original 16x art: seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples, ender pearl, XP bottle, end crystal and cobweb.
+Original 16x art: seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples, ender pearl, XP bottle, end crystal and cobweb. Bow stages: orange (early), gold (middle), green (fully drawn).
 Lowered shield in both hands, resting and blocking; vanilla banner rendering is preserved.
 Orange guards, dark outlines, distinct material colors. Other textures stay vanilla.
 

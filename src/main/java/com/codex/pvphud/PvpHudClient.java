@@ -72,7 +72,7 @@ public final class PvpHudClient implements ClientModInitializer {
             if (previousDamageTilt != null) client.options.getDamageTiltStrength().setValue(previousDamageTilt);
             FeatureKeybinds.save(client);
         });
-        MeleeHitboxRenderer.register(hudManager);
+        MeleeHitboxRenderer.register(hudManager, config);
         registerHudElements();
     }
 

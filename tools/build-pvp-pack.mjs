@@ -149,6 +149,48 @@ asset('assets/minecraft/items/shield.json', JSON.stringify({
 asset('assets/minecraft/models/item/enchanted_golden_apple.json', JSON.stringify({
     parent:'minecraft:item/generated', textures:{layer0:'minecraft:item/enchanted_golden_apple'}
 },null,2));
+// Green means a full 20-tick draw, rather than vanilla's early final-frame switch.
+const bowModel = name => ({type:'minecraft:model',model:'minecraft:item/'+name});
+asset('assets/minecraft/items/bow.json',JSON.stringify({
+    model:{type:'minecraft:condition',property:'minecraft:using_item',
+        on_false:bowModel('bow'),
+        on_true:{type:'minecraft:range_dispatch',property:'minecraft:use_duration',scale:0.05,
+            fallback:bowModel('bow_pulling_0'),entries:[
+                {threshold:0.65,model:bowModel('bow_pulling_1')},
+                {threshold:1.0,model:bowModel('bow_pulling_2')}
+            ]}
+    }
+},null,2));
+// Four native bow sprites: idle plus Minecraft's three pulling stages.
+for (const stage of [-1, 0, 1, 2]) {
+    const pixels = Buffer.alloc(16 * 16 * 4);
+    const put = (x, y, color) => {
+        if (x >= 0 && x < 16 && y >= 0 && y < 16) pixels.set(rgba(color), (y * 16 + x) * 4);
+    };
+    const line = (x1,y1,x2,y2,color,radius=0) => {
+        const steps=Math.max(Math.abs(x2-x1),Math.abs(y2-y1));
+        for(let i=0;i<=steps;i++){
+            const t=steps ? i/steps : 0, x=Math.round(x1+(x2-x1)*t), y=Math.round(y1+(y2-y1)*t);
+            for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++)put(x+dx,y+dy,color);
+        }
+    };
+    const points=[[5,2],[8,3],[10,5],[11,7],[10,10],[8,12],[5,13]];
+    const color=stage===2 ? '#58e6a1' : stage===1 ? '#ffda66' : orange;
+    // Dark silhouette with warm wood and a colored charge strip.
+    for(let i=1;i<points.length;i++)line(...points[i-1],...points[i],ink,1);
+    for(let i=1;i<points.length;i++)line(...points[i-1],...points[i],color);
+    const pullX=stage < 0 ? 5 : 3-stage;
+    line(5,2,pullX,7,'#f3e8cf');line(pullX,7,5,13,'#f3e8cf');
+    put(10,6,handle);put(11,7,handle);put(11,8,handle);
+    if(stage>=0){
+        line(pullX,7,14,7,'#e5eaf4');
+        put(13,6,color);put(14,7,color);put(13,8,color);
+        put(pullX,6,'#b4a0d7');put(pullX,8,'#b4a0d7');
+    }
+    const name=stage<0 ? 'bow' : 'bow_pulling_'+stage;
+    asset('assets/minecraft/textures/item/'+name+'.png',png(16,16,pixels));
+    previews.push({name:'item/'+name,pixels});
+}
 const icon = Buffer.alloc(64 * 64 * 4);
 for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
     const edge = x < 3 || y < 3 || x > 60 || y > 60;
@@ -163,7 +205,7 @@ asset('pack.mcmeta', JSON.stringify({ pack: {
     description: 'PVPSE Ignite 16x | Short swords & clear PvP essentials',
     min_format: [75, 0], max_format: [75, 0]
 }}, null, 2) + '\n');
-asset('README.txt', 'PVPSE Ignite 16x — Minecraft Java 1.21.11\n\nOriginal 16x art: seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples, ender pearl, XP bottle, end crystal and cobweb.\nLowered shield in both hands, resting and blocking; vanilla banner rendering is preserved.\nOrange guards, dark outlines, distinct material colors. Other textures stay vanilla.\n\nInstall the ZIP in .minecraft/resourcepacks, then enable it above other packs.\nThis changes appearance only. It does not change reach, damage or attack timing.\nDisable the client custom crosshair if you prefer the vanilla crosshair.\n\nCopyright and permissions: see the PVPSE repository LICENSE.\n');
+asset('README.txt', 'PVPSE Ignite 16x — Minecraft Java 1.21.11\n\nOriginal 16x art: seven short swords, lucky-cat totem, golden carrot, golden and enchanted apples, ender pearl, XP bottle, end crystal and cobweb. Bow stages: orange (early), gold (middle), green (fully drawn).\nLowered shield in both hands, resting and blocking; vanilla banner rendering is preserved.\nOrange guards, dark outlines, distinct material colors. Other textures stay vanilla.\n\nInstall the ZIP in .minecraft/resourcepacks, then enable it above other packs.\nThis changes appearance only. It does not change reach, damage or attack timing.\nDisable the client custom crosshair if you prefer the vanilla crosshair.\n\nCopyright and permissions: see the PVPSE repository LICENSE.\n');
 asset('LICENSE', readFileSync(join(root, 'LICENSE')));
 for (const [name, data] of files) { const target = join(out, name); mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, data); }
 // Deterministic ZIP (stored entries); Minecraft accepts standard ZIP containers.
@@ -185,7 +227,7 @@ end.writeUInt32LE(directory.length, 12); end.writeUInt32LE(offset, 16);
 mkdirSync(join(root, 'dist'), { recursive: true });
 const zip = Buffer.concat([...entries, directory, end]);
 writeFileSync(join(root, 'dist/PVPSE-Ignite-16x-1.21.11.zip'), zip);
-assert.equal(files.size, 23);
+assert.equal(files.size, 28);
 for (const [name, data] of files) {
     if (name.endsWith('.json') || name.endsWith('.mcmeta')) JSON.parse(data.toString());
     if (name.endsWith('.png')) assert.equal(data.subarray(0,8).toString('hex'),'89504e470d0a1a0a');

@@ -95,3 +95,23 @@ not damage, reach or attack timing. Other packs overriding the same items may co
 Regenerate and validate the textures and ZIP with Node 22:
 `node tools/build-pvp-pack.mjs`. GitHub Actions builds the mod and uploads the pack.
 The pack ZIP is also committed for direct downloading.
+
+## Bow charge textures and melee hitbox display
+
+Ignite now includes idle and three bow pulling sprites: orange for the initial
+draw, gold after 13 ticks and green at the full 20-tick draw. Resource-pack
+item selection changes only the visual state; firing behavior stays vanilla.
+
+Open SETTINGS & PROFILES > HITBOX:
+- Enable Melee hitboxes, then allow swords and/or mace in the main hand.
+- Target only is on by default. Turn it off to show up to 16 nearest visible,
+  living entities inside the module's View range.
+- Toggle eye-level rings, state colors and line widths from 1–4.
+- Selected target: green when the attack cooldown is ready, amber while it
+  recovers, purple while falling more than 1.5 blocks with a ready mace.
+  Purple shows the local falling state, not a guaranteed smash or hit.
+- Boxes follow interpolated entity movement and preserve real bounding dimensions.
+- Display range is measured from your eyes to the nearest point on each box.
+- Hidden in menus, spectator mode, F1, disabled HUD and optionally F3.
+- Weapon/display preferences are global; module enabled state and range are
+  saved with HUD profiles. This is a visual overlay and changes no reach or collision.

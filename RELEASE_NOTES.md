@@ -1,5 +1,12 @@
 # PVPSE Client v1.9.0
 
+## Bow and melee follow-up
+- Orange/gold/green bow charge textures, with green at full 20-tick draw.
+- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1–4 line width.
+- Separate sword/mace switches, cooldown/falling colors and optional nearby-visible mode.
+- Hitboxes respect HUD visibility and use eye-to-box display distance.
+
+
 ## Cleaner customization
 - Navigation sidebar with HUD editor, crosshair studio, waypoints, settings and themes.
 - Searchable ALL / HUD / TOOLS / ON module filters; counts and scroll reset per filter.

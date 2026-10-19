@@ -15,7 +15,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 final class ClientSettingsScreen extends Screen {
-    private enum Tab { GENERAL, COMBAT, EFFECTS, PROFILES }
+    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, PROFILES }
     private final Screen parent;
     private final HudConfig config;
     private final ConfigManager profiles;
@@ -35,7 +35,7 @@ final class ClientSettingsScreen extends Screen {
 
     protected void init() {
         profileName = null;
-        int gap = 4, tw = (w() - gap * 3) / 4;
+        int gap = 4, tw = (w() - gap * (Tab.values().length - 1)) / Tab.values().length;
         for (Tab next : Tab.values()) {
             var button = addDrawableChild(ButtonWidget.builder(Text.literal(next.name()), b -> {
                 rememberDraft(); tab = next; status = ""; clearAndInit();
@@ -57,6 +57,16 @@ final class ClientSettingsScreen extends Screen {
                 number(x() + half + 6, y + 25, half, "HP threshold", () -> config.lowHealthThreshold, v -> config.lowHealthThreshold = v, 2, 16, 2);
                 toggle(x(), y + 50, half, "Armor alert", () -> config.showArmorWarning, v -> config.showArmorWarning = v);
                 number(x() + half + 6, y + 50, half, "Durability %", () -> config.armorWarningPercent, v -> config.armorWarningPercent = v, 5, 50, 5);
+            }
+            case HITBOX -> {
+                toggle(x(), y, w(), "Melee hitboxes", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> e.enabled()).orElse(false),
+                        v -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).ifPresent(e -> e.setEnabled(v)));
+                toggle(x(), y + 25, half, "Swords", () -> config.hitboxSwords, v -> config.hitboxSwords = v);
+                toggle(x() + half + 6, y + 25, half, "Mace", () -> config.hitboxMace, v -> config.hitboxMace = v);
+                toggle(x(), y + 50, half, "Target only", () -> config.hitboxTargetOnly, v -> config.hitboxTargetOnly = v);
+                toggle(x() + half + 6, y + 50, half, "Eye-level ring", () -> config.hitboxEyeLine, v -> config.hitboxEyeLine = v);
+                number(x(), y + 75, half, "Line width", () -> config.hitboxLineWidth, v -> config.hitboxLineWidth = v, 1, 4, 1);
+                toggle(x() + half + 6, y + 75, half, "State colors", () -> config.hitboxStateColors, v -> config.hitboxStateColors = v);
             }
             case EFFECTS -> {
                 toggle(x(), y, half, "Hit marker", () -> config.showHitMarker, v -> config.showHitMarker = v);
@@ -125,10 +135,11 @@ final class ClientSettingsScreen extends Screen {
         String helper = switch (tab) {
             case GENERAL -> "Your display and visibility preferences";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
+            case HITBOX -> "Green: ready | Amber: cooldown | Purple: falling mace";
             case EFFECTS -> "Click a value to increase it; maximum wraps to minimum";
             case PROFILES -> "Profiles store HUD, utilities and theme. Alerts are global.";
         };
-        int footer = top() + (tab == Tab.EFFECTS ? 103 : 82);
+        int footer = top() + ((tab == Tab.EFFECTS || tab == Tab.HITBOX) ? 103 : 82);
         if (footer < height - 39) {
             String message = status.isBlank() ? helper : status;
             c.drawTextWithShadow(textRenderer, Text.literal(textRenderer.trimToWidth(message, w())), x(), footer, theme.mutedText());
