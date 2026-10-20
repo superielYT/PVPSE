@@ -49,7 +49,7 @@ Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not ins
 ## HUD themes and style
 - Optional Clear Glass theme alongside every existing theme.
 - Refined shared panel surfaces, softer glow, subtle accent lines and readable text.
-- New STYLE tab: HUD opacity (20-100%), accent lines, panel shadows and text shadows.
+- New STYLE tab: HUD opacity (20–100%), accent lines, panel shadows and text shadows.
 - Minimal HUD preset and one-click style reset.
 - Appearance preferences are saved per profile and copied with the current profile.
 - Fixed overlapping translucent rounded panels and forced glass opacity.
@@ -115,7 +115,7 @@ Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not ins
 
 ## Bow and melee follow-up
 - Orange/gold/green bow charge textures, with green at full 20-tick draw.
-- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1-4 line width.
+- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1–4 line width.
 - Separate sword/mace switches, cooldown/falling colors and optional nearby-visible mode.
 - Hitboxes respect HUD visibility and use eye-to-box display distance.
 
@@ -127,8 +127,8 @@ Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not ins
 
 ## PvP visibility and settings
 - Optional attack cooldown bar beneath the crosshair, visible only while recharging.
-- Optional low-health alert (2-16 HP; two HP per heart, excluding absorption).
-- Optional equipped-armor alert (5-50% remaining durability).
+- Optional low-health alert (2–16 HP; two HP per heart, excluding absorption).
+- Optional equipped-armor alert (5–50% remaining durability).
 - Adjustable hit marker size, damage-flash opacity and kill-particle count.
 - Minimal Effects preset turns off flash and particles while keeping hit markers.
 - Combat feedback respects the HUD toggle and hides while menus are open.
@@ -198,7 +198,7 @@ Final PvP HUD release for Fabric 1.21.11 and Java 21.
 - New **Melee Hitboxes** module in the scrollable HUD elements panel
 - Shows a precise 3D wireframe only for the living entity under the crosshair
 - Activates only while holding a sword or mace
-- Adjustable visual range (2-12 blocks) in the module settings
+- Adjustable visual range (2–12 blocks) in the module settings
 - Client-side visualization only: no reach, attack, aiming, or packet changes
 
 ## Settings and polish
