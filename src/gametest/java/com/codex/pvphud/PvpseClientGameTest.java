@@ -137,8 +137,12 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         before = card.scale(); context.getInput().scroll(2); context.waitTick();
         if (card.scale() <= before) throw new AssertionError("HUD wheel scaling failed");
         before = card.scale();
-        float right = card.x() + card.width(net.minecraft.client.Minecraft.getInstance()) * card.scale();
-        float bottom = card.y() + card.height(net.minecraft.client.Minecraft.getInstance()) * card.scale();
+        float[] corner = context.computeOnClient(mc -> new float[] {
+                card.x() + card.width(mc) * card.scale(),
+                card.y() + card.height(mc) * card.scale()
+        });
+        float right = corner[0];
+        float bottom = corner[1];
         moveTo(context, right, bottom);
         context.getInput().holdMouse(0); context.waitTick();
         moveTo(context, right + 25, bottom + 10); context.waitTicks(2);
@@ -168,3 +172,4 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         } catch (java.io.IOException e) { throw new AssertionError("Cannot read HUD screenshot", e); }
     }
 }
+
