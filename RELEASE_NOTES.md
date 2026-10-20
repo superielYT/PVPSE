@@ -1,3 +1,18 @@
+# PVPSE Client v2.4.0
+
+- Sword, Crystal and Mace HUD presets with different card selections; utilities and theme are preserved.
+- Live inventory counter for totems, pearls, golden/enchanted apples, wind charges and crystals, including offhand.
+- Optional low-armor sound with volume control and a ten-second repeat interval while armor remains low.
+- Search settings in English or Dutch, then jump directly to the matching control.
+- HUD editor: drag to move; drag the corner, scroll, use +/- buttons or keys to resize.
+- Scale stays within the usable viewport and closing the editor saves the layout.
+- Regression checks cover inventory totals, presets, sound timing, search, dragging, scaling and saving.
+
+Minecraft Java 26.1.2 / Java 25 / Fabric Loader 0.19.3+ / matching Fabric API.
+Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not install the HUD.
+
+---
+
 # PVPSE Client v2.3.0
 
 ## Rebuilt PvP art

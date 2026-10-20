@@ -16,6 +16,20 @@ public final class RegressionTest {
         catch (IllegalArgumentException expected) {}
     }
     public static void main(String[] args) throws Exception {
+        var gate = new ArmorAlertGate();
+        require(gate.update(true, 0), "First armor warning missing");
+        require(!gate.update(true, 1) && !gate.update(true, 199), "Armor sound spam");
+        require(gate.update(true, 200), "Persistent armor warning not repeated");
+        require(!gate.update(false, 201) && gate.update(true, 202), "Armor recovery must re-arm warning");
+        gate.reset(); require(gate.update(true, 0), "Player change must reset warning timer");
+        require(SettingsSearch.find("ARMOR geluid").stream().anyMatch(r -> r.label().equals("Armor sound")), "Dutch armor search");
+        require(SettingsSearch.find("doorzichtig").stream().anyMatch(r -> r.tab().equals("STYLE")), "Transparency search");
+        require(SettingsSearch.find("unknown-setting-xyz").isEmpty(), "Unexpected search result");
+        require(com.codex.pvphud.hud.PvpPreset.SWORD.includes("reach"), "Sword preset reach");
+        require(!com.codex.pvphud.hud.PvpPreset.CRYSTAL.includes("reach"), "Crystal preset must differ");
+        require(com.codex.pvphud.hud.PvpPreset.MACE.includes("keystrokes"), "Mace preset keystrokes");
+        for (var preset : com.codex.pvphud.hud.PvpPreset.values())
+            require(preset.includes("armor") && preset.includes("inventory"), "Core PvP cards missing");
         require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(0, 100) == 100, "Fresh armor percent");
         require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(90, 100) == 10, "Damaged armor percent");
         require(com.codex.pvphud.hud.ArmorHUD.durabilityPercent(100, 100) == 0, "Broken armor percent");
@@ -33,9 +47,12 @@ public final class RegressionTest {
         var gson = new com.google.gson.Gson();
         var profile = new com.codex.pvphud.config.ConfigProfile("glass-pvp");
         profile.theme = "glass"; profile.appearance.opacity = 40; profile.appearance.accents = false;
+        profile.hud.put("inventory", new com.codex.pvphud.config.ConfigProfile.HudState(true, 45, 65, 1.4F));
         var restored = gson.fromJson(gson.toJson(profile), com.codex.pvphud.config.ConfigProfile.class);
         require(restored.theme.equals("glass") && restored.appearance.opacity == 40
                 && !restored.appearance.accents, "Profile style did not survive JSON round trip");
+        require(restored.hud.get("inventory").x == 45 && restored.hud.get("inventory").scale == 1.4F,
+                "HUD position/scale did not survive saving");
         var legacy = gson.fromJson("{\"theme\":\"ignite\"}", com.codex.pvphud.config.ConfigProfile.class);
         require(legacy.appearance != null && legacy.appearance.opacity == 100, "Old profiles need default style");
         byte[] pixels = new byte[29]; pixels[14] = 1;

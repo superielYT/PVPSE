@@ -33,6 +33,8 @@ final class HudConfig {
     boolean showAttackCooldown = true;
     boolean showLowHealthWarning = true;
     boolean showArmorWarning = true;
+    boolean armorWarningSound = true;
+    int armorSoundVolume = 60;
     int lowHealthThreshold = 6;
     int armorWarningPercent = 15;
     int damageFlashOpacity = 60;
@@ -109,6 +111,7 @@ final class HudConfig {
         hitboxLineWidth = Math.clamp(hitboxLineWidth, 1, 4);
         lowHealthThreshold = Math.clamp(lowHealthThreshold, 2, 16);
         armorWarningPercent = Math.clamp(armorWarningPercent, 5, 50);
+        armorSoundVolume = Math.clamp(armorSoundVolume, 0, 100);
         damageFlashOpacity = Math.clamp(damageFlashOpacity, 10, 100);
         hitMarkerSize = Math.clamp(hitMarkerSize, 3, 10);
         particleAmount = Math.clamp(particleAmount, 4, 48);

@@ -10,6 +10,7 @@ import com.codex.pvphud.render.RoundedRenderer;
 public final class HudEditor extends Screen {
     private final HudManager manager;
     private final Screen parent;
+    private final Runnable save;
     private HudElement dragging;
     private double offsetX;
     private double offsetY;
@@ -27,10 +28,24 @@ public final class HudEditor extends Screen {
     private static final int BUTTON_WIDTH = 72;
 
     public HudEditor(HudManager manager, Screen parent) {
+        this(manager, parent, () -> {});
+    }
+
+    public HudEditor(HudManager manager, Screen parent, Runnable save) {
         super(Component.literal("PVPSE HUD Editor"));
         this.manager = manager;
         this.parent = parent;
+        this.save = save;
         manager.layoutElements().forEach(e -> original.put(e, new Layout(e.x(), e.y(), e.scale(), e.enabled())));
+    }
+
+    @Override protected void init() {
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal("-"), b -> {
+            if (selected != null) resizeSelected(selected.scale() - 0.1F);
+        }).bounds(width - 228, height - 32, 25, 20).build());
+        addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal("+"), b -> {
+            if (selected != null) resizeSelected(selected.scale() + 0.1F);
+        }).bounds(width - 199, height - 32, 25, 20).build());
     }
 
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
@@ -41,7 +56,7 @@ public final class HudEditor extends Screen {
         drawAction(context, width - BUTTON_WIDTH * 2 - 24, height - 32, "THEME", mouseX, mouseY, theme.accentSecondary());
         drawAction(context, width - BUTTON_WIDTH - 16, height - 32, "DONE", mouseX, mouseY, theme.accent());
         context.centeredText(font,
-                Component.literal("Drag / corner: resize | Arrows: nudge | R: reset | Ctrl+Z: undo"),
+                Component.literal("Drag: move | Corner / wheel / +/-: size | Ctrl+Z: undo"),
                 width / 2, height - 49, theme.mutedText());
         if (minecraft != null) {
             manager.render(context, minecraft, true);
@@ -53,6 +68,7 @@ public final class HudEditor extends Screen {
     }
 
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        if (super.mouseClicked(click, doubled)) return true;
         if (minecraft != null && click.button() == 0) {
             if (inside(click.x(), click.y(), width - BUTTON_WIDTH - 16, height - 32, BUTTON_WIDTH, 20)) {
                 onClose();
@@ -97,14 +113,33 @@ public final class HudEditor extends Screen {
         if (dragging != null) {
             if (resizing) {
                 float delta = (float) ((click.x() - resizeStartX) / Math.max(40.0, dragging.width(minecraft)));
-                dragging.setScale(resizeStartScale + delta);
-                dragging.keepOnScreen(minecraft);
+                resizeSelected(resizeStartScale + delta);
             } else {
                 moveWithSnapping((float) (click.x() - offsetX), (float) (click.y() - offsetY));
             }
             return true;
         }
         return super.mouseDragged(click, deltaX, deltaY);
+    }
+
+    @Override public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
+        for (HudElement element : manager.layoutElements().reversed()) {
+            if (element.contains(mouseX, mouseY, minecraft)) {
+                selected = element;
+                resizeSelected(element.scale() + (float) vertical * 0.05F);
+                return true;
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, horizontal, vertical);
+    }
+
+    private void resizeSelected(float next) {
+        if (selected == null || minecraft == null) return;
+        float maximum = Math.min(2.5F, Math.min(width / (float) Math.max(1, selected.width(minecraft)),
+                (height - 58) / (float) Math.max(1, selected.height(minecraft))));
+        selected.setScale(Math.min(next, Math.max(0.5F, maximum)));
+        selected.keepOnScreen(minecraft);
+        selected.setPosition(selected.x(), Math.min(selected.y(), Math.max(0, height - 58 - selected.height(minecraft) * selected.scale())));
     }
 
     public boolean mouseReleased(MouseButtonEvent click) {
@@ -123,6 +158,12 @@ public final class HudEditor extends Screen {
             return true;
         }
         if (selected != null) {
+            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_EQUAL || key == org.lwjgl.glfw.GLFW.GLFW_KEY_KP_ADD) {
+                resizeSelected(selected.scale() + 0.1F); return true;
+            }
+            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_MINUS || key == org.lwjgl.glfw.GLFW.GLFW_KEY_KP_SUBTRACT) {
+                resizeSelected(selected.scale() - 0.1F); return true;
+            }
             if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_R) { selected.resetLayout(); selected.keepOnScreen(minecraft); return true; }
             int step = (input.modifiers() & org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT) != 0 ? 10 : 1;
             int dx = key == org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT ? -step : key == org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT ? step : 0;
@@ -134,6 +175,8 @@ public final class HudEditor extends Screen {
     public void onClose() {
         if (minecraft != null) minecraft.setScreen(parent);
     }
+
+    @Override public void removed() { save.run(); super.removed(); }
 
     public boolean isPauseScreen() { return false; }
 
@@ -195,7 +238,7 @@ public final class HudEditor extends Screen {
         guideX = sx.guide();
         guideY = sy.guide();
         dragging.setPosition(Math.clamp(sx.position(), 0, Math.max(0, width - elementWidth)),
-                Math.clamp(sy.position(), 0, Math.max(0, height - elementHeight)));
+                Math.clamp(sy.position(), 0, Math.max(0, height - 58 - elementHeight)));
     }
 
     private static Snap snap(float position, float size, float[] targets, int count) {

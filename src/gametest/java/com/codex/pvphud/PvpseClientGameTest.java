@@ -52,6 +52,35 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             int accent = context.computeOnClient(mc -> com.codex.pvphud.theme.ThemeManager.getInstance().getTheme().accent());
             requireAccent(screenshot, size[0], size[1], accent);
             context.runOnClient(mc -> {
+                var pearl = net.minecraft.world.item.Items.ENDER_PEARL;
+                mc.player.getInventory().setItem(0, new net.minecraft.world.item.ItemStack(pearl, 16));
+                mc.player.getInventory().setItem(9, new net.minecraft.world.item.ItemStack(pearl, 8));
+                mc.player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new net.minecraft.world.item.ItemStack(pearl, 4));
+                int count = com.codex.pvphud.hud.InventoryHUD.countCarried(mc.player, pearl);
+                if (count != 28) throw new AssertionError("Storage/hotbar/offhand count: " + count);
+            });
+            for (String preset : new String[]{"Sword preset", "Crystal preset", "Mace preset"}) {
+                context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+                context.clickScreenButton("Settings & profiles");
+                context.waitForScreen(ClientSettingsScreen.class);
+                context.clickScreenButton(preset);
+                context.setScreen(() -> null);
+                context.waitTicks(5);
+                context.takeScreenshot("pvpse-" + preset.replace(' ', '-'));
+            }
+            context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+            context.clickScreenButton("Settings & profiles");
+            context.runOnClient(mc -> {
+                var box = mc.screen.children().stream().filter(e -> e instanceof net.minecraft.client.gui.components.EditBox)
+                        .map(e -> (net.minecraft.client.gui.components.EditBox)e).findFirst().orElseThrow();
+                mc.screen.setFocused(box);
+            });
+            context.getInput().typeChars("armor geluid");
+            context.waitTicks(2);
+            context.takeScreenshot("pvpse-settings-search");
+            context.clickScreenButton("Armor sound  > COMBAT");
+            context.setScreen(() -> null);
+            context.runOnClient(mc -> {
                 var slots = new net.minecraft.world.entity.EquipmentSlot[]{
                         net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
                         net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET};
@@ -81,7 +110,52 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             context.waitTicks(5);
             context.takeScreenshot("pvpse-hud-editor");
             context.setScreen(() -> null);
+            testEditorInput(context);
         }
+    }
+
+    private static void testEditorInput(ClientGameTestContext context) {
+        var manager = context.computeOnClient(mc -> new com.codex.pvphud.hud.HudManager());
+        var card = manager.find("inventory").orElseThrow();
+        var saves = new java.util.concurrent.atomic.AtomicInteger();
+        context.runOnClient(mc -> {
+            manager.layoutElements().forEach(e -> e.setPosition(10000, 10000));
+            card.setPosition(20, 60); card.setScale(1);
+            mc.setScreen(new HudEditor(manager, null, saves::incrementAndGet));
+        });
+        moveTo(context, 28, 70);
+        context.getInput().holdMouse(0); context.waitTick();
+        moveTo(context, 58, 90); context.waitTicks(2);
+        context.getInput().releaseMouse(0); context.waitTick();
+        if (card.x() <= 21 || card.y() <= 61) throw new AssertionError("HUD dragging did not move the card");
+        float before = card.scale();
+        context.clickScreenButton("+");
+        if (card.scale() <= before) throw new AssertionError("HUD plus button did not enlarge");
+        context.clickScreenButton("-");
+        if (card.scale() >= before + 0.09F) throw new AssertionError("HUD minus button did not shrink");
+        moveTo(context, card.x() + 8, card.y() + 8);
+        before = card.scale(); context.getInput().scroll(2); context.waitTick();
+        if (card.scale() <= before) throw new AssertionError("HUD wheel scaling failed");
+        before = card.scale();
+        float[] corner = context.computeOnClient(mc -> new float[] {
+                card.x() + card.width(mc) * card.scale(),
+                card.y() + card.height(mc) * card.scale()
+        });
+        float right = corner[0];
+        float bottom = corner[1];
+        moveTo(context, right, bottom);
+        context.getInput().holdMouse(0); context.waitTick();
+        moveTo(context, right + 25, bottom + 10); context.waitTicks(2);
+        context.getInput().releaseMouse(0); context.waitTick();
+        if (card.scale() <= before) throw new AssertionError("HUD corner scaling failed");
+        context.takeScreenshot("pvpse-hud-drag-resize");
+        context.setScreen(() -> null);
+        if (saves.get() == 0) throw new AssertionError("Closing the editor did not save");
+    }
+
+    private static void moveTo(ClientGameTestContext context, double x, double y) {
+        double scale = context.computeOnClient(mc -> mc.getWindow().getWidth() / (double)mc.getWindow().getGuiScaledWidth());
+        context.getInput().setCursorPos(x * scale, y * scale);
     }
 
     private static void requireAccent(java.nio.file.Path file, int guiWidth, int guiHeight, int color) {
@@ -98,3 +172,4 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         } catch (java.io.IOException e) { throw new AssertionError("Cannot read HUD screenshot", e); }
     }
 }
+
