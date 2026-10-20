@@ -1,3 +1,18 @@
+# PVPSE Client v2.4.0
+
+- Sword, Crystal and Mace HUD presets with different card selections; utilities and theme are preserved.
+- Live inventory counter for totems, pearls, golden/enchanted apples, wind charges and crystals, including offhand.
+- Optional low-armor sound with volume control and a ten-second repeat interval while armor remains low.
+- Search settings in English or Dutch, then jump directly to the matching control.
+- HUD editor: drag to move; drag the corner, scroll, use +/- buttons or keys to resize.
+- Scale stays within the usable viewport and closing the editor saves the layout.
+- Regression checks cover inventory totals, presets, sound timing, search, dragging, scaling and saving.
+
+Minecraft Java 26.1.2 / Java 25 / Fabric Loader 0.19.3+ / matching Fabric API.
+Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not install the HUD.
+
+---
+
 # PVPSE Client v2.3.0
 
 ## Rebuilt PvP art
@@ -34,7 +49,7 @@
 ## HUD themes and style
 - Optional Clear Glass theme alongside every existing theme.
 - Refined shared panel surfaces, softer glow, subtle accent lines and readable text.
-- New STYLE tab: HUD opacity (20–100%), accent lines, panel shadows and text shadows.
+- New STYLE tab: HUD opacity (20-100%), accent lines, panel shadows and text shadows.
 - Minimal HUD preset and one-click style reset.
 - Appearance preferences are saved per profile and copied with the current profile.
 - Fixed overlapping translucent rounded panels and forced glass opacity.
@@ -100,7 +115,7 @@
 
 ## Bow and melee follow-up
 - Orange/gold/green bow charge textures, with green at full 20-tick draw.
-- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1–4 line width.
+- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1-4 line width.
 - Separate sword/mace switches, cooldown/falling colors and optional nearby-visible mode.
 - Hitboxes respect HUD visibility and use eye-to-box display distance.
 
@@ -112,8 +127,8 @@
 
 ## PvP visibility and settings
 - Optional attack cooldown bar beneath the crosshair, visible only while recharging.
-- Optional low-health alert (2–16 HP; two HP per heart, excluding absorption).
-- Optional equipped-armor alert (5–50% remaining durability).
+- Optional low-health alert (2-16 HP; two HP per heart, excluding absorption).
+- Optional equipped-armor alert (5-50% remaining durability).
 - Adjustable hit marker size, damage-flash opacity and kill-particle count.
 - Minimal Effects preset turns off flash and particles while keeping hit markers.
 - Combat feedback respects the HUD toggle and hides while menus are open.
@@ -183,7 +198,7 @@ Final PvP HUD release for Fabric 1.21.11 and Java 21.
 - New **Melee Hitboxes** module in the scrollable HUD elements panel
 - Shows a precise 3D wireframe only for the living entity under the crosshair
 - Activates only while holding a sword or mace
-- Adjustable visual range (2–12 blocks) in the module settings
+- Adjustable visual range (2-12 blocks) in the module settings
 - Client-side visualization only: no reach, attack, aiming, or packet changes
 
 ## Settings and polish

@@ -30,6 +30,7 @@ public final class PvpHudClient implements ClientModInitializer {
 
     private final CpsTracker cps = new CpsTracker();
     private final CombatFeedback combatFeedback = new CombatFeedback();
+    private final ArmorWarningSound armorSound = new ArmorWarningSound();
     private final HudManager hudManager = new HudManager();
     private final ConfigManager profileManager = new ConfigManager();
     private HudConfig config;
@@ -122,6 +123,7 @@ public final class PvpHudClient implements ClientModInitializer {
         cps.tick(client);
         WaypointManager.getInstance().tick(client);
         combatFeedback.tick(client, config);
+        armorSound.tick(client, config);
         PvpStats.getInstance().tick(client);
         if (config.suppressDamageTilt && previousDamageTilt == null) {
             previousDamageTilt = client.options.damageTiltStrength().get();

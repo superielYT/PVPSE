@@ -1,22 +1,22 @@
-🔥 PVPSE Client
+?? PVPSE Client
 PVPSE Client is a next-generation Minecraft Fabric client focused on performance, customization, and a premium PvP experience. Built with a modern design philosophy, PVPSE combines a powerful HUD system, smooth animations, and a sleek interface inspired by the best Minecraft clients while keeping its own unique identity.
 Featuring a fully customizable HUD, advanced ClickGUI, dynamic themes, and optimized rendering systems, PVPSE gives players complete control over their Minecraft experience.
 Features:
-⚡ Modern ClickGUI
+? Modern ClickGUI
 A clean, animated interface with custom themes, smooth transitions, and easy module management.
-🎨 Custom HUD System
+?? Custom HUD System
 Move, resize, and customize your HUD elements including FPS, CPS, Armor, Coordinates, Keystrokes, and more.
-🔥 PVPSE Ignite Theme
+?? PVPSE Ignite Theme
 A unique dark interface with orange/fire accents, glowing effects, and a premium client aesthetic.
-🚀 Performance Focused
+?? Performance Focused
 Optimized rendering, lightweight systems, and smooth animations designed for high FPS gameplay.
-⚙️ Advanced Customization
+?? Advanced Customization
 Save configurations, change colors, edit layouts, and create your own personal setup.
-✨ Professional Experience
+? Professional Experience
 Designed for players who want a clean, powerful, and customizable Minecraft client.
-PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
+PVPSE Client - Your Minecraft. Your Style. Your Control. ??
 
-## Installation (v2.3.0)
+## Installation (v2.4.0)
 
 Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.3.0.jar in your Minecraft mods folder alongside Fabric API.
 
@@ -69,9 +69,9 @@ TOOLS / ON module filters. Use the + control or right-click for module settings.
 
 Settings are split into General, Combat, Effects and Profiles:
 - Attack cooldown bar: appears beneath the crosshair only while recharging.
-- Low-health alert: choose 2–16 HP (2 HP = one heart); absorption is not counted.
-- Armor alert: choose 5–50% remaining durability; checks equipped, damageable armor.
-- Hit marker size: 3–10 pixels; damage-flash opacity: 10–100%; particles: 4–48.
+- Low-health alert: choose 2-16 HP (2 HP = one heart); absorption is not counted.
+- Armor alert: choose 5-50% remaining durability; checks equipped, damageable armor.
+- Hit marker size: 3-10 pixels; damage-flash opacity: 10-100%; particles: 4-48.
 - Minimal Effects disables the damage flash and kill particles.
 - Click numeric values to increase them; after the maximum they wrap to the minimum.
 - Alerts and effects are global; profiles retain their existing HUD/theme scope.
@@ -106,7 +106,7 @@ Open SETTINGS & PROFILES > HITBOX:
 - Enable Melee hitboxes, then allow swords and/or mace in the main hand.
 - Target only is on by default. Turn it off to show up to 16 nearest visible,
   living entities inside the module's View range.
-- Toggle eye-level rings, state colors and line widths from 1–4.
+- Toggle eye-level rings, state colors and line widths from 1-4.
 - Selected target: green when the attack cooldown is ready, amber while it
   recovers, purple while falling more than 1.5 blocks with a ready mace.
   Purple shows the local falling state, not a guaranteed smash or hit.
@@ -118,14 +118,14 @@ Open SETTINGS & PROFILES > HITBOX:
 
 ## Bug fixes (2.1)
 
-- Brightness now uses Minecraft's valid 0–100% gamma range and restores your original value when disabled. The feature ID/keybind is kept for existing profiles.
+- Brightness now uses Minecraft's valid 0-100% gamma range and restores your original value when disabled. The feature ID/keybind is kept for existing profiles.
 - Global settings, custom crosshair and theme saves use atomic replacement; malformed settings are backed up before recovery.
 - Invalid crosshair imports cannot partly mutate the current crosshair; imported colors remain visible.
 - Removed duplicate legacy low-health notifications that ignored the alert switch.
 - Feedback resets when the player changes; death particles watch briefly after the confirmed hit instead of checking death only on the hit tick. Confirmation is a client estimate, not authoritative kill credit.
 - Reach updates on confirmed hurt feedback; combos reset when changing targets.
 - Invalid or incomplete profiles restore defaults rather than inheriting the previous layout/theme.
-- Numeric crosshair/opacity settings are clamped; panel opacity now maps percentages to full 0–255 alpha.
+- Numeric crosshair/opacity settings are clamped; panel opacity now maps percentages to full 0-255 alpha.
 - Partially hidden module controls cannot receive clicks; potion rows fit the visible card and handle infinite effects.
 
 ## HUD style (2.2)

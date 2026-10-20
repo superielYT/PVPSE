@@ -50,7 +50,7 @@ public final class ClickGuiScreen extends Screen {
         }
         applyFilter();
         int step = Math.min(24, Math.max(16, (height - 90) / 8));
-        var editor = action(38, "HUD editor", () -> minecraft.setScreen(new HudEditor(hudManager, this)));
+        var editor = action(38, "HUD editor", () -> minecraft.setScreen(new HudEditor(hudManager, this, save)));
         editor.active = minecraft.player != null;
         action(38 + step, "Crosshair studio", () -> minecraft.setScreen(new CrosshairDrawerScreen(this)));
         action(38 + step * 2, "Waypoints", () -> minecraft.setScreen(new WaypointScreen(this)));

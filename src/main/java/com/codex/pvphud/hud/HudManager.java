@@ -19,6 +19,7 @@ public final class HudManager {
         register(new CPSHUD());
         register(new KeystrokesHUD());
         register(new ArmorHUD());
+        register(new InventoryHUD());
         register(new CoordinatesHUD());
         register(new TargetHUD());
         register(new SessionHUD());

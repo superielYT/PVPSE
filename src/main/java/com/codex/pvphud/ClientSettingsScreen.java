@@ -24,6 +24,11 @@ final class ClientSettingsScreen extends Screen {
     private EditBox profileName;
     private String draftName = "";
     private String status = "";
+    private EditBox search;
+    private String query = "";
+    private int searchPage;
+    private String focusLabel = "";
+    private boolean restoreSearchFocus;
 
     ClientSettingsScreen(Screen parent, HudConfig config, ConfigManager profiles, HudManager hud) {
         super(Component.literal("SETTINGS")); this.parent = parent; this.config = config; this.profiles = profiles; this.hud = hud;
@@ -31,18 +36,45 @@ final class ClientSettingsScreen extends Screen {
 
     private int x() { return (width - w()) / 2; }
     private int w() { return Math.min(420, width - 24); }
-    private int top() { return Math.max(55, (height - 210) / 2 + 48); }
+    private int top() { return Math.max(88, (height - 240) / 2 + 88); }
 
     protected void init() {
         profileName = null;
+        boolean typing = restoreSearchFocus || (search != null && search.isFocused());
+        restoreSearchFocus = false;
+        search = addRenderableWidget(new EditBox(font, x(), top() - 55, w(), 20, Component.literal("Search settings")));
+        search.setHint(Component.literal("Find settings: armor, geluid, HUD..."));
+        search.setMaxLength(80); search.setValue(query);
+        search.setResponder(value -> {
+            if (query.equals(value)) return;
+            rememberDraft(); query = value; searchPage = 0; status = ""; restoreSearchFocus = true; rebuildWidgets();
+        });
+        if (typing) setFocused(search);
         int gap = 4, tw = (w() - gap * (Tab.values().length - 1)) / Tab.values().length;
         for (Tab next : Tab.values()) {
             var button = addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(next.name()), b -> {
-                rememberDraft(); tab = next; status = ""; rebuildWidgets();
+                rememberDraft(); tab = next; query = ""; status = ""; rebuildWidgets();
             }).bounds(x() + next.ordinal() * (tw + gap), top() - 25, tw, 20).build());
-            button.active = next != tab;
+            button.active = next != tab || !query.isBlank();
         }
         int half = (w() - 6) / 2, y = top();
+        if (!query.isBlank()) {
+            var matches = SettingsSearch.find(query);
+            int pages = Math.max(1, (matches.size() + 3) / 4);
+            searchPage = Math.clamp(searchPage, 0, pages - 1);
+            for (int i = searchPage * 4; i < Math.min(matches.size(), searchPage * 4 + 4); i++) {
+                var result = matches.get(i);
+                action(x(), y + (i % 4) * 25, w(), result.label() + "  > " + result.tab(), () -> {
+                    query = ""; tab = Tab.valueOf(result.tab()); focusLabel = result.label(); rebuildWidgets();
+                });
+            }
+            if (pages > 1) {
+                action(x(), y + 100, half, "Previous", () -> { searchPage = (searchPage + pages - 1) % pages; rebuildWidgets(); });
+                action(x() + half + 6, y + 100, half, "Next", () -> { searchPage = (searchPage + 1) % pages; rebuildWidgets(); });
+            }
+            action(x(), height - 28, w(), "Done", this::onClose);
+            return;
+        }
         switch (tab) {
             case GENERAL -> {
                 toggle(x(), y, half, "HUD", () -> config.enabled, v -> config.enabled = v);
@@ -50,19 +82,16 @@ final class ClientSettingsScreen extends Screen {
                 toggle(x(), y + 25, half, "Hide on F3", () -> config.hideOnDebug, v -> config.hideOnDebug = v);
                 toggle(x() + half + 6, y + 25, half, "No damage tilt", () -> config.suppressDamageTilt, v -> config.suppressDamageTilt = v);
                 toggle(x(), y + 50, w(), "Custom crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v);
-                action(x(), y + 75, half, "PVP PRESET", () -> {
-                    if (minecraft.player == null) { status = "Join a world first"; return; }
-                    hud.elements().stream().filter(e -> !(e instanceof com.codex.pvphud.hud.FeatureModule))
-                            .forEach(e -> e.setEnabled(!e.id().equals("array_list") && !e.id().equals("session")));
-                    config.enabled = true;
-                    hud.arrange(minecraft); config.save(); profiles.save(hud);
-                    status = "PvP HUD preset applied to this profile";
-                });
-                action(x() + half + 6, y + 75, half, "AUTO ARRANGE", () -> {
-                    if (minecraft.player == null) { status = "Join a world first"; return; }
-                    hud.arrange(minecraft); profiles.save(hud);
-                    status = "HUD arranged; module switches kept";
-                });
+                int presetWidth = (w() - 8) / 3;
+                for (var preset : com.codex.pvphud.hud.PvpPreset.values()) {
+                    String label = preset.name().substring(0, 1) + preset.name().substring(1).toLowerCase(java.util.Locale.ROOT) + " preset";
+                    action(x() + preset.ordinal() * (presetWidth + 4), y + 75, presetWidth, label, () -> {
+                        if (minecraft.player == null) { status = "Join a world first"; return; }
+                        preset.apply(hud); config.enabled = true; minecraft.options.hideGui = false;
+                        hud.arrange(minecraft); config.save(); profiles.save(hud);
+                        status = label + " applied to this profile";
+                    });
+                }
             }
             case COMBAT -> {
                 toggle(x(), y, w(), "Attack cooldown bar", () -> config.showAttackCooldown, v -> config.showAttackCooldown = v);
@@ -70,6 +99,8 @@ final class ClientSettingsScreen extends Screen {
                 number(x() + half + 6, y + 25, half, "HP threshold", () -> config.lowHealthThreshold, v -> config.lowHealthThreshold = v, 2, 16, 2);
                 toggle(x(), y + 50, half, "Armor alert", () -> config.showArmorWarning, v -> config.showArmorWarning = v);
                 number(x() + half + 6, y + 50, half, "Durability %", () -> config.armorWarningPercent, v -> config.armorWarningPercent = v, 5, 50, 5);
+                toggle(x(), y + 75, half, "Armor sound", () -> config.armorWarningSound, v -> config.armorWarningSound = v);
+                number(x() + half + 6, y + 75, half, "Sound volume %", () -> config.armorSoundVolume, v -> config.armorSoundVolume = v, 0, 100, 10);
             }
             case HITBOX -> {
                 toggle(x(), y, w(), "Melee hitboxes", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> e.enabled()).orElse(false),
@@ -139,9 +170,19 @@ final class ClientSettingsScreen extends Screen {
                         minecraft.setScreen(this);
                     }, Component.literal("Reset HUD layout?"), Component.literal("Your module switches and other profiles are kept.")));
                 });
+                action(x(), y + 75, w(), "AUTO ARRANGE", () -> {
+                    if (minecraft.player == null) { status = "Join a world first"; return; }
+                    hud.arrange(minecraft); profiles.save(hud);
+                    status = "HUD arranged; module switches kept";
+                });
             }
         }
         action(x(), height - 28, w(), "Done", this::onClose);
+        if (!focusLabel.isBlank()) {
+            children().stream().filter(child -> child instanceof Button button && button.getMessage().getString().startsWith(focusLabel))
+                    .findFirst().ifPresent(this::setFocused);
+            focusLabel = "";
+        }
     }
 
     private void action(int x, int y, int width, String label, Runnable action) {
@@ -165,7 +206,7 @@ final class ClientSettingsScreen extends Screen {
         var theme = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, theme.background());
         c.fill(x() - 8, top() - 32, x() + w() + 8, Math.min(height - 34, top() + 122), theme.panel());
-        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 44, theme.accent());
+        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 80, theme.accent());
         String helper = switch (tab) {
             case GENERAL -> "Your display and visibility preferences";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
@@ -174,8 +215,11 @@ final class ClientSettingsScreen extends Screen {
             case STYLE -> "HUD appearance is saved per profile. Clear Glass is optional.";
             case PROFILES -> "Profiles store HUD, utilities and theme. Alerts are global.";
         };
-        int footer = top() + ((tab == Tab.GENERAL || tab == Tab.EFFECTS || tab == Tab.HITBOX || tab == Tab.STYLE) ? 103 : 82);
-        if (footer < height - 39) {
+        if (!query.isBlank() && SettingsSearch.find(query).isEmpty()) {
+            c.text(font, Component.literal("No settings found. Try armor, HUD or geluid."), x(), top() + 8, theme.mutedText());
+        }
+        int footer = top() + 103;
+        if (query.isBlank() && footer < height - 39) {
             String message = status.isBlank() ? helper : status;
             c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());
         }
