@@ -2,8 +2,8 @@
 const S=4,N=32*S;
 const rgba=hex=>[...Buffer.from(hex.slice(1),'hex'),255];
 const mix=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*Math.max(0,Math.min(1,t))));
-const ink=rgba('#252236'),gold=rgba('#edaa58'),shine=rgba('#fff2c6');
-class Canvas {
+const ink=rgba('#182432'),gold=rgba('#edb35d'),shine=rgba('#fff4d3');
+export class Canvas {
     constructor(){this.data=Buffer.alloc(N*N*4);}
     paint(test,color){
         for(let y=0;y<N;y++)for(let x=0;x<N;x++){
@@ -37,6 +37,7 @@ class Canvas {
         return data;
     }
 }
+export {rgba,mix};
 export function drawArt(){
     const sprites=[];
     const add=(name,label,draw)=>{const c=new Canvas();draw(c);sprites.push({name,label,canvas:c});};
@@ -51,12 +52,12 @@ export function drawArt(){
         const map=([u,v])=>[6+(u+v)*.7071,28+(u-v)*.7071];
         const poly=(p,col)=>c.poly(p.map(map),col);
         const dark=mix(rgba(base),rgba('#172638'),.65),trim=mix(rgba(base),rgba('#e7efff'),.35);
-        poly([[-3.4,9],[-3.4,18.5],[0,23],[3.4,18.5],[3.4,9]],rgba('#182433'));
-        poly([[-2.5,10],[-2.5,18.4],[0,21.7],[2.5,18.4],[2.5,10]],rgba(base));
-        poly([[-2.5,10],[-2.5,18.4],[0,21.7],[0,10]],rgba(edge));
-        poly([[.4,10],[.4,18.4],[0,20.5],[2,18],[2,10]],dark);
+        poly([[-2.8,9],[-2.8,18.5],[0,23.5],[2.8,18.5],[2.8,9]],ink);
+        poly([[-1.9,10],[-1.9,18.4],[0,22],[1.9,18.4],[1.9,10]],rgba(base));
+        poly([[-1.9,10],[-1.9,18.4],[0,22],[0,10]],rgba(edge));
+        poly([[.4,10],[.4,18.4],[0,20.5],[1.5,18],[1.5,10]],dark);
         c.line(map([-1.9,11]),map([-1.9,17.8]),.6,rgba('#f2ffff'));
-        poly([[-1,14],[0,15.8],[1,14],[0,12.5]],mix(rgba(edge),rgba('#ffffff'),.6));
+        c.line(map([0,11]),map([0,18.5]),.55,rgba(base));
         poly([[-2,1.2],[-2,8.5],[2,8.5],[2,1.2]],rgba('#182433'));
         poly([[-1.1,2],[-1.1,7.6],[1.1,7.6],[1.1,2]],dark);
         for(let v=2.3;v<7;v+=1.6)c.line(map([-1,v]),map([1,v+.6]),.7,trim);
@@ -66,9 +67,22 @@ export function drawArt(){
         c.ellipse(...map([-.25,8.2]),.75,.75,rgba(edge));
         poly([[-2,.5],[0,-.7],[2,.5],[0,2.3]],trim);
     });
-    for(const enchanted of [false,true])add('item/'+(enchanted?'enchanted_golden_apple':'golden_apple'),enchanted?'ENCHANTED':'GOLD APPLE',c=>{
-        const dark=rgba(enchanted?'#713659':'#82502b');
-        const base=rgba(enchanted?'#ffb9bc':'#ffd66b'),shadow=rgba(enchanted?'#dd719f':'#eda042');
+    // Matching compact axes: broad cutting face, inset metal and the same wrapped handle.
+    for(const [material,base,edge]of materials)add('item/'+material+'_axe',material==='netherite'?'NETHER AXE':material.toUpperCase()+' AXE',c=>{
+        c.line([7,28],[23,8],4.4,ink);c.line([7,28],[23,8],2.3,rgba('#655168'));
+        for(let i=0;i<5;i++)c.line([7.3+i*1.5,26.6-i*1.8],[9.3+i*1.5,27.2-i*1.8],.65,rgba(edge));
+        c.poly([[13,4],[20,3],[27,8],[29,15],[26,21],[20,21],[19,16],[14,13],[11,9]],ink);
+        c.poly([[14,5],[20,4.4],[26,9],[27.5,15],[25.3,19.4],[21,19.4],[20.3,15],[15,12.1],[12.5,9]],rgba(base));
+        c.poly([[23,7],[26,9],[27.5,15],[25.3,19.4],[22,19.4],[24,14]],rgba(edge));
+        c.poly([[14,5],[20,4.4],[23,7],[20,10],[16,10]],mix(rgba(base),ink,.4));
+        c.line([22,11],[23,15],.75,rgba('#f4ffff'));
+        c.ellipse(19,10,1.7,1.7,ink);c.ellipse(19,9.7,.85,.85,rgba(edge));
+        c.ellipse(7,28,1.7,1.7,ink);c.ellipse(7,27.8,.8,.8,rgba(base));
+    });
+    for(const kind of ['apple','golden_apple','enchanted_golden_apple'])add('item/'+kind,kind==='apple'?'APPLE':kind==='golden_apple'?'GOLD APPLE':'ENCHANTED',c=>{
+        const enchanted=kind==='enchanted_golden_apple',normal=kind==='apple';
+        const dark=rgba(enchanted?'#593959':normal?'#602d43':'#76502c');
+        const base=rgba(enchanted?'#ffe3a0':normal?'#ff8492':'#ffe495'),shadow=rgba(enchanted?'#e898c4':normal?'#c53c62':'#e6a044');
         c.line([16,8],[18,3],2.5,dark);c.line([16.5,7],[18,3],1,rgba('#ba8a4d'));
         c.poly([[18,5],[22,2],[27,4],[23,7]],dark);
         c.poly([[19,5],[22,3],[25.7,4],[22,5.8]],rgba(enchanted?'#b9c0ff':'#b7e6a4'));
@@ -76,11 +90,11 @@ export function drawArt(){
         c.poly(outline,dark);
         const inside=[[16,9.4],[20,8],[24.2,9.5],[26.7,12.5],[26.7,20],[24.2,24.7],[20.5,26.5],[16,25.6],[11.5,26.5],[7.5,24],[5.3,19.7],[5.3,13.3],[8,10],[12,8.3]];
         c.poly(inside,(x,y)=>mix(base,shadow,(x+y-21)/29));
-        c.path([[8,15],[9,12],[12,11]],1.7,rgba(enchanted?'#ffe6d8':'#fff5c8'));
+        c.path([[8,15],[9,12],[12,11]],1.7,rgba(normal?'#ffd3d5':'#fff9de'));
         c.ellipse(8.2,17, .7,1.1,rgba('#fff3d2'));
         // Tiny kawaii face, legible at 32x; food silhouette stays recognizable at 16x.
         for(const x of [12,21]) { c.ellipse(x,18,1.05,1.6,dark);c.ellipse(x-.25,17.5,.3,.5,shine); }
-        c.ellipse(9.7,20.3,1.6,.7,rgba('#ef9387'));c.ellipse(23.3,20.3,1.6,.7,rgba('#ef9387'));
+        c.ellipse(9.7,20.3,1.2,.55,rgba('#ef9387'));c.ellipse(23.3,20.3,1.2,.55,rgba('#ef9387'));
         c.path([[14.6,21],[16.3,22.1],[18,21]],.7,dark);
         if(enchanted){
             c.poly([[4,2],[4.8,4.2],[7,5],[4.8,5.8],[4,8],[3.2,5.8],[1,5],[3.2,4.2]],rgba('#fff1b9'));
@@ -115,18 +129,18 @@ export function drawArt(){
         c.poly([[16,26],[12.8,23.1],[13,21.5],[14.5,21],[16,22],[17.5,21],[19,21.5],[19.2,23.1]],rgba('#ed9f77'));
     });
     add('item/ender_pearl','ENDER PEARL',c=>{
-        const rim=rgba('#1b344c');
+        const rim=rgba('#193443');
         c.ellipse(16,16,12.8,12.8,rim);
-        c.ellipse(16,16,11.5,11.5,(x,y)=>mix(rgba('#a3f9e0'),rgba('#3567ab'),(x+y-13)/36));
+        c.ellipse(16,16,11.5,11.5,(x,y)=>mix(rgba('#8cebd4'),rgba('#34599a'),(x+y-13)/36));
         c.path([[7,18],[7.6,11],[12,7],[18,6]],1.2,rgba('#e2fff6'));
         c.path([[14,26],[22,23],[26,16]],1.6,rgba('#876ed1'));
-        // Luminous crescent and tiny sleepy face rather than a flat teal ball.
+        // A moonstone crescent, a quiet orbit and a deep teal core.
         c.ellipse(12.2,11.8,4.6,4.9,rgba('#e1ffed'));
         c.ellipse(14.3,10.5,4.3,4.5,rgba('#8ad8da'));
-        c.path([[10,18],[11.7,19.2],[13.4,18]],.8,rim);
-        c.path([[18.5,18],[20.2,19.2],[21.9,18]],.8,rim);
-        c.ellipse(9.6,20.7,1.7,.7,rgba('#dc9ac8'));c.ellipse(22.4,20.7,1.7,.7,rgba('#dc9ac8'));
-        c.path([[14.5,22],[16,22.9],[17.5,22]],.7,rim);
+        c.path([[9,21],[13,23],[19,22],[23,18]],1,rgba('#66c7c9'));
+        c.path([[12,24],[18,25],[23,22]],.65,rgba('#b9a0e9'));
+        c.ellipse(20,16,2.2,2.2,rgba('#3d7996'));
+        c.ellipse(19.4,15.4,.85,.85,rgba('#a5f5e3'));
         c.poly([[22,7],[22.7,9.3],[25,10],[22.7,10.7],[22,13],[21.3,10.7],[19,10],[21.3,9.3]],rgba('#eeffed'));
         c.ellipse(26.5,6,.6,.6,rgba('#d0fff4'));
     });

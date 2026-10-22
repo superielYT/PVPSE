@@ -81,7 +81,9 @@ final class ClientSettingsScreen extends Screen {
                 toggle(x() + half + 6, y, half, "Notifications", () -> config.notifications, v -> config.notifications = v);
                 toggle(x(), y + 25, half, "Hide on F3", () -> config.hideOnDebug, v -> config.hideOnDebug = v);
                 toggle(x() + half + 6, y + 25, half, "No damage tilt", () -> config.suppressDamageTilt, v -> config.suppressDamageTilt = v);
-                toggle(x(), y + 50, w(), "Custom crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v);
+                toggle(x(), y + 50, half, "Custom crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v);
+                toggle(x() + half + 6, y + 50, half, "Block Overlay", () -> hud.find("block_overlay").map(e -> e.enabled()).orElse(false),
+                        v -> { hud.find("block_overlay").ifPresent(e -> e.setEnabled(v)); profiles.save(hud); });
                 int presetWidth = (w() - 8) / 3;
                 for (var preset : com.codex.pvphud.hud.PvpPreset.values()) {
                     String label = preset.name().substring(0, 1) + preset.name().substring(1).toLowerCase(java.util.Locale.ROOT) + " preset";

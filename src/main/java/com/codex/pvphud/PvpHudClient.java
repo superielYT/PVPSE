@@ -95,6 +95,7 @@ public final class PvpHudClient implements ClientModInitializer {
             FeatureKeybinds.save(client);
         });
         MeleeHitboxRenderer.register(hudManager, config);
+        BlockOverlayRenderer.register(hudManager, config);
         registerHudElements();
     }
 

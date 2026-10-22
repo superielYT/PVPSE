@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v2.4.0)
+## Installation (v2.5.0)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.4.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.5.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -80,8 +80,8 @@ Settings are split into General, Combat, Effects and Profiles:
 ## PVPSE Ignite resource packs
 
 Choose one edition for **Minecraft Java 26.1.2**:
-- [Ignite 32x Smooth](https://github.com/superielYT/PVPSE/releases/download/v2.3.0/PVPSE-Ignite-32x-26.1.2.zip): richer shading, highlights and resolved edges.
-- [Ignite 16x Lite](https://github.com/superielYT/PVPSE/releases/download/v2.3.0/PVPSE-Ignite-16x-26.1.2.zip): the same original art with smaller textures.
+- [Ignite 32x Smooth](https://github.com/superielYT/PVPSE/releases/download/v2.5.0/PVPSE-Ignite-32x-26.1.2.zip): richer shading, highlights and resolved edges.
+- [Ignite 16x Lite](https://github.com/superielYT/PVPSE/releases/download/v2.5.0/PVPSE-Ignite-16x-26.1.2.zip): the same original art with smaller textures.
 
 Enable ONE edition above other packs. Both include short swords, a lucky-cat totem,
 glossy golden foods, pearl, XP bottle, crystal, mace, open cobweb and low shields.
@@ -151,3 +151,9 @@ theme remain unchanged. HUD editing requires joining a world.
 
 2.3 includes new short swords, wind-core mace, cute apples and moon pearl,
 while preserving the lucky-cat totem. Buttons now follow your selected theme.
+
+## Ignite Final (2.5.0)
+
+Block Overlay shows the block under your crosshair with its name, icon, ID, position and distance. A theme-colored outline follows the selected shape. F8 > Settings & profiles > General > Block Overlay toggles it. In HUD editor, drag it to move; use its corner, mouse wheel or +/- to resize. It hides when no block is targeted and saves with your profile.
+
+Dark inventory, chest, crafting, hotbar and button textures. Includes 55 cleaner blocks and unique book covers for all 43 vanilla enchantments at every level. Combined books use the first matching enchantment listed in BOOKS.txt; tooltips remain unchanged. No renaming, CIT or OptiFine required. Activate one Ignite ZIP above other packs.

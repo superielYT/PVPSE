@@ -24,6 +24,7 @@ public final class RegressionTest {
         gate.reset(); require(gate.update(true, 0), "Player change must reset warning timer");
         require(SettingsSearch.find("ARMOR geluid").stream().anyMatch(r -> r.label().equals("Armor sound")), "Dutch armor search");
         require(SettingsSearch.find("doorzichtig").stream().anyMatch(r -> r.tab().equals("STYLE")), "Transparency search");
+        require(SettingsSearch.find("blok aankijken").stream().anyMatch(r -> r.label().equals("Block Overlay")), "Block overlay search");
         require(SettingsSearch.find("unknown-setting-xyz").isEmpty(), "Unexpected search result");
         require(com.codex.pvphud.hud.PvpPreset.SWORD.includes("reach"), "Sword preset reach");
         require(!com.codex.pvphud.hud.PvpPreset.CRYSTAL.includes("reach"), "Crystal preset must differ");

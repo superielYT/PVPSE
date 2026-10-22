@@ -20,6 +20,7 @@ public final class HudManager {
         register(new KeystrokesHUD());
         register(new ArmorHUD());
         register(new InventoryHUD());
+        register(new BlockOverlayHUD());
         register(new CoordinatesHUD());
         register(new TargetHUD());
         register(new SessionHUD());
@@ -101,6 +102,27 @@ public final class HudManager {
         boolean overlaps(Placement other) {
             return x < other.x + other.width + 5 && x + width + 5 > other.x
                     && y < other.y + other.height + 5 && y + height + 5 > other.y;
+        }
+    }
+
+    /** Place newly added modules without moving an existing user's cards. */
+    public void placeNewCards(Minecraft client, List<String> ids) {
+        var occupied = new ArrayList<Placement>();
+        layoutElements().stream().filter(e -> !ids.contains(e.id())).forEach(e -> occupied.add(
+                new Placement(e.x(), e.y(), e.width(client) * e.scale(), layoutHeight(e, client) * e.scale())));
+        for (String id : ids) {
+            HudElement element = find(id).orElse(null);
+            if (element == null || !layoutElements().contains(element)) continue;
+            boolean placed = false;
+            search: for (float scale : new float[]{1, 0.8F, 0.6F, 0.5F}) {
+                for (float y = 8; y + layoutHeight(element, client) * scale <= client.getWindow().getGuiScaledHeight() - 58; y += 8)
+                    for (float x = 8; x + element.width(client) * scale <= client.getWindow().getGuiScaledWidth() - 8; x += 8) {
+                        var candidate = new Placement(x, y, element.width(client) * scale, layoutHeight(element, client) * scale);
+                        if (occupied.stream().anyMatch(candidate::overlaps)) continue;
+                        element.setPosition(x, y); element.setScale(scale); occupied.add(candidate); placed = true; break search;
+                    }
+            }
+            if (!placed) element.keepOnScreen(client);
         }
     }
 

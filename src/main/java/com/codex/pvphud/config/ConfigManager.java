@@ -23,6 +23,7 @@ public final class ConfigManager {
     private final Path directory = base.resolve("profiles");
     private String activeProfile = "default";
     private boolean needsInitialLayout;
+    private final List<String> newCards = new ArrayList<>();
 
     public ConfigManager() {
         try {
@@ -39,13 +40,18 @@ public final class ConfigManager {
     }
 
     public synchronized void initializeLayout(net.minecraft.client.Minecraft client, HudManager hud) {
-        if (!needsInitialLayout) return;
+        if (!needsInitialLayout) {
+            if (!newCards.isEmpty()) { hud.placeNewCards(client, newCards); newCards.clear(); save(hud); }
+            return;
+        }
         needsInitialLayout = false;
+        newCards.clear();
         hud.arrange(client);
         save(hud);
     }
 
     public synchronized void load(HudManager hudManager) {
+        newCards.clear();
         ConfigProfile profile = read(activeProfile);
         if (profile == null) {
             save(hudManager);
@@ -58,7 +64,7 @@ public final class ConfigManager {
         for (HudElement element : hudManager.elements()) {
             element.resetSettings();
             ConfigProfile.HudState state = profile.hud.get(element.id());
-            if (state == null) continue;
+            if (state == null) { newCards.add(element.id()); continue; }
             element.setEnabled(state.enabled);
             element.setPosition(state.x, state.y);
             element.setScale(state.scale);
