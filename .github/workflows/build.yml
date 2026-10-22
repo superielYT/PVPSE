@@ -78,11 +78,7 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
           ALSOFT_DRIVERS: "null"
-        run: |
-          mkdir -p build/run/clientGameTest/resourcepacks
-          cp dist/PVPSE-Ignite-32x-26.1.2.zip build/run/clientGameTest/resourcepacks/
-          printf 'resourcePacks:["vanilla","file/PVPSE-Ignite-32x-26.1.2.zip"]\n' > build/run/clientGameTest/options.txt
-          xvfb-run -a gradle runClientGameTest
+        run: xvfb-run -a gradle runClientGameTest
 
       - name: Upload GUI and HUD screenshots
         if: always()

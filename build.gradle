@@ -72,3 +72,15 @@ fabricApi {
     }
 }
 loom.runs.clientGameTest.vmArg("-Dfabric.client.gametest.disableNetworkSynchronizer=true")
+
+// Fabric deletes the game-test directory as a dependency; install fixtures afterwards.
+tasks.named("runClientGameTest") {
+    doFirst {
+        def testDirectory = layout.buildDirectory.dir("run/clientGameTest").get().asFile
+        copy {
+            from("dist/PVPSE-Ignite-32x-26.1.2.zip")
+            into(new File(testDirectory, "resourcepacks"))
+        }
+        new File(testDirectory, "options.txt").text = 'resourcePacks:["vanilla","file/PVPSE-Ignite-32x-26.1.2.zip"]\n'
+    }
+}
