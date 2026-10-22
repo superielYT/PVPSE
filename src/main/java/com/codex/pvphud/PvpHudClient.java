@@ -173,7 +173,7 @@ public final class PvpHudClient implements ClientModInitializer {
         config.enabled = true;
         config.hideOnDebug = false;
         Minecraft.getInstance().options.hideGui = false;
-        hudManager.layoutElements().forEach(element -> { element.resetLayout(); element.setEnabled(true); });
+        hudManager.layoutElements().forEach(com.codex.pvphud.hud.HudElement::resetLayout);
         hudManager.arrange(Minecraft.getInstance());
         config.save();
         profileManager.save(hudManager);

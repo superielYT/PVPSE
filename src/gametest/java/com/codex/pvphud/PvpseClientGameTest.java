@@ -66,6 +66,13 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
                 int count = com.codex.pvphud.hud.InventoryHUD.countCarried(mc.player, pearl);
                 if (count != 28) throw new AssertionError("Storage/hotbar/offhand count: " + count);
             });
+            context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+            context.clickScreenButton("Settings & profiles");
+            context.clickScreenButton("Block Overlay: ON");
+            context.runOnClient(mc -> PvpHudClient.getInstance().restoreHud());
+            context.clickScreenButton("COMBAT"); context.clickScreenButton("GENERAL");
+            context.clickScreenButton("Block Overlay: OFF"); // Restore must keep it off, then explicitly turn it back on.
+            context.setScreen(() -> null);
             for (String preset : new String[]{"Sword preset", "Crystal preset", "Mace preset"}) {
                 context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
                 context.clickScreenButton("Settings & profiles");
@@ -231,8 +238,52 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.getInput().releaseMouse(0); context.waitTick();
         if (card.scale() <= before) throw new AssertionError("HUD corner scaling failed");
         context.takeScreenshot("pvpse-hud-drag-resize");
-        context.setScreen(() -> null);
+
+        int viewportHeight = context.computeOnClient(mc -> mc.getWindow().getGuiScaledHeight());
+        moveTo(context, card.x() + 8, card.y() + 8);
+        context.getInput().holdMouse(0); context.waitTick();
+        moveTo(context, card.x() + 8, viewportHeight - 1); context.waitTicks(2);
+        context.getInput().releaseMouse(0); context.waitTick();
+        context.runOnClient(mc -> {
+            if (Math.abs(card.y() + card.height(mc) * card.scale() - viewportHeight) > 0.6F)
+                throw new AssertionError("HUD cannot reach the exact bottom edge");
+        });
+        context.takeScreenshot("pvpse-hud-bottom-edge");
+        context.getInput().pressKey(org.lwjgl.glfw.GLFW.GLFW_KEY_TAB);
+        context.runOnClient(mc -> {
+            if (mc.screen.children().stream().filter(e -> e instanceof net.minecraft.client.gui.components.Button)
+                    .map(e -> (net.minecraft.client.gui.components.Button)e).anyMatch(e -> e.visible))
+                throw new AssertionError("Tab did not hide the toolbar");
+        });
+        context.getInput().pressKey(org.lwjgl.glfw.GLFW.GLFW_KEY_TAB);
+        context.clickScreenButton("Hide");
+        if (card.enabled()) throw new AssertionError("Hide did not disable the card");
+        // Disabled cards must return before touching the render context, even in editor mode.
+        context.runOnClient(mc -> card.render(null, mc, null, true));
+        before = card.scale();
+        moveTo(context, card.x() + 8, card.y() + 8);
+        context.getInput().scroll(2); context.waitTick();
+        if (card.scale() != before) throw new AssertionError("Hidden card intercepted wheel input");
+        context.takeScreenshot("pvpse-hud-hidden");
+        context.clickScreenButton("HUDs");
+        context.waitForScreen(com.codex.pvphud.hud.HudModulesScreen.class);
+        context.clickScreenButton("Hidden");
+        context.takeScreenshot("pvpse-hud-picker-hidden");
+        float savedY = card.y(), savedScale = card.scale();
+        context.clickScreenButton("Inventory Counter: OFF");
+        context.clickScreenButton("Done");
+        context.waitForScreen(HudEditor.class);
+        if (!card.enabled() || card.y() != savedY || card.scale() != savedScale)
+            throw new AssertionError("Restoring a hidden card lost its layout");
+        float closeX = context.computeOnClient(mc -> card.x() + card.width(mc) * card.scale() - 7);
+        moveTo(context, closeX, card.y() + 6);
+        context.getInput().pressMouse(0);
+        if (card.enabled()) throw new AssertionError("Card X did not close it");
+        context.clickScreenButton("Done");
         if (saves.get() == 0) throw new AssertionError("Closing the editor did not save");
+        context.runOnClient(mc -> mc.setScreen(new HudEditor(manager, null, saves::incrementAndGet)));
+        if (card.enabled()) throw new AssertionError("Reopening the editor re-enabled a hidden card");
+        context.setScreen(() -> null);
     }
 
     private static void moveTo(ClientGameTestContext context, double x, double y) {

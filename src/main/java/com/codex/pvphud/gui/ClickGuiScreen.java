@@ -65,7 +65,7 @@ public final class ClickGuiScreen extends Screen {
         action(38 + step * 7, "RESTORE HUD", () -> minecraft.setScreen(new net.minecraft.client.gui.screens.ConfirmScreen(yes -> {
             if (yes) restoreHud.run();
             minecraft.setScreen(this);
-        }, Component.literal("Restore HUD visibility?"), Component.literal("Enables and repositions HUD widgets. Your theme and other profiles are kept."))));
+        }, Component.literal("Restore HUD visibility?"), Component.literal("Turns the HUD on and repositions cards. Hidden cards stay hidden; choose them in HUD editor > HUDs."))));
         action(height - 28, "Done", this::onClose);
     }
     private void applyFilter() {

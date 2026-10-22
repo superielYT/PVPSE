@@ -26,7 +26,8 @@ public abstract class HudElement {
     }
 
     public final void render(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode) {
-        visibility.setVisible(enabled || editorMode);
+        visibility.setVisible(enabled);
+        if (!enabled) return;
         float alpha = visibility.value();
         if (alpha <= 0.01F) return;
         context.pose().pushMatrix();
