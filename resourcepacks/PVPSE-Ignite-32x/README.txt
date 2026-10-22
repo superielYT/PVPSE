@@ -1,7 +1,9 @@
-PVPSE Ignite 32x Smooth — Minecraft Java 26.1.2
+PVPSE Ignite Final 32x Smooth - Minecraft Java 26.1.2
 
-Original 32x art with shaded short swords, a lucky-cat totem, glossy PvP food, pearls, XP, crystals, mace and open cobwebs. Eight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.
+Original forged short swords and axes, lucky-cat totem, moonstone pearl, cute apples and PvP essentials. Dark hotbar, buttons, inventory, chest and crafting GUI. 55 coordinated block textures. Unique covers for all 43 vanilla enchantments, including Lunge. Native component predicates work at any level, including combined books (first matching enchantment in BOOKS.txt wins). No CIT, OptiFine or renaming required.
 
-Install the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Use Smooth 32x for richer detail or Lite 16x for smaller textures. No reach, damage or attack timing changes.
+Eight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.
+
+Install the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Smooth 32x has richer detail; Lite 16x uses smaller textures. GUI stays at its native dimensions. No reach, damage or attack timing changes.
 
 Copyright: see LICENSE.

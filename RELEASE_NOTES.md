@@ -1,3 +1,22 @@
+# PVPSE Client v2.5.0
+
+- Block Overlay: a movable/resizable card with localized block name, item icon, registry ID, position and distance from the actual crosshair target. Theme-colored outlines follow block selection shapes, including slabs and stairs.
+- Search for Block Overlay or "blok aankijken" in settings; one switch controls both card and outline. Included in all three PvP presets.
+- New cards fit into free space when older profiles load, preserving existing card positions and scales.
+- In-world checks cover target changes, slabs, looking at the sky and entity targets.
+
+- Ignite Final: slimmer forged swords, matching axes, warmer apples and moonstone pearl; lucky-cat totem retained.
+- Dark resource-pack GUI: hotbar, offhand frames, XP bar, vanilla buttons, inventory, chests and crafting table. Title strips preserve vanilla label contrast.
+- Original covers for all 43 vanilla enchantments, including Lunge. Native component predicates support every level and combined books without CIT, OptiFine or renaming; BOOKS.txt lists combined-book priority.
+- 55 coordinated block textures: stone, obsidian, ores, planks and all wool colors.
+- 32x Smooth and 16x Lite packs share model routing; GUI uses native dimensions.
+- CI loads the actual pack and captures book covers, dark inventory and placed blocks, alongside existing HUD/input checks.
+
+Minecraft Java 26.1.2 / Java 25 / Fabric Loader 0.19.3+ / matching Fabric API.
+Install PVPSE-2.5.0.jar in mods. Enable ONE Ignite ZIP in Resource Packs above other packs.
+
+---
+
 # PVPSE Client v2.4.0
 
 - Sword, Crystal and Mace HUD presets with different card selections; utilities and theme are preserved.

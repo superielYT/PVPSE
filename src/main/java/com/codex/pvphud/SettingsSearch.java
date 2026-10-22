@@ -12,6 +12,7 @@ public final class SettingsSearch {
             new Result("Hide on F3", "GENERAL", "debug verbergen"),
             new Result("No damage tilt", "GENERAL", "camera schade"),
             new Result("Custom crosshair", "GENERAL", "vizier kruis"),
+            new Result("Block Overlay", "GENERAL", "blok blokken block outline omtrek aankijken muis inspect target"),
             new Result("Sword preset", "GENERAL", "zwaard melee profiel hud"),
             new Result("Crystal preset", "GENERAL", "kristal profiel hud"),
             new Result("Mace preset", "GENERAL", "profiel hud"),

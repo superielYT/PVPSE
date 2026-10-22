@@ -5,6 +5,9 @@ import {fileURLToPath} from 'node:url';
 import {deflateSync,inflateSync} from 'node:zlib';
 import assert from 'node:assert/strict';
 import {drawArt} from './ignite-art.mjs';
+import {drawGui} from './ignite-gui.mjs';
+import {drawBooks,enchantments} from './ignite-books.mjs';
+import {drawBlocks} from './ignite-blocks.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 function crc32(bytes) {
     let crc = 0xffffffff;
@@ -54,8 +57,10 @@ function validatePNG(data){
     const w=data.readUInt32BE(16),h=data.readUInt32BE(20);
     assert.equal(inflateSync(Buffer.concat(parts)).length,h*(w*4+1));
 }
-const art=drawArt();
-assert.equal(art.length,28);
+const art=[...drawArt(),...drawBooks(),...drawBlocks()];
+assert.equal(art.length,135);
+const gui=drawGui();
+assert.equal(gui.length,12);
 const icons=art.find(a=>a.name==='item/totem_of_undying').canvas;
 mkdirSync(join(root,'dist'),{recursive:true});
 for(const size of [32,16]){
@@ -68,10 +73,21 @@ for(const size of [32,16]){
         asset('assets/minecraft/textures/'+sprite.name+'.png',png(size,size,pixels));
     }
     asset('pack.png',png(64,64,icons.resolve(64)));
-    json('pack.mcmeta',{pack:{description:'PVPSE Ignite '+size+'x '+edition+' | Smooth short swords & PvP essentials',min_format:[84,0],max_format:[84,0]}});
+    for(const sprite of gui){
+        asset('assets/minecraft/textures/'+sprite.name+'.png',png(sprite.width,sprite.height,sprite.pixels));
+        if(sprite.meta)json('assets/minecraft/textures/'+sprite.name+'.png.mcmeta',sprite.meta);
+    }
+    json('pack.mcmeta',{pack:{description:'PVPSE Ignite Final '+size+'x '+edition+' | Moonstone pearl, forged weapons & clean GUI',min_format:[84,0],max_format:[84,0]}});
     json('assets/minecraft/models/item/enchanted_golden_apple.json',{parent:'minecraft:item/generated',textures:{layer0:'minecraft:item/enchanted_golden_apple'}});
     for(let i=3;i<8;i++)json('assets/minecraft/models/item/bow_pulling_'+i+'.json',{parent:'minecraft:item/bow',textures:{layer0:'minecraft:item/bow_pulling_'+i}});
     const model=name=>({type:'minecraft:model',model:'minecraft:item/'+name});
+    let book=model('enchanted_book');
+    for(const [id]of [...enchantments].reverse()){
+        json('assets/minecraft/models/item/books/'+id+'.json',{parent:'minecraft:item/generated',textures:{layer0:'minecraft:item/books/'+id}});
+        book={type:'minecraft:condition',property:'minecraft:component',predicate:'minecraft:stored_enchantments',
+            value:[{enchantments:'minecraft:'+id,levels:{min:1}}],on_true:model('books/'+id),on_false:book};
+    }
+    json('assets/minecraft/items/enchanted_book.json',{model:book});
     const thresholds=[.15,.30,.45,.60,.75,.90,1];
     json('assets/minecraft/items/bow.json',{model:{
         type:'minecraft:condition',property:'minecraft:using_item',on_false:model('bow'),
@@ -89,8 +105,9 @@ for(const size of [32,16]){
     json('assets/minecraft/items/shield.json',{model:{type:'minecraft:condition',property:'minecraft:using_item',on_true:shield(true),on_false:shield(false),
         transformation:{left_rotation:[0,0,0,1],right_rotation:[0,0,0,1],scale:[1,-1,-1],translation:[0,0,0]}}});
     asset('LICENSE',readFileSync(join(root,'LICENSE')));
-    asset('README.txt','PVPSE Ignite '+size+'x '+edition+' — Minecraft Java 26.1.2\n\nOriginal 32x art with shaded short swords, a lucky-cat totem, glossy PvP food, pearls, XP, crystals, mace and open cobwebs. Eight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.\n\nInstall the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Use Smooth 32x for richer detail or Lite 16x for smaller textures. No reach, damage or attack timing changes.\n\nCopyright: see LICENSE.\n');
-    assert.equal(files.size,42);
+    asset('README.txt','PVPSE Ignite Final '+size+'x '+edition+' - Minecraft Java 26.1.2\n\nOriginal forged short swords and axes, lucky-cat totem, moonstone pearl, cute apples and PvP essentials. Dark hotbar, buttons, inventory, chest and crafting GUI. 55 coordinated block textures. Unique covers for all 43 vanilla enchantments, including Lunge. Native component predicates work at any level, including combined books (first matching enchantment in BOOKS.txt wins). No CIT, OptiFine or renaming required.\n\nEight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.\n\nInstall the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Smooth 32x has richer detail; Lite 16x uses smaller textures. GUI stays at its native dimensions. No reach, damage or attack timing changes.\n\nCopyright: see LICENSE.\n');
+    asset('BOOKS.txt','Book cover priority for combined books (top first):\n'+enchantments.map(([id,code])=>code+' - '+id).join('\n')+'\nUnknown/modded enchantments use the generic cover. Levels and tooltips remain vanilla.\n');
+    assert.equal(files.size,209);
     for(const [name,data]of files){
         assert.ok(!name.includes('..')&&!name.includes('\\'));
         if(name.endsWith('.json')||name.endsWith('.mcmeta'))JSON.parse(data.toString());
@@ -98,6 +115,17 @@ for(const size of [32,16]){
         const target=join(root,'resourcepacks',id,name);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,data);
     }
     const bow=JSON.parse(files.get('assets/minecraft/items/bow.json'));
+    // Exercise the generated predicate chain with single, combined and unknown books.
+    const cover=stored=>{let node=JSON.parse(files.get('assets/minecraft/items/enchanted_book.json')).model;
+        while(node.type==='minecraft:condition'){
+            assert.equal(node.predicate,'minecraft:stored_enchantments');
+            const condition=node.value[0];node=(stored[condition.enchantments]>=condition.levels.min)?node.on_true:node.on_false;
+        }return node.model;};
+    for(const [id]of enchantments)for(const level of [1,5,10])assert.equal(cover({['minecraft:'+id]:level}),'minecraft:item/books/'+id);
+    assert.equal(cover({'minecraft:mending':1,'minecraft:sharpness':5}),'minecraft:item/books/sharpness');
+    assert.equal(cover({'example:unknown':1}),'minecraft:item/enchanted_book');
+    assert.equal(new Set(enchantments.map(e=>e[1])).size,43,'Duplicate book initials');
+    for(const sprite of gui){assert.equal(sprite.pixels.length,sprite.width*sprite.height*4);}
     assert.equal(bow.model.on_true.entries.at(-1).threshold,1);
     for(let i=3;i<8;i++)assert.ok(files.has('assets/minecraft/models/item/bow_pulling_'+i+'.json'));
     const bytes=zip(files),filename=id+'-26.1.2.zip';
@@ -113,7 +141,7 @@ const glyphs={
  Y:'11110a04040404',Z:'1f01020408101f','1':'040c040404040e','2':'0e11010204081f','3':'1e01010e01011e','4':'02060a121f0202',
  '5':'1f10101e01011e','6':'0e10101e11110e','7':'1f010204080808','8':'0e11110e11110e','0':'0e11131519110e',' ':'00000000000000'
 };
-const visible=[...art.slice(0,16),art[16],art[17],art[20],art[24],...art.slice(25)];
+const visible=art.filter(a=>!a.name.includes('bow_pulling_')||a.name.endsWith('_0')||a.name.endsWith('_4')||a.name.endsWith('_7'));
 const cols=5,cellW=120,cellH=124,width=cols*cellW,height=Math.ceil(visible.length/cols)*cellH;
 const sheet=Buffer.alloc(width*height*4);
 for(let i=0;i<sheet.length;i+=4)sheet.set([18,23,33,255],i);
@@ -126,7 +154,7 @@ for(let index=0;index<visible.length;index++){
             for(let c=0;c<3;c++)sheet[dst+c]=Math.round(sheet[dst+c]*(1-alpha)+pixels[at+c]*alpha);
         }
     }
-    const label=sprite.label,start=index%cols*cellW+Math.round((cellW-label.length*6)/2),baseline=top+104;
+    const label=sprite.label.slice(0,18),start=index%cols*cellW+Math.round((cellW-label.length*6)/2),baseline=top+104;
     for(let letter=0;letter<label.length;letter++){
         const glyph=glyphs[label[letter]]||glyphs[' '];
         for(let y=0;y<7;y++){const row=parseInt(glyph.slice(y*2,y*2+2),16);for(let x=0;x<5;x++)if(row&(1<<(4-x))){
