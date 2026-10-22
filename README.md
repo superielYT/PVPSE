@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v2.5.0)
+## Installation (v2.5.1)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.5.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.5.1.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -157,3 +157,7 @@ while preserving the lucky-cat totem. Buttons now follow your selected theme.
 Block Overlay shows the block under your crosshair with its name, icon, ID, position and distance. A theme-colored outline follows the selected shape. F8 > Settings & profiles > General > Block Overlay toggles it. In HUD editor, drag it to move; use its corner, mouse wheel or +/- to resize. It hides when no block is targeted and saves with your profile.
 
 Dark inventory, chest, crafting, hotbar and button textures. Includes 55 cleaner blocks and unique book covers for all 43 vanilla enchantments at every level. Combined books use the first matching enchantment listed in BOOKS.txt; tooltips remain unchanged. No renaming, CIT or OptiFine required. Activate one Ignite ZIP above other packs.
+
+## HUD visibility and full-screen placement (2.5.1)
+
+HUD editor: drag cards to any screen edge. The toolbar is at the top; Tab hides or shows it. Click a card's X, use Hide, Delete or right-click to remove it. HUDs > Hidden lets you bring cards back with their existing position and size. Disabled cards stay hidden in the editor and gameplay. Changes save with your profile. Restore HUD preserves your visibility choices.

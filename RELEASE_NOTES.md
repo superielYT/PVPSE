@@ -1,3 +1,17 @@
+# PVPSE Client v2.5.1
+
+- HUD editor now allows the full screen, including the exact bottom edge. Toolbar moved to the top; Tab hides it so every edge stays accessible.
+- X on a card, Hide, Delete or right-click removes it immediately from the canvas and gameplay.
+- HUDs opens an explicit ON/OFF picker with a Hidden filter to bring cards back. Visibility saves with your profile.
+- Disabled cards are no longer forced visible in the editor and cannot intercept dragging, resizing or snapping.
+- Restore HUD keeps your hidden-card choices instead of turning every card back on.
+- Client game tests exercise bottom-edge dragging, hiding, restoring from the picker, close buttons and disabled rendering.
+
+Minecraft Java 26.1.2 / Java 25 / Fabric Loader 0.19.3+ / matching Fabric API.
+Replace the previous mod JAR with PVPSE-2.5.1.jar. Texturepacks are unchanged.
+
+---
+
 # PVPSE Client v2.5.0
 
 - Block Overlay: a movable/resizable card with localized block name, item icon, registry ID, position and distance from the actual crosshair target. Theme-colored outlines follow block selection shapes, including slabs and stairs.
