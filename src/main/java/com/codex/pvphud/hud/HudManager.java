@@ -125,7 +125,7 @@ public final class HudManager {
                         element.setPosition(x, y); element.setScale(scale); occupied.add(candidate); placed = true; break search;
                     }
             }
-            if (!placed) { element.keepOnScreen(client); allPlaced = false; }
+            if (!placed) allPlaced = false;
         }
         return allPlaced;
     }

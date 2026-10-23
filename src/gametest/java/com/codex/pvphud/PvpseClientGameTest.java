@@ -159,13 +159,13 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.clickScreenButton("Hidden");
         searchHud(context, "held");
         context.clickScreenButton("Held Items: OFF");
-        acceptOptionalArrangement(context);
+        acceptOptionalArrangement(context, "Held Items: OFF");
         context.clickScreenButton("Shown");
         context.takeScreenshot("pvpse-hud-search-shown");
         context.clickScreenButton("Hidden");
         searchHud(context, "resource packs");
         context.clickScreenButton("Resource Packs: OFF");
-        acceptOptionalArrangement(context);
+        acceptOptionalArrangement(context, "Resource Packs: OFF");
         context.clickScreenButton("Done");
         context.clickScreenButton("Done");
         context.clickScreenButton("Done");
@@ -176,9 +176,15 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("pvpse-held-empty-main-hand");
     }
 
-    private static void acceptOptionalArrangement(ClientGameTestContext context) {
-        if (context.computeOnClient(mc -> mc.screen instanceof net.minecraft.client.gui.screens.ConfirmScreen))
+    private static void acceptOptionalArrangement(ClientGameTestContext context, String retryLabel) {
+        if (context.computeOnClient(mc -> mc.screen instanceof net.minecraft.client.gui.screens.ConfirmScreen)) {
+            context.takeScreenshot("pvpse-hud-room-choice");
+            context.clickScreenButton("No");
+            context.clickScreenButton(retryLabel);
+            if (!context.computeOnClient(mc -> mc.screen instanceof net.minecraft.client.gui.screens.ConfirmScreen))
+                throw new AssertionError("Declining arrangement changed the optional HUD layout or enabled it");
             context.clickScreenButton("Yes");
+        }
     }
 
     private static void searchHud(ClientGameTestContext context, String query) {
