@@ -108,7 +108,8 @@ public final class HudManager {
     }
 
     /** Place newly added modules without moving an existing user's cards. */
-    public void placeNewCards(Minecraft client, List<String> ids) {
+    public boolean placeNewCards(Minecraft client, List<String> ids) {
+        boolean allPlaced = true;
         var occupied = new ArrayList<Placement>();
         layoutElements().stream().filter(e -> e.enabled() && !ids.contains(e.id())).forEach(e -> occupied.add(
                 new Placement(e.x(), e.y(), e.width(client) * e.scale(), layoutHeight(e, client) * e.scale())));
@@ -124,8 +125,9 @@ public final class HudManager {
                         element.setPosition(x, y); element.setScale(scale); occupied.add(candidate); placed = true; break search;
                     }
             }
-            if (!placed) element.keepOnScreen(client);
+            if (!placed) { element.keepOnScreen(client); allPlaced = false; }
         }
+        return allPlaced;
     }
 
     private static int layoutHeight(HudElement element, Minecraft client) {

@@ -3,6 +3,7 @@
 - Optional Held Items HUD: main/offhand names, stack counts, exact remaining durability and low-durability colors/bars.
 - Optional Resource Packs HUD: active user file packs, highest-priority pack first, with a clear vanilla fallback.
 - Both new cards start OFF, including on older profiles. Enable them in HUD editor > HUDs; first activation searches for free space.
+- If the canvas is full, first activation offers to arrange shown cards or keep the new card off; custom layouts are never silently overwritten.
 - Search the HUD picker by name or ID; filter All, Shown or Hidden. The heading shows how many cards are enabled.
 - Auto arrange now only places visible cards and preserves hidden cards' positions and sizes.
 - Toolbar help and picker footer fit smaller windows; all earlier full-screen editing, close and restore controls remain.

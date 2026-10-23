@@ -165,3 +165,5 @@ HUD editor: drag cards to any screen edge. The toolbar is at the top; Tab hides 
 ## Optional HUD cards and quicker selection (2.6.0)
 
 F8 > HUD editor > HUDs now has a search box, All/Shown/Hidden filters and an enabled-card count. Held Items shows main/offhand stacks and durability. Resource Packs lists active user file packs in priority order. Both new cards start OFF, including on existing profiles; enable them when wanted. Their first activation searches for free space. Auto arrange only moves shown cards, keeping hidden cards' layouts intact.
+
+If a new optional card has no free space, choose Yes to arrange shown cards to fit, or No to keep it off and preserve your current setup.

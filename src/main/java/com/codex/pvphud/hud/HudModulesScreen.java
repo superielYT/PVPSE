@@ -46,7 +46,15 @@ public final class HudModulesScreen extends Screen {
             button(x, 85 + (i % perPage) * 24, w, card.name() + ": " + (card.enabled() ? "ON" : "OFF"), () -> {
                 boolean firstPlacement = !card.enabled() && card.needsInitialPlacement();
                 card.setEnabled(!card.enabled());
-                if (firstPlacement && minecraft.player != null) manager.placeNewCards(minecraft, java.util.List.of(card.id()));
+                if (firstPlacement && minecraft.player != null && !manager.placeNewCards(minecraft, java.util.List.of(card.id()))) {
+                    card.setEnabled(false);
+                    minecraft.setScreen(new net.minecraft.client.gui.screens.ConfirmScreen(yes -> {
+                        if (yes) { card.setEnabled(true); manager.arrange(minecraft); }
+                        save.run(); minecraft.setScreen(this);
+                    }, Component.literal("Make room for " + card.name() + "?"),
+                            Component.literal("No free space. Yes: arrange shown cards to fit. No: keep this card off. Hidden layouts are kept.")));
+                    return;
+                }
                 save.run(); rebuildWidgets();
             });
         }

@@ -159,11 +159,13 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.clickScreenButton("Hidden");
         searchHud(context, "held");
         context.clickScreenButton("Held Items: OFF");
+        acceptOptionalArrangement(context);
         context.clickScreenButton("Shown");
         context.takeScreenshot("pvpse-hud-search-shown");
         context.clickScreenButton("Hidden");
         searchHud(context, "resource packs");
         context.clickScreenButton("Resource Packs: OFF");
+        acceptOptionalArrangement(context);
         context.clickScreenButton("Done");
         context.clickScreenButton("Done");
         context.clickScreenButton("Done");
@@ -172,6 +174,11 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.runOnClient(mc -> mc.player.getInventory().setItem(0, net.minecraft.world.item.ItemStack.EMPTY));
         context.waitTicks(3);
         context.takeScreenshot("pvpse-held-empty-main-hand");
+    }
+
+    private static void acceptOptionalArrangement(ClientGameTestContext context) {
+        if (context.computeOnClient(mc -> mc.screen instanceof net.minecraft.client.gui.screens.ConfirmScreen))
+            context.clickScreenButton("Yes");
     }
 
     private static void searchHud(ClientGameTestContext context, String query) {
