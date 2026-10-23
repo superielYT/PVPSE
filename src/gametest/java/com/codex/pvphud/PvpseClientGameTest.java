@@ -36,8 +36,15 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             context.runOnClient(mc -> {
                 PvpHudClient.getInstance().restoreHud();
                 var arrangement = new com.codex.pvphud.hud.HudManager();
+                var optional = arrangement.find("held_items").orElseThrow();
+                optional.setPosition(101, 102); optional.setScale(1.2F); optional.resetSettings();
+                if (optional.enabled() || arrangement.find("resource_packs").orElseThrow().enabled())
+                    throw new AssertionError("Optional HUDs must default off, including after profile resets");
+                optional.setPosition(101, 102); optional.setScale(1.2F);
                 arrangement.arrange(mc);
-                var cards = arrangement.layoutElements();
+                if (optional.x() != 101 || optional.y() != 102 || optional.scale() != 1.2F)
+                    throw new AssertionError("Auto arrange moved a hidden card");
+                var cards = arrangement.layoutElements().stream().filter(com.codex.pvphud.hud.HudElement::enabled).toList();
                 for (int i = 0; i < cards.size(); i++) {
                     var a = cards.get(i);
                     if (a.x() + a.width(mc) * a.scale() > mc.getWindow().getGuiScaledWidth()
@@ -127,7 +134,58 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testEditorInput(context);
             testBlockOverlay(context, world.getServer());
             testTexturePack(context, world.getServer());
+            testOptionalHuds(context);
         }
+    }
+
+    private static void testOptionalHuds(ClientGameTestContext context) {
+        context.runOnClient(mc -> {
+            var sword = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_SWORD);
+            sword.setDamageValue(sword.getMaxDamage() - 9);
+            mc.player.getInventory().setItem(0, sword);
+            mc.player.getInventory().setSelectedSlot(0);
+            mc.player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,
+                    new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.WIND_CHARGE, 4));
+            if (com.codex.pvphud.hud.HeldItemHUD.remaining(sword) != 9)
+                throw new AssertionError("Held item remaining durability is incorrect");
+            if (com.codex.pvphud.hud.HeldItemHUD.remaining(mc.player.getOffhandItem()) != 0)
+                throw new AssertionError("Non-damageable offhand must not show durability");
+            if (com.codex.pvphud.hud.PackDisplayHUD.activeNames(mc).stream().noneMatch(n -> n.contains("Ignite")))
+                throw new AssertionError("Active resource pack HUD did not detect the enabled Ignite pack");
+            PvpHudClient.getInstance().openMenu(null);
+        });
+        context.clickScreenButton("HUD editor");
+        context.clickScreenButton("HUDs");
+        context.clickScreenButton("Hidden");
+        searchHud(context, "held");
+        context.clickScreenButton("Held Items: OFF");
+        context.clickScreenButton("Shown");
+        context.takeScreenshot("pvpse-hud-search-shown");
+        context.clickScreenButton("Hidden");
+        searchHud(context, "resource packs");
+        context.clickScreenButton("Resource Packs: OFF");
+        context.clickScreenButton("Done");
+        context.clickScreenButton("Done");
+        context.clickScreenButton("Done");
+        context.waitTicks(5);
+        context.takeScreenshot("pvpse-optional-huds-world");
+        context.runOnClient(mc -> mc.player.getInventory().setItem(0, net.minecraft.world.item.ItemStack.EMPTY));
+        context.waitTicks(3);
+        context.takeScreenshot("pvpse-held-empty-main-hand");
+    }
+
+    private static void searchHud(ClientGameTestContext context, String query) {
+        context.runOnClient(mc -> {
+            var box = mc.screen.children().stream().filter(e -> e instanceof net.minecraft.client.gui.components.EditBox)
+                    .map(e -> (net.minecraft.client.gui.components.EditBox)e).findFirst().orElseThrow();
+            box.setValue("");
+        });
+        context.runOnClient(mc -> {
+            var box = mc.screen.children().stream().filter(e -> e instanceof net.minecraft.client.gui.components.EditBox)
+                    .map(e -> (net.minecraft.client.gui.components.EditBox)e).findFirst().orElseThrow();
+            mc.screen.setFocused(box);
+        });
+        context.getInput().typeChars(query); context.waitTicks(2);
     }
 
     private static void testBlockOverlay(ClientGameTestContext context,

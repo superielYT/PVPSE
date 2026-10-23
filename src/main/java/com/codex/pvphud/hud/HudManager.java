@@ -21,6 +21,8 @@ public final class HudManager {
         register(new ArmorHUD());
         register(new InventoryHUD());
         register(new BlockOverlayHUD());
+        register(new HeldItemHUD());
+        register(new PackDisplayHUD());
         register(new CoordinatesHUD());
         register(new TargetHUD());
         register(new SessionHUD());
@@ -67,7 +69,7 @@ public final class HudManager {
 
     /** Pack restored widgets without overlap, reserving room for hotbar/editor tools. */
     public void arrange(Minecraft client) {
-        var widgets = new ArrayList<>(layoutElements());
+        var widgets = new ArrayList<>(layoutElements().stream().filter(HudElement::enabled).toList());
         if (widgets.isEmpty()) return;
         float viewportWidth = client.getWindow().getGuiScaledWidth();
         float bottom = client.getWindow().getGuiScaledHeight() - 48;
@@ -76,7 +78,7 @@ public final class HudManager {
             var sorted = new ArrayList<>(widgets);
             sorted.sort(java.util.Comparator.comparingInt((HudElement e) -> layoutHeight(e, client)).reversed());
             HudElement watermark = find("watermark").orElse(null);
-            if (watermark != null) { sorted.remove(watermark); sorted.addFirst(watermark); }
+            if (watermark != null && widgets.contains(watermark)) { sorted.remove(watermark); sorted.addFirst(watermark); }
             boolean fits = true;
             for (HudElement element : sorted) {
                 var xs = new java.util.TreeSet<Float>();
@@ -108,11 +110,11 @@ public final class HudManager {
     /** Place newly added modules without moving an existing user's cards. */
     public void placeNewCards(Minecraft client, List<String> ids) {
         var occupied = new ArrayList<Placement>();
-        layoutElements().stream().filter(e -> !ids.contains(e.id())).forEach(e -> occupied.add(
+        layoutElements().stream().filter(e -> e.enabled() && !ids.contains(e.id())).forEach(e -> occupied.add(
                 new Placement(e.x(), e.y(), e.width(client) * e.scale(), layoutHeight(e, client) * e.scale())));
         for (String id : ids) {
             HudElement element = find(id).orElse(null);
-            if (element == null || !layoutElements().contains(element)) continue;
+            if (element == null || !element.enabled() || !layoutElements().contains(element)) continue;
             boolean placed = false;
             search: for (float scale : new float[]{1, 0.8F, 0.6F, 0.5F}) {
                 for (float y = 8; y + layoutHeight(element, client) * scale <= client.getWindow().getGuiScaledHeight() - 58; y += 8)

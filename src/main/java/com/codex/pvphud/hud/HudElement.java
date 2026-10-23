@@ -15,14 +15,21 @@ public abstract class HudElement {
     private float scale = 1.0F;
     private final float defaultX;
     private final float defaultY;
+    private final boolean defaultEnabled;
 
     protected HudElement(String id, String name, float x, float y) {
+        this(id, name, x, y, true);
+    }
+
+    protected HudElement(String id, String name, float x, float y, boolean enabled) {
         this.id = id;
         this.name = name;
         this.x = x;
         this.y = y;
         this.defaultX = x;
         this.defaultY = y;
+        this.defaultEnabled = enabled;
+        this.enabled = enabled;
     }
 
     public final void render(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode) {
@@ -54,7 +61,8 @@ public abstract class HudElement {
     public float scale() { return scale; }
     public void setScale(float scale) { this.scale = Float.isFinite(scale) ? Math.clamp(scale, 0.5F, 2.5F) : 1.0F; }
     public void resetLayout() { x = defaultX; y = defaultY; scale = 1.0F; }
-    public void resetSettings() { resetLayout(); enabled = true; }
+    public void resetSettings() { resetLayout(); enabled = defaultEnabled; }
+    public boolean needsInitialPlacement() { return !defaultEnabled && x == defaultX && y == defaultY && scale == 1; }
     public void keepOnScreen(Minecraft client) {
         setPosition(HudGeometry.coordinate(x, client.getWindow().getGuiScaledWidth(), width(client) * scale),
                 HudGeometry.coordinate(y, client.getWindow().getGuiScaledHeight(), height(client) * scale));
