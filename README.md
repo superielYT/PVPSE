@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v2.5.1)
+## Installation (v2.6.0)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.5.1.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.6.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -161,3 +161,9 @@ Dark inventory, chest, crafting, hotbar and button textures. Includes 55 cleaner
 ## HUD visibility and full-screen placement (2.5.1)
 
 HUD editor: drag cards to any screen edge. The toolbar is at the top; Tab hides or shows it. Click a card's X, use Hide, Delete or right-click to remove it. HUDs > Hidden lets you bring cards back with their existing position and size. Disabled cards stay hidden in the editor and gameplay. Changes save with your profile. Restore HUD preserves your visibility choices.
+
+## Optional HUD cards and quicker selection (2.6.0)
+
+F8 > HUD editor > HUDs now has a search box, All/Shown/Hidden filters and an enabled-card count. Held Items shows main/offhand stacks and durability. Resource Packs lists active user file packs in priority order. Both new cards start OFF, including on existing profiles; enable them when wanted. Their first activation searches for free space. Auto arrange only moves shown cards, keeping hidden cards' layouts intact.
+
+If a new optional card has no free space, choose Yes to arrange shown cards to fit, or No to keep it off and preserve your current setup.

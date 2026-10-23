@@ -86,7 +86,7 @@ public final class HudEditor extends Screen {
         }
         if (controlsVisible) {
             RoundedRenderer.fill(context, (width - Math.min(360, width - 16)) / 2, 4, Math.min(360, width - 16), 28, 6, theme.panelHeader());
-            context.centeredText(font, Component.literal("Drag / resize | X or Hide: remove | HUDs: choose | Tab: toolbar"), width / 2, 35, theme.mutedText());
+            context.centeredText(font, Component.literal(font.plainSubstrByWidth("Drag / resize | Click x: hide | HUDs: choose | Tab: toolbar", width - 16)), width / 2, 35, theme.mutedText());
         }
         super.extractRenderState(context, mouseX, mouseY, delta);
     }
