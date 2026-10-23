@@ -44,6 +44,13 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
                 arrangement.arrange(mc);
                 if (optional.x() != 101 || optional.y() != 102 || optional.scale() != 1.2F)
                     throw new AssertionError("Auto arrange moved a hidden card");
+                var hiddenManager = new com.codex.pvphud.hud.HudManager();
+                hiddenManager.elements().forEach(e -> e.setEnabled(false));
+                var hiddenPack = hiddenManager.find("resource_packs").orElseThrow();
+                hiddenPack.setPosition(10000, 10000);
+                hiddenManager.render(null, mc, false);
+                if (hiddenPack.x() != 10000 || hiddenPack.y() != 10000)
+                    throw new AssertionError("Gameplay rendering moved a hidden card");
                 var cards = arrangement.layoutElements().stream().filter(com.codex.pvphud.hud.HudElement::enabled).toList();
                 for (int i = 0; i < cards.size(); i++) {
                     var a = cards.get(i);

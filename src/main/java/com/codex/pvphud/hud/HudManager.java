@@ -62,7 +62,7 @@ public final class HudManager {
         var theme = ThemeManager.getInstance().getTheme();
         for (HudElement element : elements) {
             if (editorMode && element instanceof FeatureModule feature && feature.type() != FeatureModule.Type.WAYPOINT) continue;
-            if (!editorMode) element.keepOnScreen(client);
+            if (!editorMode && element.enabled()) element.keepOnScreen(client);
             element.render(context, client, theme, editorMode);
         }
     }

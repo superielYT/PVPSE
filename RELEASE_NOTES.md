@@ -6,6 +6,7 @@
 - If the canvas is full, first activation offers to arrange shown cards or keep the new card off; custom layouts are never silently overwritten.
 - Search the HUD picker by name or ID; filter All, Shown or Hidden. The heading shows how many cards are enabled.
 - Auto arrange now only places visible cards and preserves hidden cards' positions and sizes.
+- Gameplay rendering no longer clamps hidden cards into the viewport, preserving saved layouts and first-activation placement.
 - Toolbar help and picker footer fit smaller windows; all earlier full-screen editing, close and restore controls remain.
 - In-world tests cover optional defaults, hidden layout preservation, real typing/filtering, equipped item durability and active pack detection.
 
