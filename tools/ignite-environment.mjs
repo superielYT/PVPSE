@@ -4,8 +4,8 @@ export function drawEnvironment(size){
  for(const soul of [false,true])for(let layer=0;layer<2;layer++){
   image('block/'+(soul?'soul_fire_':'fire_')+layer,size,size*16,(x,yy)=>{
    const y=(yy%size+.5)/size,frame=Math.floor(yy/size),u=(x+.5)/size;
-   const wave=Math.sin(u*25+frame*Math.PI/4+layer*2)*.05+Math.sin(u*47-frame*Math.PI/4)*.025,top=.69+wave;
-   if(y<top)return[0,0,0,0];const heat=Math.min(1,(y-top)/.28);
+   const wave=Math.sin(u*25+frame*Math.PI/4+layer*2)*.025+Math.sin(u*47-frame*Math.PI/4)*.015,top=.43+wave;
+   if(y<top)return[0,0,0,0];const heat=Math.min(1,(y-top)/.5);
    return soul?[90+Math.round(150*heat),180+Math.round(65*heat),255,240]:[255,Math.round(83+168*heat),Math.round(20+125*heat),240];
   },{animation:{frametime:2,interpolate:false}});
  }
@@ -23,7 +23,7 @@ export function drawEnvironment(size){
  image('entity/end_crystal/end_crystal',64,32,(x,y)=>{
   if(y>=16){const n=(x*13+y*7)%11;return[42+n*2,31+n,61+n*2,255];}
   const u=x%8,v=y%8;
-  if(x<32){const edge=u===0||u===7||v===0||v===7;return edge?[175+u*6,204+v*4,232,245]:[189,221,246,35];}
+  if(x<32){const edge=u===0||u===7||v===0||v===7;return edge?[175+u*6,204+v*4,232,255]:[0,0,0,0];}
   const rune=u===3||u===4||v===3||(u===v&&v>1&&v<6);
   return rune?[239,88,222,255]:[255,231,255,255];
  });

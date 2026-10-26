@@ -87,7 +87,7 @@ for(const size of [32,16]){
         asset('assets/minecraft/textures/'+sprite.name+'.png',png(sprite.width,sprite.height,sprite.pixels));
         if(sprite.meta)json('assets/minecraft/textures/'+sprite.name+'.png.mcmeta',sprite.meta);
         if(sprite.name.includes('fire_')){
-            for(let frame=0;frame<16;frame++)for(let y=0;y<Math.floor(size*.6);y++)for(let x=0;x<size;x++)
+            for(let frame=0;frame<16;frame++)for(let y=0;y<Math.floor(size*.35);y++)for(let x=0;x<size;x++)
                 assert.equal(sprite.pixels[(frame*size*size+y*size+x)*4+3],0,'Fire blocks the upper view');
         }
     }
@@ -121,8 +121,8 @@ for(const size of [32,16]){
     for(const blocking of [false,true]){
         const name='shield'+(blocking?'_blocking':'');
         json('assets/pvpse/models/item/low_'+name+'.json',{parent:'minecraft:item/'+name,display:{
-            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-12,-9,-11]:[-10,-10,-10],scale:[1,1,1]},
-            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,-9,-11]:[10,-10,-10],scale:[1,1,1]}
+            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-15,.5,-11]:[-10,-3,-10],scale:[1.1,1.1,1.1]},
+            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,.5,-11]:[10,-3,-10],scale:[1.1,1.1,1.1]}
         }});
     }
     const shield=blocking=>({type:'minecraft:special',base:'pvpse:item/low_shield'+(blocking?'_blocking':''),model:{type:'minecraft:shield'}});

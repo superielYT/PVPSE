@@ -198,6 +198,9 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
 
     private static void testReforgedPack(ClientGameTestContext context,
             net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles"); context.clickScreenButton("HUD: ON");
+        context.setScreen(() -> null);
         server.runCommand("time set noon"); server.runCommand("weather clear");
         server.runCommand("tp @p 0 -60 -4 0 0");
         context.runOnClient(mc -> {
@@ -221,26 +224,33 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.waitTicks(5); context.takeScreenshot("pvpse-reforged-mace-variants"); context.setScreen(() -> null);
         server.runCommand("summon minecraft:end_crystal 0 -58 2 {ShowBottom:1b}");
         context.waitTicks(10); context.takeScreenshot("pvpse-reforged-crystal-world");
+        server.runCommand("item replace entity @p weapon.mainhand with minecraft:diamond_sword");
+        server.runCommand("item replace entity @p weapon.offhand with minecraft:shield");
         context.runOnClient(mc -> {
             mc.player.getInventory().setSelectedSlot(0);
             mc.player.getInventory().setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_SWORD));
             mc.player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SHIELD));
         });
-        context.waitTicks(5); context.takeScreenshot("pvpse-reforged-low-shield");
+        context.waitTicks(10); context.takeScreenshot("pvpse-reforged-low-shield");
         context.getInput().holdMouse(1); context.waitTicks(12);
+        context.runOnClient(mc -> { if (!mc.player.isUsingItem()) throw new AssertionError("Shield blocking was not active"); });
         context.takeScreenshot("pvpse-reforged-blocking-shield"); context.getInput().releaseMouse(1);
         server.runCommand("gamemode survival");
         server.runCommand("effect give @p minecraft:fire_resistance 30 0 true");
         server.runCommand("setblock 0 -60 -4 minecraft:fire");
         context.waitTicks(15);
-        context.runOnClient(mc -> mc.player.setRemainingFireTicks(200));
+        context.runOnClient(mc -> { mc.player.setRemainingFireTicks(200); mc.player.setSharedFlagOnFire(true);
+            if (!mc.player.isOnFire()) throw new AssertionError("Fire overlay fixture is not burning"); });
         context.waitTick(); context.takeScreenshot("pvpse-reforged-low-fire");
         server.runCommand("setblock 0 -60 -4 minecraft:air");
-        context.runOnClient(mc -> mc.player.setRemainingFireTicks(0));
+        context.runOnClient(mc -> { mc.player.setRemainingFireTicks(0); mc.player.setSharedFlagOnFire(false); });
         server.runCommand("effect clear @p");
         server.runCommand("time set midnight"); server.runCommand("tp @p 0 -60 -4 0 -60");
         context.waitTicks(10); context.takeScreenshot("pvpse-reforged-native-moon");
         server.runCommand("time set noon");
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles"); context.clickScreenButton("HUD: OFF");
+        context.setScreen(() -> null);
     }
 
     private static void testPerformance(ClientGameTestContext context) {
