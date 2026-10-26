@@ -14,7 +14,10 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.waitForScreen(TitleScreen.class);
         context.runOnClient(mc -> {
             for (String path : new String[]{"textures/item/mace.png", "textures/item/books/mending.png",
-                    "textures/block/obsidian.png", "textures/gui/container/inventory.png"}) {
+                    "textures/block/obsidian.png", "textures/gui/container/inventory.png",
+                    "textures/block/fire_0.png", "textures/environment/celestial/sun.png",
+                    "textures/environment/celestial/moon/full_moon.png", "textures/item/mace_breach.png",
+                    "textures/entity/end_crystal/end_crystal.png"}) {
                 var resource = mc.getResourceManager().getResource(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", path)).orElseThrow();
                 if (!resource.sourcePackId().contains("PVPSE-Ignite")) throw new AssertionError("Ignite pack not active: " + path);
             }
@@ -146,6 +149,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testOptionalHuds(context);
             testPerformance(context);
             testCombatUpdate(context);
+            testReforgedPack(context, world.getServer());
         }
     }
 
@@ -190,6 +194,53 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.clickScreenButton("Settings & profiles"); context.clickScreenButton("AIM");
         context.clickScreenButton("Health indicator: ON");
         context.setScreen(() -> null);
+    }
+
+    private static void testReforgedPack(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        server.runCommand("time set noon"); server.runCommand("weather clear");
+        server.runCommand("tp @p 0 -60 -4 0 0");
+        context.runOnClient(mc -> {
+            var registry = mc.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+            for (int i = 0; i < 36; i++) mc.player.getInventory().setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+            String[] names = {"breach", "density", "wind_burst"};
+            for (int i = 0; i < names.length; i++) {
+                var stack = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.MACE);
+                var values = new net.minecraft.world.item.enchantment.ItemEnchantments.Mutable(net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
+                var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENCHANTMENT,
+                        net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", names[i]));
+                values.set(registry.getOrThrow(key), 1); stack.set(net.minecraft.core.component.DataComponents.ENCHANTMENTS, values.toImmutable());
+                mc.player.getInventory().setItem(9 + i, stack);
+            }
+            mc.player.getInventory().setItem(12, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_SWORD));
+            mc.player.getInventory().setItem(13, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_AXE));
+            mc.player.getInventory().setItem(14, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.END_CRYSTAL));
+            mc.player.getInventory().setItem(15, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.GOLDEN_APPLE));
+            mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+        });
+        context.waitTicks(5); context.takeScreenshot("pvpse-reforged-mace-variants"); context.setScreen(() -> null);
+        server.runCommand("summon minecraft:end_crystal 0 -58 2 {ShowBottom:1b}");
+        context.waitTicks(10); context.takeScreenshot("pvpse-reforged-crystal-world");
+        context.runOnClient(mc -> {
+            mc.player.getInventory().setSelectedSlot(0);
+            mc.player.getInventory().setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_SWORD));
+            mc.player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SHIELD));
+        });
+        context.waitTicks(5); context.takeScreenshot("pvpse-reforged-low-shield");
+        context.getInput().holdMouse(1); context.waitTicks(12);
+        context.takeScreenshot("pvpse-reforged-blocking-shield"); context.getInput().releaseMouse(1);
+        server.runCommand("gamemode survival");
+        server.runCommand("effect give @p minecraft:fire_resistance 30 0 true");
+        server.runCommand("setblock 0 -60 -4 minecraft:fire");
+        context.waitTicks(15);
+        context.runOnClient(mc -> mc.player.setRemainingFireTicks(200));
+        context.waitTick(); context.takeScreenshot("pvpse-reforged-low-fire");
+        server.runCommand("setblock 0 -60 -4 minecraft:air");
+        context.runOnClient(mc -> mc.player.setRemainingFireTicks(0));
+        server.runCommand("effect clear @p");
+        server.runCommand("time set midnight"); server.runCommand("tp @p 0 -60 -4 0 -60");
+        context.waitTicks(10); context.takeScreenshot("pvpse-reforged-native-moon");
+        server.runCommand("time set noon");
     }
 
     private static void testPerformance(ClientGameTestContext context) {

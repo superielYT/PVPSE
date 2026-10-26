@@ -1,3 +1,16 @@
+# PVPSE 3.1 — Ignite Reforged
+
+Download the current client and ready-to-install resource packs from [GitHub Releases](https://github.com/superielYT/PVPSE/releases/latest).
+Enable **one** Ignite ZIP above other packs: Smooth 32x for detail or Lite 16x for smaller block/item textures.
+
+The Reforged pack includes 43 illustrated enchantment books, enchantment-specific maces, 149 upgraded common block textures, low shield, animated low fire/soul fire, a round sun and eight detailed moons.
+The full photographic cloud sky requires a separate compatible custom-sky loader: [Skyboxify](https://modrinth.com/mod/skyboxify) for Fabric 26.1.2. Vanilla and PVPSE alone show the native sun/moon upgrades and normal sky. Shader sky settings may override resourcepack skies.
+No third-party resourcepack artwork is included. References guide the style; the cloud panorama is an original generated asset.
+
+Build the current packs with `node tools/build-pvp-pack.mjs`. Generated ZIPs in `dist/` are validated deterministically. Download release assets for the current built packs; historical generated files in the source tree may predate this update.
+
+---
+
 🔥 PVPSE Client
 PVPSE Client is a next-generation Minecraft Fabric client focused on performance, customization, and a premium PvP experience. Built with a modern design philosophy, PVPSE combines a powerful HUD system, smooth animations, and a sleek interface inspired by the best Minecraft clients while keeping its own unique identity.
 Featuring a fully customizable HUD, advanced ClickGUI, dynamic themes, and optimized rendering systems, PVPSE gives players complete control over their Minecraft experience.
