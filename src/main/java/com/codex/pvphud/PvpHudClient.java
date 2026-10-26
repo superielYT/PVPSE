@@ -224,7 +224,9 @@ public final class PvpHudClient implements ClientModInitializer {
     private void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
         if (client.options.hideGui || (config.hideOnDebug && client.getDebugOverlay().showDebugScreen())
-                || client.screen instanceof com.codex.pvphud.hud.HudEditor) {
+                || client.screen instanceof com.codex.pvphud.hud.HudEditor
+                || client.screen instanceof ClickGuiScreen || client.screen instanceof ClientSettingsScreen
+                || client.screen instanceof com.codex.pvphud.hud.HudModulesScreen) {
             return;
         }
         if (config.enabled) {

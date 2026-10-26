@@ -5,6 +5,7 @@
 - Optional Light HUD removes decorative panel shadows/glass layers while retaining themes, text, alerts, positions and visibility.
 - Rounded corners use cached geometry and merged rows with identical pixel coverage and fewer fill rectangles, including outside performance mode.
 - Inventory Counter caches icons/labels and counts all six item types in one pass per game tick instead of rescanning every frame.
+- Opaque client menus skip hidden HUD rendering behind their panels.
 - Settled animations skip repeated easing calculations. Unchanged settings/profile saves no longer rewrite files.
 - Tests cover native options and restoration, restart snapshots, geometry coverage, unchanged saves and all existing GUI/HUD controls. Actual FPS gain depends on hardware and scene; no fixed FPS increase is claimed.
 
