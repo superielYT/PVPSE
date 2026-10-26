@@ -110,7 +110,8 @@ final class ClientSettingsScreen extends Screen {
                 number(x(), y + 50, w(), "Circle radius", () -> config.cooldownRingRadius, v -> config.cooldownRingRadius = v, 10, 24, 2);
                 toggle(x(), y + 75, w(), "Health indicator", () -> hud.find("health_indicator").map(e -> e.enabled()).orElse(false), v -> {
                     hud.find("health_indicator").ifPresent(e -> e.setEnabled(v));
-                    if (v) hud.placeNewCards(minecraft, java.util.List.of("health_indicator"));
+                    if (v && minecraft.player != null && hud.find("health_indicator").map(e -> e.needsInitialPlacement()).orElse(false))
+                        hud.placeNewCards(minecraft, java.util.List.of("health_indicator"));
                     profiles.save(hud);
                 });
             }
