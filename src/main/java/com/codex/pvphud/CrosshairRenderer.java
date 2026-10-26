@@ -22,9 +22,9 @@ final class CrosshairRenderer {
         float readiness = live ? mc.player.getAttackStrengthScale(mc.getDeltaTracker().getGameTimeDeltaPartialTick(false)) : 1;
         int reactive = readiness < 0.95F ? 0xFFFFB454 : config.accentColor();
         int color = live && config.crosshairReactions ? reactive : config.accentColor();
-        if (useTargetColor && isTargetingPlayer()) color = config.dangerColor();
+        if (useTargetColor && isTargetingPlayer() && !(live && config.crosshairReactions && readiness < 0.95F)) color = config.dangerColor();
         if (live && config.cooldownRing && readiness < 0.995F)
-            ring(context, cx, cy, config.cooldownRingRadius, readiness, color);
+            ring(context, cx, cy, Math.max(config.cooldownRingRadius, size + 4), readiness, color);
         int shadow = 0xAA000000;
         CustomCrosshair custom = CustomCrosshair.getInstance();
         if (custom.enabled()) {

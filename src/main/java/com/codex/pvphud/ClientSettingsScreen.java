@@ -111,7 +111,13 @@ final class ClientSettingsScreen extends Screen {
                 toggle(x(), y + 75, w(), "Health indicator", () -> hud.find("health_indicator").map(e -> e.enabled()).orElse(false), v -> {
                     hud.find("health_indicator").ifPresent(e -> e.setEnabled(v));
                     if (v && minecraft.player != null && hud.find("health_indicator").map(e -> e.needsInitialPlacement()).orElse(false))
-                        hud.placeNewCards(minecraft, java.util.List.of("health_indicator"));
+                        {
+                        if (!hud.placeNewCards(minecraft, java.util.List.of("health_indicator"))) {
+                            hud.find("health_indicator").ifPresent(e -> e.setEnabled(false));
+                            status = "No free space: enable Health Indicator in the HUD picker.";
+                            rebuildWidgets();
+                        }
+                    }
                     profiles.save(hud);
                 });
             }
