@@ -78,7 +78,7 @@ final class CrosshairRenderer {
             double angle = i * Math.PI * 2 / segments - Math.PI / 2;
             int x = cx + (int) Math.round(Math.cos(angle) * radius);
             int y = cy + (int) Math.round(Math.sin(angle) * radius);
-            c.fill(x, y, x + 1, y + 1, i < filled ? (0xB0000000 | (tint & 0xFFFFFF)) : 0x35000000);
+            c.fill(x, y, x + 1, y + 1, i < filled ? (0xB0000000 | (tint & 0xFFFFFF)) : 0x608A96A3);
         }
     }
 
