@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 final class ClientSettingsScreen extends Screen {
-    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES, FPS }
+    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES, FPS, AIM }
     private final Screen parent;
     private final HudConfig config;
     private final ConfigManager profiles;
@@ -103,6 +103,16 @@ final class ClientSettingsScreen extends Screen {
                 number(x() + half + 6, y + 50, half, "Durability %", () -> config.armorWarningPercent, v -> config.armorWarningPercent = v, 5, 50, 5);
                 toggle(x(), y + 75, half, "Armor sound", () -> config.armorWarningSound, v -> config.armorWarningSound = v);
                 number(x() + half + 6, y + 75, half, "Sound volume %", () -> config.armorSoundVolume, v -> config.armorSoundVolume = v, 0, 100, 10);
+            }
+            case AIM -> {
+                toggle(x(), y, w(), "Cooldown circle", () -> config.cooldownRing, v -> config.cooldownRing = v);
+                toggle(x(), y + 25, w(), "Crosshair reactions", () -> config.crosshairReactions, v -> config.crosshairReactions = v);
+                number(x(), y + 50, w(), "Circle radius", () -> config.cooldownRingRadius, v -> config.cooldownRingRadius = v, 10, 24, 2);
+                toggle(x(), y + 75, w(), "Health indicator", () -> hud.find("health_indicator").map(e -> e.enabled()).orElse(false), v -> {
+                    hud.find("health_indicator").ifPresent(e -> e.setEnabled(v));
+                    if (v) hud.placeNewCards(minecraft, java.util.List.of("health_indicator"));
+                    profiles.save(hud);
+                });
             }
             case HITBOX -> {
                 toggle(x(), y, w(), "Melee hitboxes", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> e.enabled()).orElse(false),
@@ -222,6 +232,7 @@ final class ClientSettingsScreen extends Screen {
         c.fill(x() - 8, top() - 32, x() + w() + 8, Math.min(height - 34, top() + 122), theme.panel());
         c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 80, theme.accent());
         String helper = switch (tab) {
+            case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
             case GENERAL -> "Your display and visibility preferences";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
             case HITBOX -> "Green: ready | Amber: cooldown | Purple: falling mace";

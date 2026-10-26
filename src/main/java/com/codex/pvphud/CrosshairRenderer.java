@@ -17,12 +17,19 @@ final class CrosshairRenderer {
         }
 
         int size = Math.max(HudConfig.MIN_CROSSHAIR_SIZE, config.crosshairSize);
-        int color = useTargetColor && isTargetingPlayer() ? config.dangerColor() : config.accentColor();
+        Minecraft mc = Minecraft.getInstance();
+        boolean live = useTargetColor && mc.player != null && mc.screen == null && !mc.options.hideGui;
+        float readiness = live ? mc.player.getAttackStrengthScale(mc.getDeltaTracker().getGameTimeDeltaPartialTick(false)) : 1;
+        int reactive = readiness < 0.95F ? 0xFFFFB454 : config.accentColor();
+        int color = live && config.crosshairReactions ? reactive : config.accentColor();
+        if (useTargetColor && isTargetingPlayer()) color = config.dangerColor();
+        if (live && config.cooldownRing && readiness < 0.995F)
+            ring(context, cx, cy, config.cooldownRingRadius, readiness, color);
         int shadow = 0xAA000000;
         CustomCrosshair custom = CustomCrosshair.getInstance();
         if (custom.enabled()) {
-            drawCustom(context, cx, cy, custom, useTargetColor && isTargetingPlayer() ? config.dangerColor() :
-                    (custom.useThemeColor() ? ThemeManager.getInstance().getTheme().accent() : custom.color()));
+            drawCustom(context, cx, cy, custom, live && config.crosshairReactions ? color : (useTargetColor && isTargetingPlayer() ? config.dangerColor() :
+                    (custom.useThemeColor() ? ThemeManager.getInstance().getTheme().accent() : custom.color())));
             return;
         }
 
@@ -60,6 +67,18 @@ final class CrosshairRenderer {
             }
             case OFF -> {
             }
+        }
+    }
+
+    private static void ring(GuiGraphicsExtractor c, int cx, int cy, int radius, float progress, int tint) {
+        // A one-pixel, low-opacity track with a brighter attack readiness arc.
+        int segments = 96;
+        int filled = Math.clamp(Math.round(progress * segments), 0, segments);
+        for (int i = 0; i < segments; i++) {
+            double angle = i * Math.PI * 2 / segments - Math.PI / 2;
+            int x = cx + (int) Math.round(Math.cos(angle) * radius);
+            int y = cy + (int) Math.round(Math.sin(angle) * radius);
+            c.fill(x, y, x + 1, y + 1, i < filled ? (0xB0000000 | (tint & 0xFFFFFF)) : 0x35000000);
         }
     }
 
