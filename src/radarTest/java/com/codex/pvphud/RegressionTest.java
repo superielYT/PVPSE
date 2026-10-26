@@ -16,6 +16,10 @@ public final class RegressionTest {
         catch (IllegalArgumentException expected) {}
     }
     public static void main(String[] args) throws Exception {
+        var overshoot = new com.codex.pvphud.animation.Animation(0, 10_000_000L, progress -> 1);
+        overshoot.animateTo(1); overshoot.value();
+        require(!overshoot.finished(), "Crossing the target must not end an unfinished animation");
+        overshoot.snap(1); require(overshoot.finished() && overshoot.value() == 1, "Snap must settle immediately");
         for (int radius = 1; radius <= 64; radius++) {
             int row = 0;
             for (var span : com.codex.pvphud.render.RoundedGeometry.spans(radius)) {

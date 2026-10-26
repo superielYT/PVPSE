@@ -7,6 +7,7 @@ public class Animation {
     private float target;
     private float value;
     private long startedAt;
+    private boolean complete = true;
 
     public Animation(float initialValue, long durationMillis, Easing easing) {
         this.value = initialValue;
@@ -22,6 +23,7 @@ public class Animation {
         if (Float.compare(target, next) == 0) return;
         from = value;
         target = next;
+        complete = Float.compare(from, next) == 0;
         startedAt = System.nanoTime();
     }
 
@@ -32,18 +34,19 @@ public class Animation {
 
     public synchronized boolean finished() {
         update();
-        return Float.compare(value, target) == 0;
+        return complete;
     }
 
     public synchronized void snap(float next) {
         from = target = value = next;
+        complete = true;
         startedAt = System.nanoTime();
     }
 
     private void update() {
-        if (Float.compare(value, target) == 0) return;
+        if (complete) return;
         float progress = Math.clamp((System.nanoTime() - startedAt) / (float) durationNanos, 0.0F, 1.0F);
         value = from + (target - from) * easing.apply(progress);
-        if (progress >= 1.0F) value = target;
+        if (progress >= 1.0F) { value = target; complete = true; }
     }
 }
