@@ -80,6 +80,10 @@ jobs:
           ALSOFT_DRIVERS: "null"
         run: xvfb-run -a gradle runClientGameTest
 
+      - name: Export selected review images
+        if: always()
+        run: python tools/ci-review-images.py
+
       - name: Upload GUI and HUD screenshots
         if: always()
         uses: actions/upload-artifact@v4

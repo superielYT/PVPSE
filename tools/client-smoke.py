@@ -32,6 +32,9 @@ with log.open("w") as output:
             time.sleep(2)
         else:
             raise RuntimeError("Client did not finish initializing within 210 seconds")
+    except Exception:
+        print(log.read_text(errors="replace")[-18000:], flush=True)
+        raise
     finally:
         import signal
         os.killpg(client.pid, signal.SIGTERM) if client.poll() is None else None

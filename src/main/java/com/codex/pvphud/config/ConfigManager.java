@@ -10,10 +10,8 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,20 +138,7 @@ public final class ConfigManager {
     }
 
     private boolean write(ConfigProfile profile) {
-        try {
-            Files.createDirectories(directory);
-            Path target = path(profile.name);
-            Path temporary = target.resolveSibling(target.getFileName() + ".tmp");
-            try (Writer writer = Files.newBufferedWriter(temporary)) {
-                GSON.toJson(profile, writer);
-            }
-            try {
-                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } catch (IOException unsupportedAtomicMove) {
-                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
-            }
-            return true;
-        } catch (IOException ignored) { return false; }
+        return JsonStorage.write(path(profile.name), profile);
     }
 
     private Path path(String name) {

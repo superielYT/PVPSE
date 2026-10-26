@@ -63,6 +63,7 @@ final class CombatFeedback {
             } else if (--killWatchTicks <= 0 || killCandidate.isRemoved()) killCandidate = null;
         }
         hitMarkerLife = Math.max(0.0F, hitMarkerLife - 0.16F);
+        if (com.codex.pvphud.render.RenderBudget.maximum()) particles.clear();
         damageFlashLife = Math.max(0.0F, damageFlashLife - 0.12F);
         Iterator<Particle> it = particles.iterator();
         while (it.hasNext()) {
@@ -111,7 +112,7 @@ final class CombatFeedback {
     }
 
     private void spawnParticles(int requested) {
-        int count = Math.max(4, Math.min(48, requested));
+        int count = com.codex.pvphud.render.RenderBudget.particles(Math.max(4, requested));
         for (int i = 0; i < count; i++) {
             double angle = RANDOM.nextDouble() * Math.PI * 2.0D;
             float speed = 0.7F + RANDOM.nextFloat() * 1.8F;

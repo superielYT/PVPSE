@@ -13,6 +13,11 @@ public final class RenderUtil {
     public static void panel(GuiGraphicsExtractor context, int x, int y, int width, int height,
                              Theme theme, int tint, boolean accents, boolean shadows) {
         if (width <= 0 || height <= 0) return;
+        if (RenderBudget.lightweight()) {
+            context.fill(x, y, x + width, y + height, tint);
+            if (accents && width > 12) context.fill(x + 6, y, x + width - 6, y + 1, ColorUtil.withAlpha(theme.accent(), 100));
+            return;
+        }
         if (shadows) ShadowRenderer.draw(context, x, y, width, height, 6,
                 ColorUtil.withAlpha(theme.glow(), (theme.glow() >>> 24) / 3));
         BlurRenderer.drawGlass(context, x, y, width, height, 6, tint);

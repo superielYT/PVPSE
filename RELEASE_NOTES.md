@@ -1,3 +1,19 @@
+# PVPSE Client v2.7.0
+
+- FPS tab with opt-in Balanced and Max FPS presets. Balanced caps view/simulation at 12/8; Max at 8/5. Both disable clouds/entity shadows and reduce particles, keeping already-lower distances.
+- Restore previous settings keeps manual changes made after enabling a preset. The original snapshot survives restarts; VSync and frame limits are untouched.
+- Optional Light HUD removes decorative panel shadows/glass layers while retaining themes, text, alerts, positions and visibility.
+- Rounded corners use cached geometry and merged rows with identical pixel coverage and fewer fill rectangles, including outside performance mode.
+- Inventory Counter caches icons/labels and counts all six item types in one pass per game tick instead of rescanning every frame.
+- Opaque client menus skip hidden HUD rendering behind their panels.
+- Settled animations skip repeated easing calculations. Unchanged settings/profile saves no longer rewrite files.
+- Tests cover native options and restoration, restart snapshots, geometry coverage, unchanged saves and all existing GUI/HUD controls. Actual FPS gain depends on hardware and scene; no fixed FPS increase is claimed.
+
+Minecraft Java 26.1.2 / Java 25 / Fabric Loader 0.19.3+ / matching Fabric API.
+Replace the previous JAR with PVPSE-2.7.0.jar. Find performance presets at F8 > Settings & profiles > FPS.
+
+---
+
 # PVPSE Client v2.6.0
 
 - Optional Held Items HUD: main/offhand names, stack counts, exact remaining durability and low-durability colors/bars.

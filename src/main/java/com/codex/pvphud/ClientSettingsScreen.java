@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 final class ClientSettingsScreen extends Screen {
-    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES }
+    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES, FPS }
     private final Screen parent;
     private final HudConfig config;
     private final ConfigManager profiles;
@@ -52,7 +52,7 @@ final class ClientSettingsScreen extends Screen {
         if (typing) setFocused(search);
         int gap = 4, tw = (w() - gap * (Tab.values().length - 1)) / Tab.values().length;
         for (Tab next : Tab.values()) {
-            var button = addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(next.name()), b -> {
+            var button = addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(next == Tab.PROFILES ? "PROFILE" : next.name()), b -> {
                 rememberDraft(); tab = next; query = ""; status = ""; rebuildWidgets();
             }).bounds(x() + next.ordinal() * (tw + gap), top() - 25, tw, 20).build());
             button.active = next != tab || !query.isBlank();
@@ -143,6 +143,18 @@ final class ClientSettingsScreen extends Screen {
                     ThemeManager.getInstance().setAppearance(null); profiles.save(hud); rebuildWidgets();
                 });
             }
+            case FPS -> {
+                var performance = PvpHudClient.getInstance().performance();
+                action(x(), y, w(), "FPS mode: " + config.performanceMode.label + " >", () -> {
+                    performance.setMode(minecraft, config.performanceMode.next()); rebuildWidgets();
+                });
+                action(x(), y + 25, half, "Balanced", () -> { performance.setMode(minecraft, PerformanceMode.BALANCED); rebuildWidgets(); });
+                action(x() + half + 6, y + 25, half, "Max FPS", () -> { performance.setMode(minecraft, PerformanceMode.MAX); rebuildWidgets(); });
+                action(x(), y + 50, w(), "Restore previous settings", () -> { performance.setMode(minecraft, PerformanceMode.OFF); rebuildWidgets(); });
+                toggle(x(), y + 75, w(), "Light HUD", () -> config.performanceLightHud, v -> {
+                    config.performanceLightHud = v; performance.refreshBudget();
+                });
+            }
             case PROFILES -> {
                 action(x(), y, w(), "Profile: " + profiles.activeProfile() + " >", () -> {
                     rememberDraft();
@@ -216,6 +228,11 @@ final class ClientSettingsScreen extends Screen {
             case EFFECTS -> "Click a value to increase it; maximum wraps to minimum";
             case STYLE -> "HUD appearance is saved per profile. Clear Glass is optional.";
             case PROFILES -> "Profiles store HUD, utilities and theme. Alerts are global.";
+            case FPS -> switch (config.performanceMode) {
+                case OFF -> "OFF: previous settings. Presets reduce view distance and effects.";
+                case BALANCED -> "View <=12, simulation <=8, fewer particles, clouds/shadows off.";
+                case MAX -> "View <=8, simulation <=5, minimal particles, clouds/shadows off.";
+            };
         };
         if (!query.isBlank() && SettingsSearch.find(query).isEmpty()) {
             c.text(font, Component.literal("No settings found. Try armor, HUD or geluid."), x(), top() + 8, theme.mutedText());

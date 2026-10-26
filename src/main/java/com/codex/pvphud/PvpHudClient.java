@@ -34,6 +34,8 @@ public final class PvpHudClient implements ClientModInitializer {
     private final HudManager hudManager = new HudManager();
     private final ConfigManager profileManager = new ConfigManager();
     private HudConfig config;
+    private PerformanceController performance;
+    PerformanceController performance() { return performance; }
     private KeyMapping toggleHudKey;
     private KeyMapping openConfigKey;
     private KeyMapping fallbackMenuKey;
@@ -50,6 +52,7 @@ public final class PvpHudClient implements ClientModInitializer {
     public void onInitializeClient() {
         instance = this;
         config = HudConfig.load();
+        performance = new PerformanceController(config);
         profileManager.load(hudManager);
         toggleHudKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.pvp_hud_client.toggle_hud",
@@ -121,6 +124,7 @@ public final class PvpHudClient implements ClientModInitializer {
     }
 
     private void tick(Minecraft client) {
+        performance.initialize(client);
         cps.tick(client);
         WaypointManager.getInstance().tick(client);
         combatFeedback.tick(client, config);
@@ -220,7 +224,9 @@ public final class PvpHudClient implements ClientModInitializer {
     private void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
         if (client.options.hideGui || (config.hideOnDebug && client.getDebugOverlay().showDebugScreen())
-                || client.screen instanceof com.codex.pvphud.hud.HudEditor) {
+                || client.screen instanceof com.codex.pvphud.hud.HudEditor
+                || client.screen instanceof ClickGuiScreen || client.screen instanceof ClientSettingsScreen
+                || client.screen instanceof com.codex.pvphud.hud.HudModulesScreen) {
             return;
         }
         if (config.enabled) {

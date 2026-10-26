@@ -21,6 +21,10 @@ final class HudConfig {
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("pvp-hud-client.json");
 
     boolean enabled = true;
+    PerformanceMode performanceMode = PerformanceMode.OFF;
+    boolean performanceLightHud = true;
+    PerformanceController.Snapshot performanceBefore;
+    PerformanceController.Snapshot performanceApplied;
     boolean suppressDamageTilt = true;
     boolean notifications = true;
     boolean hideOnDebug = false;
@@ -104,6 +108,7 @@ final class HudConfig {
     }
 
     void ensureWidgets() {
+        if (performanceMode == null) performanceMode = PerformanceMode.OFF;
         if (theme == null) theme = Theme.CYBER;
         if (crosshairStyle == null) crosshairStyle = CrosshairStyle.DIAMOND;
         crosshairSize = Math.clamp(crosshairSize, MIN_CROSSHAIR_SIZE, MAX_CROSSHAIR_SIZE);
