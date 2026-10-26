@@ -1,3 +1,16 @@
+# PVPSE Client v3.0.0 — Combat polish
+
+For Minecraft 26.1.2 / Fabric, Java 25.
+
+- Subtle one-pixel attack cooldown circle around the crosshair, visible only while charging. Adjustable radius and independent toggle in Settings > AIM.
+- Crosshair reactions: amber while charging, theme accent when ready, target color when aiming at a player. Includes custom drawn crosshairs.
+- Optional Health Indicator HUD with current/max HP, low-health color and separate absorption points. Move, resize or hide it through the HUD editor; existing hidden cards stay hidden.
+- Clearer target HP readout with maximum health and low-health color.
+- Cleaner melee hitboxes: emphasized selected target, thin subdued nearby outlines and eye-level ring only on the selected target. Bounds, line-of-sight filtering and depth-tested rendering retained.
+- Waypoint radar: north-up compass labels, clearer tracked destination frame, outlined waypoint dots and above/below markers. This remains a waypoint radar rather than a terrain map.
+- Existing FPS presets, themes and resource packs included.
+
+---
 # PVPSE Client v2.7.0
 
 - FPS tab with opt-in Balanced and Max FPS presets. Balanced caps view/simulation at 12/8; Max at 8/5. Both disable clouds/entity shadows and reduce particles, keeping already-lower distances.

@@ -25,7 +25,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("pvpse-menu-title");
         context.clickScreenButton("Settings & profiles");
         context.waitForScreen(ClientSettingsScreen.class);
-        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILE", "FPS", "GENERAL"}) {
+        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILE", "FPS", "AIM", "GENERAL"}) {
             context.clickScreenButton(tab);
             context.waitTicks(3);
             context.takeScreenshot("pvpse-settings-" + tab.toLowerCase(java.util.Locale.ROOT));
@@ -145,7 +145,51 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testTexturePack(context, world.getServer());
             testOptionalHuds(context);
             testPerformance(context);
+            testCombatUpdate(context);
         }
+    }
+
+    private static void testCombatUpdate(ClientGameTestContext context) {
+        context.runOnClient(mc -> {
+            var card = new com.codex.pvphud.hud.HealthIndicatorHUD();
+            if (card.enabled()) throw new AssertionError("Health HUD must default off");
+            card.setPosition(12, 24); card.setScale(1.5F);
+            card.setEnabled(true); card.setEnabled(false); card.setEnabled(true);
+            if (card.x() != 12 || card.y() != 24 || card.scale() != 1.5F)
+                throw new AssertionError("Health HUD toggle lost layout");
+            PvpHudClient.getInstance().openMenu(null);
+        });
+        context.clickScreenButton("Settings & profiles"); context.clickScreenButton("AIM");
+        context.clickScreenButton("Cooldown circle: ON");
+        context.clickScreenButton("Crosshair reactions: ON");
+        context.clickScreenButton("Circle radius: 13 >");
+        context.runOnClient(mc -> {
+            var saved = HudConfig.load();
+            if (saved.cooldownRing || saved.crosshairReactions || saved.cooldownRingRadius != 15)
+                throw new AssertionError("Aim settings did not persist");
+        });
+        context.clickScreenButton("Cooldown circle: OFF");
+        context.clickScreenButton("Crosshair reactions: OFF");
+        context.clickScreenButton("Health indicator: OFF");
+        context.takeScreenshot("pvpse-combat-aim-settings");
+        context.setScreen(() -> null);
+        double attackSpeed = context.computeOnClient(mc -> mc.player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED).getBaseValue());
+        context.runOnClient(mc -> {
+            mc.player.getInventory().setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_SWORD));
+            mc.player.getInventory().setSelectedSlot(0);
+            // Keep a genuine cooldown active long enough for software-rendered screenshot capture.
+            mc.player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED).setBaseValue(2.5);
+            mc.player.resetAttackStrengthTicker();
+        });
+        context.waitTick();
+        context.takeScreenshot("pvpse-combat-ring-health");
+        context.runOnClient(mc -> mc.player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED).setBaseValue(attackSpeed));
+        context.waitTicks(30);
+        context.takeScreenshot("pvpse-combat-ready-health");
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles"); context.clickScreenButton("AIM");
+        context.clickScreenButton("Health indicator: ON");
+        context.setScreen(() -> null);
     }
 
     private static void testPerformance(ClientGameTestContext context) {

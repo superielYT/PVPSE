@@ -7,6 +7,10 @@ import java.util.Locale;
 public final class SettingsSearch {
     public record Result(String label, String tab, String aliases) {}
     private static final List<Result> ENTRIES = List.of(
+            new Result("Cooldown circle", "AIM", "cooldown cirkel aanval crosshair"),
+            new Result("Crosshair reactions", "AIM", "reacties vizier klaar opgeladen"),
+            new Result("Circle radius", "AIM", "cirkel grootte"),
+            new Result("Health indicator", "AIM", "health hp levens hartjes"),
             new Result("HUD", "GENERAL", "zichtbaar visibility overlay aan uit"),
             new Result("Notifications", "GENERAL", "meldingen"),
             new Result("Hide on F3", "GENERAL", "debug verbergen"),

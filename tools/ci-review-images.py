@@ -1,9 +1,8 @@
-"""Expose selected disposable game-test screenshots to remote reviewers in bounded log chunks."""
+"""Expose disposable game-test screenshots to reviewers in bounded log chunks."""
 import base64
 from pathlib import Path
-
 root = Path("build/run/clientGameTest/screenshots")
-for name in ("pvpse-settings-fps", "pvpse-fps-balanced-settings", "pvpse-fps-light-hud-world"):
+for name in ("pvpse-combat-aim-settings", "pvpse-combat-ring-health", "pvpse-combat-ready-health"):
     matches = sorted(root.glob("*_" + name + ".png"))
     if not matches:
         continue

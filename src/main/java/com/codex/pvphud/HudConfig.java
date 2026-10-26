@@ -35,6 +35,9 @@ final class HudConfig {
     boolean hitboxStateColors = true;
     int hitboxLineWidth = 2;
     boolean showAttackCooldown = true;
+    boolean cooldownRing = true;
+    boolean crosshairReactions = true;
+    int cooldownRingRadius = 13;
     boolean showLowHealthWarning = true;
     boolean showArmorWarning = true;
     boolean armorWarningSound = true;
@@ -111,6 +114,7 @@ final class HudConfig {
         if (performanceMode == null) performanceMode = PerformanceMode.OFF;
         if (theme == null) theme = Theme.CYBER;
         if (crosshairStyle == null) crosshairStyle = CrosshairStyle.DIAMOND;
+        cooldownRingRadius = Math.clamp(cooldownRingRadius, 10, 24);
         crosshairSize = Math.clamp(crosshairSize, MIN_CROSSHAIR_SIZE, MAX_CROSSHAIR_SIZE);
         panelOpacity = Math.clamp(panelOpacity, MIN_OPACITY, MAX_OPACITY);
         hitboxLineWidth = Math.clamp(hitboxLineWidth, 1, 4);

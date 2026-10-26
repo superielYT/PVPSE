@@ -15,11 +15,13 @@ public final class TargetHUD extends HudElement {
         HudStyles.card(c, t, width(mc), height(mc), alpha);
         String name = target == null ? "Target preview" : target.getName().getString();
         float hp = target == null ? 20.0F : target.getHealth();
+        float maxHp = Math.max(1, target == null ? 20 : target.getMaxHealth());
+        int healthColor = hp / maxHp <= .3F ? t.danger() : t.accent();
         HudStyles.label(c, mc, Component.literal(mc.font.plainSubstrByWidth(name, width(mc) - 14)), 7, 6, t.text());
-        HudStyles.label(c, mc, Component.literal(String.format("%.1f HP", hp)), 7, 19, t.accent());
+        HudStyles.label(c, mc, Component.literal(String.format(java.util.Locale.ROOT, "%.1f / %.0f HP", hp, maxHp)), 7, 19, healthColor);
         int bar = Math.clamp(Math.round(hp / Math.max(1.0F, target == null ? 20.0F : target.getMaxHealth()) * 104), 0, 104);
         c.fill(7, 32, 111, 35, 0x55000000);
-        c.fill(7, 32, 7 + bar, 35, t.accent());
+        c.fill(7, 32, 7 + bar, 35, healthColor);
     }
     public int width(Minecraft mc) { return 118; }
     public int height(Minecraft mc) { return 42; }

@@ -66,7 +66,7 @@ public final class MeleeHitboxRenderer {
             Vec3 smooth = target.getPosition(tick);
             AABB box = target.getBoundingBox().move(smooth.x - target.getX(),
                     smooth.y - target.getY(), smooth.z - target.getZ());
-            int color = 0xAA91A6BA;
+            int color = 0x6691A6BA;
             if (target == selected) {
                 color = 0xFF46E0A0;
                 if (config.hitboxStateColors) {
@@ -75,8 +75,8 @@ public final class MeleeHitboxRenderer {
                             : mace && client.player.fallDistance > 1.5 ? 0xFFD89CFF : 0xFF46E0A0;
                 }
             }
-            outlines.add(new Outline(box, color, config.hitboxLineWidth));
-            if (config.hitboxEyeLine) {
+            outlines.add(new Outline(box, color, target == selected ? config.hitboxLineWidth : 1.0F));
+            if (config.hitboxEyeLine && target == selected) {
                 double eyeY = smooth.y + target.getEyeY() - target.getY();
                 outlines.add(new Outline(new AABB(box.minX, eyeY - 0.002, box.minZ,
                         box.maxX, eyeY + 0.002, box.maxZ), color, 1.0F));

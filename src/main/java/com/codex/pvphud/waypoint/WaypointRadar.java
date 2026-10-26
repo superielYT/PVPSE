@@ -16,7 +16,12 @@ public final class WaypointRadar {
             c.fill(cx + i * 22, cy - radius, cx + i * 22 + 1, cy + radius, 0x333D5368);
             c.fill(cx - radius, cy + i * 22, cx + radius, cy + i * 22 + 1, 0x333D5368);
         }
-        c.text(mc.font, Component.literal(manager.northUp() ? "N" : "FWD"), cx - 8, cy - 44, t.mutedText());
+        c.centeredText(mc.font, Component.literal(manager.northUp() ? "N" : "FWD"), cx, cy - 43, t.mutedText());
+        if (manager.northUp()) {
+            c.centeredText(mc.font, Component.literal("S"), cx, cy + 34, t.mutedText());
+            c.text(mc.font, Component.literal("W"), cx - 42, cy - 4, t.mutedText());
+            c.text(mc.font, Component.literal("E"), cx + 36, cy - 4, t.mutedText());
+        }
         if (mc.player == null) return;
         var points = manager.visible(mc);
         // Draw the destination last so nearby points cannot obscure it.
@@ -24,9 +29,20 @@ public final class WaypointRadar {
             var p = points.get(i);
             var projection = RadarMath.project(p.x() + .5 - mc.player.getX(), p.z() + .5 - mc.player.getZ(), mc.player.getYRot(), manager.northUp(), manager.mapRange(), radius - 4);
             int x = cx + (int) Math.round(projection.x()), y = cy + (int) Math.round(projection.y());
-            if (manager.tracked(p)) c.fill(x - 3, y - 3, x + 4, y + 4, t.text());
+            c.fill(x - 2, y - 2, x + 3, y + 3, 0xCC000000);
+            if (manager.tracked(p)) {
+                c.fill(x - 4, y - 4, x + 5, y - 3, t.text());
+                c.fill(x - 4, y + 4, x + 5, y + 5, t.text());
+                c.fill(x - 4, y - 3, x - 3, y + 4, t.text());
+                c.fill(x + 4, y - 3, x + 5, y + 4, t.text());
+            }
             c.fill(x - 1, y - 1, x + 2, y + 2, p.tint());
             if (projection.outside()) c.fill(x - 2, y + 3, x + 3, y + 4, p.tint());
+            if (manager.tracked(p)) {
+                int dy = p.y() - mc.player.blockPosition().getY();
+                if (Math.abs(dy) >= 4)
+                    c.text(mc.font, Component.literal(dy > 0 ? "+" : "-"), x + 5, y - 4, p.tint());
+            }
         }
         c.fill(cx - 2, cy - 2, cx + 3, cy + 3, t.text());
         double heading = manager.northUp() ? Math.toRadians(mc.player.getYRot()) : Math.PI;
