@@ -16,6 +16,28 @@ public final class RegressionTest {
         catch (IllegalArgumentException expected) {}
     }
     public static void main(String[] args) throws Exception {
+        for (int radius = 1; radius <= 64; radius++) {
+            int row = 0;
+            for (var span : com.codex.pvphud.render.RoundedGeometry.spans(radius)) {
+                require(span.offset() == row && span.rows() > 0, "Rounded coverage gap");
+                for (int y = span.offset(); y < span.offset() + span.rows(); y++) {
+                    int expected = Math.max(0, (int)Math.ceil(radius - Math.sqrt(Math.max(0,
+                            (double)radius * radius - (radius - y - .5) * (radius - y - .5)))));
+                    require(span.inset() == expected, "Rounded pixels changed"); row++;
+                }
+            }
+            require(row == radius, "Rounded corner incomplete");
+        }
+        require(com.codex.pvphud.render.RoundedGeometry.rectangleCount(100, 40, 6) < 13, "Rounded renderer did not reduce rectangles");
+        require(com.codex.pvphud.render.RoundedGeometry.rectangleCount(0, 40, 6) == 0, "Empty geometry must not draw");
+        require(com.codex.pvphud.render.RoundedGeometry.spans(6) == com.codex.pvphud.render.RoundedGeometry.spans(6), "Corner cache is not reused");
+        com.codex.pvphud.render.RenderBudget.configure(PerformanceMode.BALANCED, true);
+        require(com.codex.pvphud.render.RenderBudget.lightweight() && com.codex.pvphud.render.RenderBudget.particles(48) == 8, "Balanced budget");
+        com.codex.pvphud.render.RenderBudget.configure(PerformanceMode.MAX, false);
+        require(!com.codex.pvphud.render.RenderBudget.lightweight() && com.codex.pvphud.render.RenderBudget.particles(48) == 0, "Max particle budget / HUD opt-out");
+        com.codex.pvphud.render.RenderBudget.configure(PerformanceMode.OFF, true);
+        require(!com.codex.pvphud.render.RenderBudget.lightweight(), "OFF must restore full HUD rendering");
+        require(SettingsSearch.find("fps verbeteren").stream().anyMatch(r -> r.tab().equals("FPS")), "Dutch FPS search");
         var gate = new ArmorAlertGate();
         require(gate.update(true, 0), "First armor warning missing");
         require(!gate.update(true, 1) && !gate.update(true, 199), "Armor sound spam");
@@ -71,6 +93,10 @@ public final class RegressionTest {
         Path file = folder.resolve("settings.json");
         require(JsonStorage.write(file, Map.of("value", 42)), "Initial save failed");
         String initial = Files.readString(file);
+        var fixedTime = java.nio.file.attribute.FileTime.fromMillis(123456000L);
+        Files.setLastModifiedTime(file, fixedTime);
+        require(JsonStorage.write(file, Map.of("value", 42)), "Unchanged save failed");
+        require(Files.getLastModifiedTime(file).equals(fixedTime), "Unchanged config was rewritten");
         require(!JsonStorage.write(file, Map.of("value", Double.NaN)), "Non-finite save accepted");
         require(Files.readString(file).equals(initial), "Failed save overwrote the old config");
         require(JsonStorage.write(file, Map.of("value", 84)), "Replacement save failed");

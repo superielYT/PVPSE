@@ -41,6 +41,7 @@ public class Animation {
     }
 
     private void update() {
+        if (Float.compare(value, target) == 0) return;
         float progress = Math.clamp((System.nanoTime() - startedAt) / (float) durationNanos, 0.0F, 1.0F);
         value = from + (target - from) * easing.apply(progress);
         if (progress >= 1.0F) value = target;

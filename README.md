@@ -16,9 +16,9 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client — Your Minecraft. Your Style. Your Control. 🔥
 
-## Installation (v2.6.0)
+## Installation (v2.7.0)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.6.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.7.0.jar in your Minecraft mods folder alongside Fabric API.
 
 ## Controls and settings
 
@@ -167,3 +167,9 @@ HUD editor: drag cards to any screen edge. The toolbar is at the top; Tab hides 
 F8 > HUD editor > HUDs now has a search box, All/Shown/Hidden filters and an enabled-card count. Held Items shows main/offhand stacks and durability. Resource Packs lists active user file packs in priority order. Both new cards start OFF, including on existing profiles; enable them when wanted. Their first activation searches for free space. Auto arrange only moves shown cards, keeping hidden cards' layouts intact.
 
 If a new optional card has no free space, choose Yes to arrange shown cards to fit, or No to keep it off and preserve your current setup.
+
+## Performance presets (2.7.0)
+
+F8 > Settings & profiles > FPS offers Balanced (view/simulation caps 12/8, decreased particles) and Max FPS (8/5, minimal particles). Both disable clouds/entity shadows without raising already-lower distances. Mode starts OFF. Restore previous settings restores unchanged managed values; later manual changes are kept. The snapshot persists across restarts. VSync and frame limits stay under your control.
+
+Light HUD removes layered panel shadows and glass decorations while preserving your theme, card selection and layout. You can disable Light HUD while keeping a video preset active. Balanced limits PVPSE kill particles to eight; Max disables those cosmetic particles. The default renderer also reuses rounded geometry and inventory snapshots, and unchanged profiles avoid disk rewrites. FPS gain depends on hardware and scene.

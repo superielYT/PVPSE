@@ -25,7 +25,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("pvpse-menu-title");
         context.clickScreenButton("Settings & profiles");
         context.waitForScreen(ClientSettingsScreen.class);
-        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILES", "GENERAL"}) {
+        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILE", "FPS", "GENERAL"}) {
             context.clickScreenButton(tab);
             context.waitTicks(3);
             context.takeScreenshot("pvpse-settings-" + tab.toLowerCase(java.util.Locale.ROOT));
@@ -79,6 +79,8 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
                 mc.player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new net.minecraft.world.item.ItemStack(pearl, 4));
                 int count = com.codex.pvphud.hud.InventoryHUD.countCarried(mc.player, pearl);
                 if (count != 28) throw new AssertionError("Storage/hotbar/offhand count: " + count);
+                if (com.codex.pvphud.hud.InventoryHUD.countAll(mc.player)[1] != 28)
+                    throw new AssertionError("Single-pass inventory totals changed");
             });
             context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
             context.clickScreenButton("Settings & profiles");
@@ -142,7 +144,59 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testBlockOverlay(context, world.getServer());
             testTexturePack(context, world.getServer());
             testOptionalHuds(context);
+            testPerformance(context);
         }
+    }
+
+    private static void testPerformance(ClientGameTestContext context) {
+        var original = context.computeOnClient(PerformanceController.Snapshot::capture);
+        context.runOnClient(mc -> {
+            mc.options.renderDistance().set(16); mc.options.simulationDistance().set(12);
+            mc.options.entityShadows().set(true); mc.options.cloudStatus().set(net.minecraft.client.CloudStatus.FANCY);
+            mc.options.particles().set(net.minecraft.client.ParticleStatus.ALL);
+            PvpHudClient.getInstance().openMenu(null);
+        });
+        context.clickScreenButton("Settings & profiles"); context.clickScreenButton("FPS");
+        context.clickScreenButton("Balanced");
+        context.runOnClient(mc -> {
+            if (mc.options.renderDistance().get() != 12 || mc.options.simulationDistance().get() != 8
+                    || mc.options.entityShadows().get() || mc.options.cloudStatus().get() != net.minecraft.client.CloudStatus.OFF
+                    || mc.options.particles().get() != net.minecraft.client.ParticleStatus.DECREASED)
+                throw new AssertionError("Balanced did not apply real video settings");
+        });
+        context.takeScreenshot("pvpse-fps-balanced-settings");
+        context.clickScreenButton("Max FPS");
+        context.runOnClient(mc -> {
+            if (mc.options.renderDistance().get() != 8 || mc.options.simulationDistance().get() != 5
+                    || mc.options.particles().get() != net.minecraft.client.ParticleStatus.MINIMAL)
+                throw new AssertionError("Max FPS preset is incorrect");
+            var saved = HudConfig.load();
+            var restarted = new PerformanceController(saved); restarted.initialize(mc);
+            mc.options.renderDistance().set(6);
+            restarted.setMode(mc, PerformanceMode.OFF);
+            if (mc.options.renderDistance().get() != 6 || mc.options.simulationDistance().get() != 12
+                    || !mc.options.entityShadows().get() || mc.options.cloudStatus().get() != net.minecraft.client.CloudStatus.FANCY
+                    || mc.options.particles().get() != net.minecraft.client.ParticleStatus.ALL)
+                throw new AssertionError("Restart/restore overwrote user changes or lost previous settings");
+            PvpHudClient.getInstance().performance().refreshBudget();
+        });
+        context.clickScreenButton("Light HUD: ON");
+        context.runOnClient(mc -> {
+            if (com.codex.pvphud.render.RenderBudget.lightweight()) throw new AssertionError("HUD detail opt-out ignored");
+        });
+        context.clickScreenButton("Light HUD: OFF");
+        context.setScreen(() -> null); context.waitTicks(5);
+        context.takeScreenshot("pvpse-fps-light-hud-world");
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles"); context.clickScreenButton("FPS");
+        context.clickScreenButton("Restore previous settings");
+        context.runOnClient(mc -> {
+            if (com.codex.pvphud.render.RenderBudget.lightweight()) throw new AssertionError("Restore left the light HUD active");
+            mc.options.renderDistance().set(original.view); mc.options.simulationDistance().set(original.simulation);
+            mc.options.entityShadows().set(original.shadows); mc.options.cloudStatus().set(original.clouds);
+            mc.options.particles().set(original.particles); mc.options.save();
+        });
+        context.setScreen(() -> null);
     }
 
     private static void testOptionalHuds(ClientGameTestContext context) {

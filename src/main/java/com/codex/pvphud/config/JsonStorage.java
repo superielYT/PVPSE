@@ -16,6 +16,7 @@ public final class JsonStorage {
         Path temporary = null;
         try {
             String json = GSON.toJson(value);
+            if (Files.exists(path) && Files.readString(path).equals(json)) return true;
             Files.createDirectories(path.toAbsolutePath().getParent());
             temporary = Files.createTempFile(path.toAbsolutePath().getParent(), path.getFileName().toString(), ".tmp");
             Files.writeString(temporary, json);
