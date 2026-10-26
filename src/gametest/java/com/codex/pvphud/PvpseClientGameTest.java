@@ -173,13 +173,17 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.clickScreenButton("Health indicator: OFF");
         context.takeScreenshot("pvpse-combat-aim-settings");
         context.setScreen(() -> null);
+        double attackSpeed = context.computeOnClient(mc -> mc.player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED).getBaseValue());
         context.runOnClient(mc -> {
             mc.player.getInventory().setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_SWORD));
             mc.player.getInventory().setSelectedSlot(0);
+            // Keep a genuine cooldown active long enough for software-rendered screenshot capture.
+            mc.player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED).setBaseValue(2.5);
             mc.player.resetAttackStrengthTicker();
         });
         context.waitTick();
         context.takeScreenshot("pvpse-combat-ring-health");
+        context.runOnClient(mc -> mc.player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED).setBaseValue(attackSpeed));
         context.waitTicks(30);
         context.takeScreenshot("pvpse-combat-ready-health");
         context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
