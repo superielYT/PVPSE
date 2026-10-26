@@ -4,7 +4,7 @@ import com.codex.pvphud.render.RenderBudget;
 import java.util.Objects;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.ParticleStatus;
+import net.minecraft.server.level.ParticleStatus;
 
 /** Explicit, persistent presets. Restore only fields still equal to the value we applied. */
 final class PerformanceController {

@@ -153,7 +153,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.runOnClient(mc -> {
             mc.options.renderDistance().set(16); mc.options.simulationDistance().set(12);
             mc.options.entityShadows().set(true); mc.options.cloudStatus().set(net.minecraft.client.CloudStatus.FANCY);
-            mc.options.particles().set(net.minecraft.client.ParticleStatus.ALL);
+            mc.options.particles().set(net.minecraft.server.level.ParticleStatus.ALL);
             PvpHudClient.getInstance().openMenu(null);
         });
         context.clickScreenButton("Settings & profiles"); context.clickScreenButton("FPS");
@@ -161,14 +161,14 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.runOnClient(mc -> {
             if (mc.options.renderDistance().get() != 12 || mc.options.simulationDistance().get() != 8
                     || mc.options.entityShadows().get() || mc.options.cloudStatus().get() != net.minecraft.client.CloudStatus.OFF
-                    || mc.options.particles().get() != net.minecraft.client.ParticleStatus.DECREASED)
+                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.DECREASED)
                 throw new AssertionError("Balanced did not apply real video settings");
         });
         context.takeScreenshot("pvpse-fps-balanced-settings");
         context.clickScreenButton("Max FPS");
         context.runOnClient(mc -> {
             if (mc.options.renderDistance().get() != 8 || mc.options.simulationDistance().get() != 5
-                    || mc.options.particles().get() != net.minecraft.client.ParticleStatus.MINIMAL)
+                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.MINIMAL)
                 throw new AssertionError("Max FPS preset is incorrect");
             var saved = HudConfig.load();
             var restarted = new PerformanceController(saved); restarted.initialize(mc);
@@ -176,7 +176,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             restarted.setMode(mc, PerformanceMode.OFF);
             if (mc.options.renderDistance().get() != 6 || mc.options.simulationDistance().get() != 12
                     || !mc.options.entityShadows().get() || mc.options.cloudStatus().get() != net.minecraft.client.CloudStatus.FANCY
-                    || mc.options.particles().get() != net.minecraft.client.ParticleStatus.ALL)
+                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.ALL)
                 throw new AssertionError("Restart/restore overwrote user changes or lost previous settings");
             PvpHudClient.getInstance().performance().refreshBudget();
         });
