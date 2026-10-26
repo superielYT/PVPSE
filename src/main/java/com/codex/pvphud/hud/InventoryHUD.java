@@ -14,7 +14,7 @@ public final class InventoryHUD extends HudElement {
     private static final Item[] ITEMS = {Items.TOTEM_OF_UNDYING, Items.ENDER_PEARL, Items.GOLDEN_APPLE,
             Items.ENCHANTED_GOLDEN_APPLE, Items.WIND_CHARGE, Items.END_CRYSTAL};
     private static final Component TITLE = Component.literal("INVENTORY");
-    private final ItemStack[] icons = java.util.Arrays.stream(ITEMS).map(ItemStack::new).toArray(ItemStack[]::new);
+    private ItemStack[] icons;
     private final Component[] labels = java.util.stream.IntStream.range(0, ITEMS.length).mapToObj(i -> Component.literal("0")).toArray(Component[]::new);
     private java.lang.ref.WeakReference<Player> lastPlayer = new java.lang.ref.WeakReference<>(null);
     private int lastTick = Integer.MIN_VALUE;
@@ -58,6 +58,7 @@ public final class InventoryHUD extends HudElement {
     @Override protected void renderElement(GuiGraphicsExtractor c, Minecraft mc, Theme theme, boolean editor, float alpha) {
         HudStyles.card(c, theme, width(mc), height(mc), alpha);
         refresh(mc.player);
+        if (icons == null) icons = java.util.Arrays.stream(ITEMS).map(ItemStack::new).toArray(ItemStack[]::new);
         HudStyles.label(c, mc, TITLE, 6, 5, theme.mutedText());
         for (int i = 0; i < ITEMS.length; i++) {
             int x = 5 + i % 3 * 48, y = 18 + i / 3 * 21;
