@@ -1,3 +1,18 @@
+# PVPSE Client v3.1.0 — Ignite Reforged
+
+Minecraft 26.1.2 / Fabric / Java 25.
+
+- Resourcepack update inspired by the supplied screenshots: 43 illustrated enchantment books with large individual symbols and leather covers. Native component predicates work at any level, including combined books.
+- Broad blue diamond blades and matching axes. Steel mace plus cyan Breach, red Density and violet Wind Burst variants; no renaming or CIT required.
+- Brighter crystal icon and a new glass/magenta world-crystal texture.
+- 149 upgraded common block textures: stone families, ores, wood planks/logs, natural ground/leaves, wool, concrete, terracotta and mineral blocks. Other blocks fall back to vanilla.
+- Lower first-person shield while idle and blocking, with vanilla banner rendering retained.
+- Animated low fire and soul fire. The upper 35% of every texture frame stays transparent, leaving the first-person fire low on screen; placed world fire also looks shorter.
+- Round native sun and eight detailed moon phases using the Minecraft 26.1.2 celestial texture paths.
+- Original photographic cloud sky supplied in OptiFine custom-sky format. **The full cloud sky requires a separate compatible sky loader, such as Skyboxify for Fabric 26.1.2.** Without a loader, Minecraft uses the upgraded native sun/moons and normal sky. No sky loader is bundled.
+- Choose either Smooth 32x or Lite 16x. All HUD options and profiles from 3.0 remain available.
+
+---
 # PVPSE Client v3.0.0 — Combat polish
 
 For Minecraft 26.1.2 / Fabric, Java 25.

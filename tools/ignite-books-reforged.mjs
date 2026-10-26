@@ -1,0 +1,72 @@
+import {Canvas,rgba,mix} from './ignite-art.mjs';
+import {enchantments} from './ignite-books.mjs';
+export {enchantments};
+// Original illustrated leather volumes. Each enchantment has a separate pictogram.
+export function drawBooks(){
+ return [['enchanted_book','??','gem','#bc8ee9'],...enchantments].map(([id,code,family,hex])=>{
+ const c=new Canvas(),tint=rgba(hex),ink=rgba('#201a25'),gold=rgba('#e7bf71');
+ const cover=rgba(['wave','wind','snow','wing'].includes(family)?'#225f69':family==='shield'?'#344b78':family==='gem'?'#426c41':'#853b3b');
+ c.poly([[3,10],[20,3],[29,7],[29,24],[12,31],[3,26]],ink);
+ c.poly([[5,12],[12,16],[27,10],[27,23],[12,29],[5,25]],rgba('#d6cbb1'));
+ for(let k=0;k<3;k++)c.line([12,25+k],[26,20+k],.65,rgba('#9d907e'));
+ c.poly([[4,10],[20,4],[28,8],[28,21],[12,27],[4,23]],cover);
+ c.poly([[4,10],[10,13],[10,25],[4,22]],mix(cover,ink,.45));
+ c.line([11,14],[11,25],.8,mix(cover,rgba('#fff0cc'),.35));
+ c.line([6,10],[20,5],.8,mix(cover,rgba('#ffe0b4'),.55));
+ for(const y of [14,21])c.line([4.8,y],[8.7,y+1.5],1.3,gold);
+ c.poly([[24,8],[27,9],[27,12],[24,11]],gold);c.poly([[23,21],[27,19.5],[27,22],[23,23.5]],gold);
+ const light=mix(tint,rgba('#ffffff'),.62),dark=mix(tint,ink,.5);
+ const line=(p,w=1.8,col=light)=>c.path(p,w,col),poly=(p,col=light)=>c.poly(p,col),dot=(x,y,r=1,col=light)=>c.ellipse(x,y,r,r,col);
+ const sword=()=>{line([[13,20],[21,10]],2.4,dark);line([[15,17],[21,10]],1.7,light);line([[13,14],[17,18]],1.5,tint);};
+ const shield=()=>{poly([[13,10],[18,8],[24,10],[23,16],[18,21],[14,18]],tint);poly([[15,11],[18,10],[22,11],[21,15],[18,18],[16,16]],light);};
+ const wave=()=>line([[12,14],[15,11],[19,12],[23,10],[24,13],[20,16],[16,15],[13,18],[18,20],[23,17]],1.6,tint);
+ const flame=()=>{poly([[18,7],[19,12],[22,10],[24,16],[21,20],[16,21],[13,17],[14,12]],tint);poly([[18,13],[21,17],[18,19],[16,17]],light);};
+ switch(id){
+ case 'sharpness':sword();dot(24,8);break;
+ case 'smite':sword();line([[11,10],[15,10]],1.5,gold);line([[13,8],[13,12]],1.5,gold);break;
+ case 'bane_of_arthropods':dot(18,14,2.8,tint);for(const y of [11,14,17]){line([[12,y-1],[15,y]],1.2,tint);line([[21,y],[25,y-1]],1.2,tint);}break;
+ case 'sweeping_edge':sword();line([[11,16],[11,12],[14,9],[20,7],[25,9]],1.4,tint);break;
+ case 'lunge':sword();line([[11,21],[15,21],[14,24]],1.3,gold);break;
+ case 'breach':shield();line([[18,8],[16,13],[20,14],[17,20]],1.8,ink);break;
+ case 'density':poly([[12,10],[22,7],[26,12],[17,16]],tint);poly([[17,16],[26,12],[26,17],[17,21]],dark);poly([[12,10],[17,16],[17,21],[12,16]],light);line([[13,23],[24,20]],1.5,gold);break;
+ case 'wind_burst':wave();line([[13,9],[18,7],[23,8]],1.3,light);dot(25,18);break;
+ case 'fire_aspect':flame();sword();break;
+ case 'flame':flame();line([[12,22],[24,8]],1.3,gold);break;
+ case 'knockback':line([[12,12],[18,15],[12,19]],2.6,tint);line([[19,10],[25,13],[20,18]],2.6,light);break;
+ case 'protection':shield();break;
+ case 'blast_protection':shield();for(const [x,y]of [[12,8],[25,7],[25,19]])line([[x-1,y-1],[x+1,y+1]],1.3,gold);break;
+ case 'fire_protection':shield();poly([[18,11],[16,15],[19,18],[22,14],[20,15]],tint);break;
+ case 'projectile_protection':shield();line([[11,20],[25,8]],1.2,ink);poly([[21,8],[26,7],[25,12]],gold);break;
+ case 'feather_falling':poly([[12,22],[14,13],[23,7],[25,10],[20,18]],light);line([[13,21],[23,10]],1,tint);line([[14,16],[18,18]],1,tint);break;
+ case 'thorns':line([[12,20],[17,14],[21,8]],2,tint);for(const [x,y]of [[14,18],[18,13],[20,10]])poly([[x,y],[x-3,y-3],[x+1,y-2]],light);break;
+ case 'respiration':for(const [x,y,r]of [[15,17,3.3],[21,12,2.5],[24,7,1.3]]){dot(x,y,r,tint);dot(x-.7,y-.6,r*.5,light);}break;
+ case 'aqua_affinity':wave();poly([[18,8],[23,13],[18,18],[14,14]],light);break;
+ case 'depth_strider':wave();line([[15,8],[15,15],[20,15],[23,18]],2,light);break;
+ case 'riptide':line([[18,22],[19,8]],2,tint);line([[13,9],[14,13],[19,14],[24,10],[24,6]],1.5,light);wave();break;
+ case 'channeling':poly([[19,6],[13,15],[18,14],[16,22],[25,11],[20,12],[23,6]],gold);break;
+ case 'frost_walker':for(let k=0;k<3;k++){const a=k*Math.PI/3;line([[18-6*Math.cos(a),14-6*Math.sin(a)],[18+6*Math.cos(a),14+6*Math.sin(a)]],1.3,light);}break;
+ case 'soul_speed':poly([[13,9],[21,7],[23,11],[22,15],[24,19],[18,18],[14,21],[13,15]],tint);dot(16,12,.9,ink);dot(20,11,.9,ink);line([[10,22],[16,20]],1.4,light);break;
+ case 'swift_sneak':line([[14,9],[14,16],[20,16],[24,19],[14,22],[12,19]],2.4,tint);line([[19,9],[24,7]],1.5,light);break;
+ case 'power':line([[14,8],[21,10],[24,14],[21,18],[14,21]],2,tint);line([[14,8],[14,21]],.8,light);line([[10,16],[25,12]],1.2,gold);break;
+ case 'punch':poly([[13,12],[15,9],[18,10],[19,8],[23,9],[25,14],[22,19],[16,20],[12,17]],tint);line([[13,23],[22,21]],1.5,light);break;
+ case 'infinity':line([[12,16],[13,12],[17,11],[21,16],[25,14],[25,10],[22,9],[17,16],[14,18],[12,16]],2,tint);break;
+ case 'multishot':for(const x of [13,18,23]){line([[x,21],[x+1,9]],1.3,tint);poly([[x-1,11],[x+1,7],[x+3,10]],light);}break;
+ case 'piercing':line([[12,22],[24,8]],2,tint);poly([[20,8],[26,6],[25,13]],light);line([[12,12],[23,19]],1.7,gold);break;
+ case 'quick_charge':poly([[19,7],[13,14],[18,14],[16,21],[25,11],[20,12]],gold);line([[11,11],[11,7],[16,5]],1.4,tint);break;
+ case 'impaling':for(const x of [14,19,24])line([[x,9],[x,14]],1.4,light);line([[14,14],[19,17],[24,14]],1.8,tint);line([[19,17],[15,23]],2,tint);break;
+ case 'loyalty':poly([[18,11],[14,8],[11,11],[13,16],[18,21],[24,14],[24,9],[21,8]],tint);line([[13,21],[10,19],[10,15]],1.5,gold);break;
+ case 'binding_curse':line([[15,13],[15,10],[18,8],[22,9],[22,12]],1.7,tint);poly([[13,14],[23,11],[24,18],[14,22]],tint);dot(18,16,1.1,ink);line([[18,16],[18,19]],1,ink);break;
+ case 'vanishing_curse':poly([[12,14],[14,9],[20,7],[24,10],[24,19],[20,17],[18,21],[16,19],[13,23]],tint);dot(16,12,1,ink);dot(21,11,1,ink);dot(26,21,.8,light);break;
+ case 'mending':poly([[18,11],[14,8],[11,11],[13,16],[18,21],[24,14],[24,9],[21,8]],tint);line([[14,14],[22,12]],1.8,light);line([[18,10],[18,17]],1.8,light);break;
+ case 'unbreaking':shield();line([[14,13],[22,13]],1.7,tint);dot(18,13,1,ink);break;
+ case 'efficiency':line([[12,23],[22,10]],2.2,tint);line([[13,11],[17,7],[23,7],[26,11]],2,light);break;
+ case 'fortune':poly([[12,12],[16,8],[23,8],[26,12],[18,22]],tint);line([[12,12],[26,12],[18,22],[16,8]],1,light);break;
+ case 'silk_touch':poly([[12,13],[17,8],[23,9],[25,13],[18,21]],light);line([[11,21],[25,7]],.8,tint);line([[12,8],[25,20]],.8,tint);break;
+ case 'looting':poly([[12,12],[15,9],[21,8],[25,11],[24,20],[15,23],[11,20]],tint);line([[13,14],[23,11]],1.2,gold);dot(18,17,2,light);break;
+ case 'luck_of_the_sea':wave();dot(18,13,3,gold);line([[17,10],[20,14]],1,light);break;
+ case 'lure':line([[19,7],[19,17],[17,20],[13,19],[12,16]],2,tint);poly([[11,16],[13,14],[14,18]],light);break;
+ default:poly([[18,7],[25,13],[18,22],[12,16]],tint);line([[15,12],[21,16]],1.6,light);break;
+ }
+ return {name:id==='enchanted_book'?'item/enchanted_book':'item/books/'+id,label:id.toUpperCase().replaceAll('_',' '),canvas:c};
+ });
+}

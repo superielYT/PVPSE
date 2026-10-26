@@ -6,8 +6,11 @@ import {deflateSync,inflateSync} from 'node:zlib';
 import assert from 'node:assert/strict';
 import {drawArt} from './ignite-art.mjs';
 import {drawGui} from './ignite-gui.mjs';
-import {drawBooks,enchantments} from './ignite-books.mjs';
+import {drawBooks,enchantments} from './ignite-books-reforged.mjs';
 import {drawBlocks} from './ignite-blocks.mjs';
+import {drawCombatArt} from './ignite-combat.mjs';
+import {drawEnvironment} from './ignite-environment.mjs';
+import {decodePng,cubemap} from './sky-cubemap.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 function crc32(bytes) {
     let crc = 0xffffffff;
@@ -57,8 +60,11 @@ function validatePNG(data){
     const w=data.readUInt32BE(16),h=data.readUInt32BE(20);
     assert.equal(inflateSync(Buffer.concat(parts)).length,h*(w*4+1));
 }
-const art=[...drawArt(),...drawBooks(),...drawBlocks()];
-assert.equal(art.length,135);
+const blocks=drawBlocks();
+const art=[...drawArt().filter(a=>!['item/mace','item/end_crystal'].includes(a.name)),...drawCombatArt(),...drawBooks(),...blocks];
+assert.equal(art.length,232);assert.equal(new Set(art.map(a=>a.name)).size,art.length);
+const sky=cubemap(decodePng(Buffer.from(readFileSync(join(root,'assets/sky-day.png.b64'),'utf8').trim(),'base64')));
+const skyPng=png(sky.width,sky.height,sky.pixels);
 const gui=drawGui();
 assert.equal(gui.length,12);
 const icons=art.find(a=>a.name==='item/totem_of_undying').canvas;
@@ -77,7 +83,18 @@ for(const size of [32,16]){
         asset('assets/minecraft/textures/'+sprite.name+'.png',png(sprite.width,sprite.height,sprite.pixels));
         if(sprite.meta)json('assets/minecraft/textures/'+sprite.name+'.png.mcmeta',sprite.meta);
     }
-    json('pack.mcmeta',{pack:{description:'PVPSE Ignite Final '+size+'x '+edition+' | Moonstone pearl, forged weapons & clean GUI',min_format:[84,0],max_format:[84,0]}});
+    for(const sprite of drawEnvironment(size)){
+        asset('assets/minecraft/textures/'+sprite.name+'.png',png(sprite.width,sprite.height,sprite.pixels));
+        if(sprite.meta)json('assets/minecraft/textures/'+sprite.name+'.png.mcmeta',sprite.meta);
+        if(sprite.name.includes('fire_')){
+            for(let frame=0;frame<16;frame++)for(let y=0;y<Math.floor(size*.35);y++)for(let x=0;x<size;x++)
+                assert.equal(sprite.pixels[(frame*size*size+y*size+x)*4+3],0,'Fire blocks the upper view');
+        }
+    }
+    asset('assets/minecraft/optifine/sky/world0/sky1.png',skyPng);
+    asset('assets/minecraft/optifine/sky/world0/sky1.properties','source=minecraft:optifine/sky/world0/sky1.png\nblend=alpha\nrotate=false\nstartFadeIn=05:30\nendFadeIn=07:00\nstartFadeOut=17:00\nendFadeOut=18:30\nweather=clear\n');
+    asset('SKY.txt','Realistic daytime clouds require an OptiFine-format custom-sky loader. Fabric 26.1.2: install a matching Skyboxify release from https://modrinth.com/mod/skyboxify. Vanilla safely ignores the custom sky and uses the upgraded native sun and eight moon textures. No sky mod is bundled. Native clouds can be disabled separately to reveal the photographic cloud layer.\n');
+    json('pack.mcmeta',{pack:{description:'PVPSE Ignite Reforged '+size+'x '+edition+' | Illustrated books, blue gear, low fire & realistic sky',min_format:[84,0],max_format:[84,0]}});
     json('assets/minecraft/models/item/enchanted_golden_apple.json',{parent:'minecraft:item/generated',textures:{layer0:'minecraft:item/enchanted_golden_apple'}});
     for(let i=3;i<8;i++)json('assets/minecraft/models/item/bow_pulling_'+i+'.json',{parent:'minecraft:item/bow',textures:{layer0:'minecraft:item/bow_pulling_'+i}});
     const model=name=>({type:'minecraft:model',model:'minecraft:item/'+name});
@@ -88,6 +105,13 @@ for(const size of [32,16]){
             value:[{enchantments:'minecraft:'+id,levels:{min:1}}],on_true:model('books/'+id),on_false:book};
     }
     json('assets/minecraft/items/enchanted_book.json',{model:book});
+    let mace=model('mace');
+    for(const enchantment of ['wind_burst','density','breach']){
+        json('assets/minecraft/models/item/mace_'+enchantment+'.json',{parent:'minecraft:item/handheld_mace',textures:{layer0:'minecraft:item/mace_'+enchantment}});
+        mace={type:'minecraft:condition',property:'minecraft:component',predicate:'minecraft:enchantments',
+            value:[{enchantments:'minecraft:'+enchantment,levels:{min:1}}],on_true:model('mace_'+enchantment),on_false:mace};
+    }
+    json('assets/minecraft/items/mace.json',{model:mace});
     const thresholds=[.15,.30,.45,.60,.75,.90,1];
     json('assets/minecraft/items/bow.json',{model:{
         type:'minecraft:condition',property:'minecraft:using_item',on_false:model('bow'),
@@ -97,17 +121,18 @@ for(const size of [32,16]){
     for(const blocking of [false,true]){
         const name='shield'+(blocking?'_blocking':'');
         json('assets/pvpse/models/item/low_'+name+'.json',{parent:'minecraft:item/'+name,display:{
-            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-15,-1,-11]:[-10,-5,-10],scale:[1.05,1.05,1.05]},
-            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,-1,-11]:[10,-7,-10],scale:[1.05,1.05,1.05]}
+            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-15,.5,-11]:[-10,-3,-10],scale:[1.1,1.1,1.1]},
+            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,.5,-11]:[10,-3,-10],scale:[1.1,1.1,1.1]}
         }});
     }
     const shield=blocking=>({type:'minecraft:special',base:'pvpse:item/low_shield'+(blocking?'_blocking':''),model:{type:'minecraft:shield'}});
     json('assets/minecraft/items/shield.json',{model:{type:'minecraft:condition',property:'minecraft:using_item',on_true:shield(true),on_false:shield(false),
         transformation:{left_rotation:[0,0,0,1],right_rotation:[0,0,0,1],scale:[1,-1,-1],translation:[0,0,0]}}});
     asset('LICENSE',readFileSync(join(root,'LICENSE')));
-    asset('README.txt','PVPSE Ignite Final '+size+'x '+edition+' - Minecraft Java 26.1.2\n\nOriginal forged short swords and axes, lucky-cat totem, moonstone pearl, cute apples and PvP essentials. Dark hotbar, buttons, inventory, chest and crafting GUI. 55 coordinated block textures. Unique covers for all 43 vanilla enchantments, including Lunge. Native component predicates work at any level, including combined books (first matching enchantment in BOOKS.txt wins). No CIT, OptiFine or renaming required.\n\nEight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.\n\nInstall the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Smooth 32x has richer detail; Lite 16x uses smaller textures. GUI stays at its native dimensions. No reach, damage or attack timing changes.\n\nCopyright: see LICENSE.\n');
+    asset('README.txt','PVPSE Ignite Reforged '+size+'x '+edition+' - Minecraft Java 26.1.2\n\nOriginal forged short swords and axes, lucky-cat totem, moonstone pearl, cute apples and PvP essentials. Dark hotbar, buttons, inventory, chest and crafting GUI. 149 coordinated block textures, illustrated enchantment books, enchantment-specific maces, animated low fire and soul fire, detailed native sun/moons and a photographic custom sky (see SKY.txt for loader requirements). Unique covers for all 43 vanilla enchantments, including Lunge. Native component predicates work at any level, including combined books (first matching enchantment in BOOKS.txt wins). No CIT, OptiFine or renaming required.\n\nEight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.\n\nInstall the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Smooth 32x has richer detail; Lite 16x uses smaller textures. GUI stays at its native dimensions. No reach, damage or attack timing changes.\n\nCopyright: see LICENSE.\n');
     asset('BOOKS.txt','Book cover priority for combined books (top first):\n'+enchantments.map(([id,code])=>code+' - '+id).join('\n')+'\nUnknown/modded enchantments use the generic cover. Levels and tooltips remain vanilla.\n');
-    assert.equal(files.size,209);
+    assert.ok(files.size>320);
+    asset('REFORGED.txt','PVPSE Ignite Reforged 3.1\n'+blocks.length+' upgraded block textures, 43 illustrated enchantment covers, native enchanted mace variants, blue diamond gear, lower banner-compatible shield, animated low fire and soul fire, round sun and eight detailed moons. Original generated cloud sky: see SKY.txt for the separate loader requirement. Reference images guide the style; no third-party pack assets are redistributed.\n');
     for(const [name,data]of files){
         assert.ok(!name.includes('..')&&!name.includes('\\'));
         if(name.endsWith('.json')||name.endsWith('.mcmeta'))JSON.parse(data.toString());
@@ -124,7 +149,11 @@ for(const size of [32,16]){
     for(const [id]of enchantments)for(const level of [1,5,10])assert.equal(cover({['minecraft:'+id]:level}),'minecraft:item/books/'+id);
     assert.equal(cover({'minecraft:mending':1,'minecraft:sharpness':5}),'minecraft:item/books/sharpness');
     assert.equal(cover({'example:unknown':1}),'minecraft:item/enchanted_book');
-    assert.equal(new Set(enchantments.map(e=>e[1])).size,43,'Duplicate book initials');
+    assert.equal(new Set(enchantments.map(e=>e[1])).size,43,'Duplicate book identifiers');
+    const maceCover=stored=>{let node=JSON.parse(files.get('assets/minecraft/items/mace.json')).model;while(node.type==='minecraft:condition'){const q=node.value[0];node=stored[q.enchantments]>=1?node.on_true:node.on_false;}return node.model;};
+    for(const id of ['breach','density','wind_burst'])assert.equal(maceCover({['minecraft:'+id]:1}),'minecraft:item/mace_'+id);
+    assert.equal(maceCover({}),'minecraft:item/mace');
+    assert.equal(maceCover({'minecraft:breach':1,'minecraft:wind_burst':3}),'minecraft:item/mace_breach');
     for(const sprite of gui){assert.equal(sprite.pixels.length,sprite.width*sprite.height*4);}
     assert.equal(bow.model.on_true.entries.at(-1).threshold,1);
     for(let i=3;i<8;i++)assert.ok(files.has('assets/minecraft/models/item/bow_pulling_'+i+'.json'));

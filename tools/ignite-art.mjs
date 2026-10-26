@@ -5,8 +5,10 @@ const mix=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*Math.max(0,Math.min(1,t)))
 const ink=rgba('#182432'),gold=rgba('#edb35d'),shine=rgba('#fff4d3');
 export class Canvas {
     constructor(){this.data=Buffer.alloc(N*N*4);}
-    paint(test,color){
-        for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    paint(test,color,bounds=[0,0,32,32]){
+        const left=Math.max(0,Math.floor(bounds[0]*S)),top=Math.max(0,Math.floor(bounds[1]*S));
+        const right=Math.min(N,Math.ceil(bounds[2]*S)),bottom=Math.min(N,Math.ceil(bounds[3]*S));
+        for(let y=top;y<bottom;y++)for(let x=left;x<right;x++){
             const xx=(x+.5)/S,yy=(y+.5)/S;
             if(test(xx,yy))this.data.set(typeof color==='function'?color(xx,yy):color,(y*N+x)*4);
         }
@@ -15,13 +17,13 @@ export class Canvas {
         this.paint((x,y)=>{let inside=false;for(let i=0,j=points.length-1;i<points.length;j=i++){
             const [a,b]=points[i],[c,d]=points[j];
             if((b>y)!==(d>y)&&x<(c-a)*(y-b)/(d-b)+a)inside=!inside;
-        }return inside;},color);
+        }return inside;},color,[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1])),Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))]);
     }
-    ellipse(x,y,rx,ry,color){this.paint((a,b)=>((a-x)/rx)**2+((b-y)/ry)**2<=1,color);}
+    ellipse(x,y,rx,ry,color){this.paint((a,b)=>((a-x)/rx)**2+((b-y)/ry)**2<=1,color,[x-rx,y-ry,x+rx,y+ry]);}
     line(a,b,width,color){
         const dx=b[0]-a[0],dy=b[1]-a[1],length=dx*dx+dy*dy;
         this.paint((x,y)=>{const t=length?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/length)):0;
-            return (x-a[0]-t*dx)**2+(y-a[1]-t*dy)**2<=width*width/4;},color);
+            return (x-a[0]-t*dx)**2+(y-a[1]-t*dy)**2<=width*width/4;},color,[Math.min(a[0],b[0])-width/2,Math.min(a[1],b[1])-width/2,Math.max(a[0],b[0])+width/2,Math.max(a[1],b[1])+width/2]);
     }
     path(points,width,color){for(let i=1;i<points.length;i++)this.line(points[i-1],points[i],width,color);}
     resolve(size=32){
@@ -44,7 +46,7 @@ export function drawArt(){
     const materials=[
         ['wooden','#b88860','#ecd2a2'],['stone','#99a3b5','#e6ebf5'],
         ['copper','#dd9166','#ffe0ba'],['iron','#b5c9de','#f5fcff'],
-        ['golden','#e9b44d','#fff4b5'],['diamond','#38cbbd','#d0fff1'],
+        ['golden','#e9b44d','#fff4b5'],['diamond','#12b5e6','#a4efff'],
         ['netherite','#72617e','#d2b7e1']
     ];
     // Compact fantasy blades: broad readable edge, short tip, inset rune and wrapped hilt.
@@ -52,11 +54,11 @@ export function drawArt(){
         const map=([u,v])=>[6+(u+v)*.7071,28+(u-v)*.7071];
         const poly=(p,col)=>c.poly(p.map(map),col);
         const dark=mix(rgba(base),rgba('#172638'),.65),trim=mix(rgba(base),rgba('#e7efff'),.35);
-        poly([[-2.8,9],[-2.8,18.5],[0,23.5],[2.8,18.5],[2.8,9]],ink);
-        poly([[-1.9,10],[-1.9,18.4],[0,22],[1.9,18.4],[1.9,10]],rgba(base));
-        poly([[-1.9,10],[-1.9,18.4],[0,22],[0,10]],rgba(edge));
-        poly([[.4,10],[.4,18.4],[0,20.5],[1.5,18],[1.5,10]],dark);
-        c.line(map([-1.9,11]),map([-1.9,17.8]),.6,rgba('#f2ffff'));
+        poly([[-3.7,9],[-3.7,18.5],[0,23.5],[3.7,18.5],[3.7,9]],ink);
+        poly([[-2.6,10],[-2.6,18.4],[0,22],[2.6,18.4],[2.6,10]],rgba(base));
+        poly([[-2.6,10],[-2.6,18.4],[0,22],[0,10]],rgba(edge));
+        poly([[.4,10],[.4,18.4],[0,20.5],[2.2,18],[2.2,10]],dark);
+        c.line(map([-2.6,11]),map([-2.6,17.8]),.6,rgba('#f2ffff'));
         c.line(map([0,11]),map([0,18.5]),.55,rgba(base));
         poly([[-2,1.2],[-2,8.5],[2,8.5],[2,1.2]],rgba('#182433'));
         poly([[-1.1,2],[-1.1,7.6],[1.1,7.6],[1.1,2]],dark);
