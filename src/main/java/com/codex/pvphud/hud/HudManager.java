@@ -70,8 +70,13 @@ public final class HudManager {
 
     /** Pack restored widgets without overlap, reserving room for hotbar/editor tools. */
     public void arrange(Minecraft client) {
+        tryArrange(client);
+    }
+
+    /** Commit a complete layout only; failed attempts leave user positions intact. */
+    public boolean tryArrange(Minecraft client) {
         var widgets = new ArrayList<>(layoutElements().stream().filter(HudElement::enabled).toList());
-        if (widgets.isEmpty()) return;
+        if (widgets.isEmpty()) return true;
         float viewportWidth = client.getWindow().getGuiScaledWidth();
         float bottom = client.getWindow().getGuiScaledHeight() - 48;
         for (float scale : new float[]{1, 0.9F, 0.8F, 0.7F, 0.6F, 0.5F}) {
@@ -93,12 +98,17 @@ public final class HudManager {
                     if (placed.stream().noneMatch(candidate::overlaps)) { selected = candidate; break search; }
                 }
                 if (selected == null) { fits = false; break; }
-                element.setScale(scale);
-                element.setPosition(selected.x, selected.y);
                 placed.add(selected);
             }
-            if (fits) return;
+            if (fits) {
+                for (int i = 0; i < sorted.size(); i++) {
+                    var element = sorted.get(i); var placement = placed.get(i);
+                    element.setScale(scale); element.setPosition(placement.x, placement.y);
+                }
+                return true;
+            }
         }
+        return false;
     }
 
     private record Placement(float x, float y, float width, float height) {
