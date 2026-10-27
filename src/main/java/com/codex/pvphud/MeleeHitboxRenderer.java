@@ -50,8 +50,8 @@ public final class MeleeHitboxRenderer {
         var held = client.player.getMainHandItem();
         boolean mace = held.getItem() instanceof MaceItem;
         if (!(mace && config.hitboxMace) && !(held.is(ItemTags.SWORDS) && config.hitboxSwords)) return;
-        Entity selected = client.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
         double range = module.value();
+        Entity selected = selectedTarget(client, range);
         Vec3 eye = client.player.getEyePosition();
         List<Entity> targets = config.hitboxTargetOnly
                 ? (selected == null ? List.of() : List.of(selected))
@@ -108,6 +108,29 @@ public final class MeleeHitboxRenderer {
                 && !entity.isSpectator() && !entity.isInvisibleTo(client.player)
                 && distanceSquared(eye, entity.getBoundingBox()) <= range * range
                 && client.player.hasLineOfSight(entity);
+    }
+
+    /** Visual picking only: never modifies the vanilla hit result or attack packets. */
+    static Entity selectedTarget(Minecraft client, double range) {
+        if (client.player == null || client.level == null) return null;
+        Vec3 eye = client.player.getEyePosition();
+        Vec3 end = eye.add(client.player.getViewVector(1).scale(range));
+        var block = client.level.clip(new net.minecraft.world.level.ClipContext(eye, end,
+                net.minecraft.world.level.ClipContext.Block.OUTLINE,
+                net.minecraft.world.level.ClipContext.Fluid.NONE, client.player));
+        double obstruction = block.getType() == net.minecraft.world.phys.HitResult.Type.MISS
+                ? range * range : eye.distanceToSqr(block.getLocation());
+        Entity closest = null;
+        double nearest = obstruction;
+        for (Entity entity : client.level.getEntities(client.player,
+                client.player.getBoundingBox().inflate(range), e -> eligible(e, client, eye, range))) {
+            AABB box = entity.getBoundingBox();
+            var point = box.clip(eye, end);
+            if (!box.contains(eye) && point.isEmpty()) continue;
+            double distance = box.contains(eye) ? 0 : eye.distanceToSqr(point.orElseThrow());
+            if (distance <= nearest) { nearest = distance; closest = entity; }
+        }
+        return closest;
     }
 
     private static double distanceSquared(Vec3 point, AABB box) {

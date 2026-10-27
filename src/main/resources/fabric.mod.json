@@ -16,6 +16,7 @@
       "com.codex.pvphud.PvpHudClient"
     ]
   },
+  "mixins": ["pvpse.mixins.json"],
   "depends": {
     "fabricloader": ">=0.19.3",
     "minecraft": "26.1.2",

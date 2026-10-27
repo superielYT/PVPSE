@@ -1,3 +1,11 @@
+# PVPSE Client v3.1.1 — Fullbright and hitbox distance fixes
+
+- Fix Target-only hitboxes using vanilla attack picking: independently select visible entities up to the configured view distance, stopping at blocks. Range now goes up to 32 blocks and is available in Settings > HITBOX. Actual attack reach is unchanged.
+- Replace ordinary brightness adjustment with client rendering night vision. Does not create or remove potion effects or change the saved gamma option. Toggle with V or the Brightness module; strength remains adjustable.
+- In-world checks cover targets at 12/32 blocks, shorter-range exclusion, wall occlusion, actual dark-room screenshot brightness, and fullbright disable restoration.
+
+---
+
 # PVPSE Client v3.1.0 — Ignite Reforged
 
 Minecraft 26.1.2 / Fabric / Java 25.

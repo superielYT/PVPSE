@@ -150,6 +150,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testPerformance(context);
             testCombatUpdate(context);
             testReforgedPack(context, world.getServer());
+            testRangeAndFullbright(context, world.getServer());
         }
     }
 
@@ -251,6 +252,46 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
         context.clickScreenButton("Settings & profiles"); context.clickScreenButton("HUD: OFF");
         context.setScreen(() -> null);
+    }
+
+    private static void testRangeAndFullbright(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        server.runCommand("fill -2 -60 -3 2 -55 31 minecraft:air");
+        server.runCommand("tp @p 0 -60 -4 0 0");
+        server.runCommand("summon minecraft:iron_golem 0 -60 8 {NoAI:1b,Tags:[\"pvpse_range\"]}");
+        context.waitTicks(15);
+        context.runOnClient(mc -> {
+            if (MeleeHitboxRenderer.selectedTarget(mc, 12) == null || MeleeHitboxRenderer.selectedTarget(mc, 8) != null)
+                throw new AssertionError("12-block visual selection still uses vanilla reach");
+        });
+        server.runCommand("fill -1 -60 2 1 -56 2 minecraft:stone"); context.waitTicks(8);
+        context.runOnClient(mc -> { if (MeleeHitboxRenderer.selectedTarget(mc, 12) != null) throw new AssertionError("Hitbox selected through a wall"); });
+        server.runCommand("fill -1 -60 2 1 -56 2 minecraft:air");
+        server.runCommand("kill @e[tag=pvpse_range]");
+        server.runCommand("summon minecraft:iron_golem 0 -60 25 {NoAI:1b,Tags:[\"pvpse_range\"]}"); context.waitTicks(12);
+        context.runOnClient(mc -> { if (MeleeHitboxRenderer.selectedTarget(mc, 32) == null || MeleeHitboxRenderer.selectedTarget(mc, 12) != null) throw new AssertionError("32-block selection failed"); });
+        server.runCommand("fill -4 -61 -8 4 -55 0 minecraft:stone");
+        server.runCommand("fill -3 -60 -7 3 -56 -1 minecraft:air");
+        server.runCommand("tp @p 0 -60 -4 0 0"); server.runCommand("time set midnight");
+        double gamma = context.computeOnClient(mc -> mc.options.gamma().get());
+        context.runOnClient(mc -> PvpHudClient.getInstance().hudManager().feature(com.codex.pvphud.hud.FeatureModule.Type.FULLBRIGHT).orElseThrow().setEnabled(false));
+        context.waitTicks(12); var dark = context.takeScreenshot("pvpse-fullbright-off");
+        context.runOnClient(mc -> {
+            var feature = PvpHudClient.getInstance().hudManager().feature(com.codex.pvphud.hud.FeatureModule.Type.FULLBRIGHT).orElseThrow(); feature.setValue(1); feature.setEnabled(true);
+        });
+        context.waitTicks(12); var bright = context.takeScreenshot("pvpse-fullbright-on");
+        context.runOnClient(mc -> {
+            if (FullbrightState.strength() != 1 || mc.player.getEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION) != null || mc.options.gamma().get() != gamma)
+                throw new AssertionError("Fullbright changed real effects or video settings");
+            PvpHudClient.getInstance().hudManager().feature(com.codex.pvphud.hud.FeatureModule.Type.FULLBRIGHT).orElseThrow().setEnabled(false);
+        });
+        context.waitTicks(3);
+        context.runOnClient(mc -> { if (FullbrightState.strength() != 0 || mc.player.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION)) throw new AssertionError("Fullbright did not restore darkness"); });
+        try {
+            var a=javax.imageio.ImageIO.read(dark.toFile()); var b=javax.imageio.ImageIO.read(bright.toFile()); long off=0,on=0;
+            for(int y=a.getHeight()/3;y<a.getHeight()/2;y++)for(int x=a.getWidth()/3;x<a.getWidth()*2/3;x++) { off+=(a.getRGB(x,y)>>16)&255; on+=(b.getRGB(x,y)>>16)&255; }
+            if(on<=off*1.4+1000) throw new AssertionError("Fullbright did not brighten the actual dark-room pixels");
+        } catch(java.io.IOException e) {throw new AssertionError(e);}
     }
 
     private static void testPerformance(ClientGameTestContext context) {
