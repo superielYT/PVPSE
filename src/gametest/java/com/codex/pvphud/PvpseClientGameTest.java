@@ -151,6 +151,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testCombatUpdate(context);
             testReforgedPack(context, world.getServer());
             testRangeAndFullbright(context, world.getServer());
+            testAuditFixes(context, world.getServer());
         }
     }
 
@@ -292,6 +293,43 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             for(int y=a.getHeight()/3;y<a.getHeight()/2;y++)for(int x=a.getWidth()/3;x<a.getWidth()*2/3;x++) { off+=(a.getRGB(x,y)>>16)&255; on+=(b.getRGB(x,y)>>16)&255; }
             if(on<=off*1.4+1000) throw new AssertionError("Fullbright did not brighten the actual dark-room pixels");
         } catch(java.io.IOException e) {throw new AssertionError(e);}
+    }
+
+    private static void testAuditFixes(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        context.runOnClient(mc -> {
+            var manager = new com.codex.pvphud.hud.HudManager();
+            manager.elements().forEach(e -> e.setEnabled(false));
+            var watermark = manager.find("watermark").orElseThrow();
+            watermark.setEnabled(true); watermark.setPosition(42, 43); watermark.setScale(1.2F);
+            manager.register(new com.codex.pvphud.hud.HudElement("too_large", "Oversized fixture", 75, 76) {
+                public int width(net.minecraft.client.Minecraft client) { return 100000; }
+                public int height(net.minecraft.client.Minecraft client) { return 100000; }
+                protected void renderElement(net.minecraft.client.gui.GuiGraphicsExtractor c, net.minecraft.client.Minecraft client,
+                        com.codex.pvphud.theme.Theme t, boolean editor, float alpha) {}
+            });
+            if (manager.tryArrange(mc) || watermark.x() != 42 || watermark.y() != 43 || watermark.scale() != 1.2F)
+                throw new AssertionError("Failed auto arrange damaged the existing layout");
+            if (SettingsSearch.find("hitbox afstand").stream().noneMatch(r -> r.label().equals("View range")))
+                throw new AssertionError("Hitbox distance is missing from search");
+            var feature = PvpHudClient.getInstance().hudManager().feature(com.codex.pvphud.hud.FeatureModule.Type.FULLBRIGHT).orElseThrow();
+            feature.setValue(1); feature.setEnabled(true);
+        });
+        server.runCommand("effect give @p minecraft:night_vision 5 0 true"); context.waitTicks(8);
+        context.runOnClient(mc -> {
+            var effect = mc.player.getEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);
+            if (effect == null || effect.getDuration() > 100) throw new AssertionError("Real expiring night vision fixture missing");
+            for (float delta : new float[]{0, .25F, .5F, .75F})
+                if (net.minecraft.client.renderer.GameRenderer.getNightVisionScale(mc.player, delta) < .999F)
+                    throw new AssertionError("Real night vision flickers through fullbright");
+            PvpHudClient.getInstance().hudManager().feature(com.codex.pvphud.hud.FeatureModule.Type.FULLBRIGHT).orElseThrow().setEnabled(false);
+        });
+        context.waitTicks(3);
+        context.runOnClient(mc -> {
+            if (FullbrightState.strength() != 0 || mc.player.getEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION) == null)
+                throw new AssertionError("Disabling fullbright removed the real potion effect");
+        });
+        server.runCommand("effect clear @p");
     }
 
     private static void testPerformance(ClientGameTestContext context) {

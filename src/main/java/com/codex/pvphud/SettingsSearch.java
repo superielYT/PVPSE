@@ -36,6 +36,7 @@ public final class SettingsSearch {
             new Result("Swords", "HITBOX", "zwaard hitbox"),
             new Result("Mace", "HITBOX", "hitbox"),
             new Result("Target only", "HITBOX", "doelwit hitbox"),
+            new Result("View range", "HITBOX", "afstand distance bereik reach 12 32 blokken hitbox"),
             new Result("Eye-level ring", "HITBOX", "ooghoogte hitbox"),
             new Result("Line width", "HITBOX", "lijndikte hitbox"),
             new Result("State colors", "HITBOX", "kleur hitbox"),

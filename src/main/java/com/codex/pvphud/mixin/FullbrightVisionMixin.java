@@ -11,6 +11,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 abstract class FullbrightVisionMixin {
+    @Inject(method = "getNightVisionScale", at = @At("RETURN"), cancellable = true)
+    private static void pvpse$minimumVision(LivingEntity entity, float tick, CallbackInfoReturnable<Float> cir) {
+        if (entity == Minecraft.getInstance().player && FullbrightState.strength() > 0)
+            cir.setReturnValue(Math.max(cir.getReturnValue(), FullbrightState.strength()));
+    }
     @Inject(method = "getNightVisionScale", at = @At("HEAD"), cancellable = true)
     private static void pvpse$vision(LivingEntity entity, float tick, CallbackInfoReturnable<Float> cir) {
         if (FullbrightState.strength() > 0 && entity == Minecraft.getInstance().player

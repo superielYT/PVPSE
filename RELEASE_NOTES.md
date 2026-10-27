@@ -1,3 +1,12 @@
+# PVPSE Client v3.1.2 — Bug audit
+
+- Failed HUD auto-arrange attempts now leave existing positions and scales intact. The HUD picker keeps a newly enabled card off if even auto-arrange cannot make room.
+- Fullbright remains stable while a real Night Vision effect fades; disabling fullbright preserves the actual potion effect.
+- Hitbox view distance is searchable with English/Dutch distance and reach terms.
+- Added world regression checks for impossible layouts and expiring real Night Vision. Existing HUD/editor, settings, texture-pack, hitbox distance, wall occlusion, dark-room and performance checks retained.
+
+---
+
 # PVPSE Client v3.1.1 — Fullbright and hitbox distance fixes
 
 - Fix Target-only hitboxes using vanilla attack picking: independently select visible entities up to the configured view distance, stopping at blocks. Range now goes up to 32 blocks and is available in Settings > HITBOX. Actual attack reach is unchanged.
