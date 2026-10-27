@@ -47,7 +47,7 @@ public final class FeatureModule extends HudElement {
         };
     }
     public double minimum() { return type == Type.ZOOM ? 10.0 : type == Type.MELEE_HITBOXES ? 2.0 : 0.0; }
-    public double maximum() { return type == Type.ZOOM ? 70.0 : type == Type.MELEE_HITBOXES ? 12.0 : 1.0; }
+    public double maximum() { return type == Type.ZOOM ? 70.0 : type == Type.MELEE_HITBOXES ? 32.0 : 1.0; }
     public double value() { return value; }
     @Override public void resetSettings() { super.resetSettings(); value = defaultValue; }
     public void setValue(double value) { if (Double.isFinite(value)) this.value = Math.clamp(value, minimum(), maximum()); }

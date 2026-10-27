@@ -24,6 +24,7 @@ import org.lwjgl.glfw.GLFW;
 public final class PvpHudClient implements ClientModInitializer {
     private static PvpHudClient instance;
     public static PvpHudClient getInstance() { return instance; }
+    HudManager hudManager() { return hudManager; }
 
     private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath("pvp_hud_client", "hud");
     private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("pvp_hud_client", "controls"));
@@ -212,13 +213,8 @@ public final class PvpHudClient implements ClientModInitializer {
             hudManager.feature(FeatureModule.Type.FULLBRIGHT).ifPresent(feature -> feature.setEnabled(!feature.enabled()));
         }
         FeatureModule fullbright = hudManager.feature(FeatureModule.Type.FULLBRIGHT).orElse(null);
-        if (fullbright != null && fullbright.enabled()) {
-            if (previousGamma == null) previousGamma = client.options.gamma().get();
-            client.options.gamma().set(fullbright.value());
-        } else if (previousGamma != null) {
-            client.options.gamma().set(previousGamma);
-            previousGamma = null;
-        }
+        FullbrightState.set(config.enabled && client.player != null && fullbright != null && fullbright.enabled()
+                ? fullbright.value() : 0);
     }
 
     private void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
