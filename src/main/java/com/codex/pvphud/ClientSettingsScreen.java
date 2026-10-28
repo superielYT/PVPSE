@@ -77,6 +77,8 @@ final class ClientSettingsScreen extends Screen {
         }
         switch (tab) {
             case GENERAL -> {
+                toggle(x(), y + 100, half, "Potion timers", () -> config.nativePotionTimers, v -> config.nativePotionTimers = v);
+                toggle(x() + half + 6, y + 100, half, "Yellow saturation", () -> config.nativeSaturation, v -> config.nativeSaturation = v);
                 toggle(x(), y, half, "HUD", () -> config.enabled, v -> config.enabled = v);
                 toggle(x() + half + 6, y, half, "Notifications", () -> config.notifications, v -> config.notifications = v);
                 toggle(x(), y + 25, half, "Hide on F3", () -> config.hideOnDebug, v -> config.hideOnDebug = v);
@@ -243,7 +245,7 @@ final class ClientSettingsScreen extends Screen {
         c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 80, theme.accent());
         String helper = switch (tab) {
             case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
-            case GENERAL -> "Your display and visibility preferences";
+            case GENERAL -> "Yellow hunger outline = saturation (singleplayer).";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
             case HITBOX -> "Green: ready | Amber: cooldown | Purple: falling mace";
             case EFFECTS -> "Click a value to increase it; maximum wraps to minimum";

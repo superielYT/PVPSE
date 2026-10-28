@@ -25,6 +25,13 @@ public final class PvpHudClient implements ClientModInitializer {
     private static PvpHudClient instance;
     public static PvpHudClient getInstance() { return instance; }
     HudManager hudManager() { return hudManager; }
+    private boolean nativeHudVisible() {
+        var mc = Minecraft.getInstance();
+        return config != null && config.enabled && !mc.options.hideGui
+                && !(config.hideOnDebug && mc.getDebugOverlay().showDebugScreen());
+    }
+    public boolean nativePotionTimersEnabled() { return nativeHudVisible() && config.nativePotionTimers; }
+    public boolean nativeSaturationEnabled() { return nativeHudVisible() && config.nativeSaturation; }
 
     private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath("pvp_hud_client", "hud");
     private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("pvp_hud_client", "controls"));
@@ -125,6 +132,7 @@ public final class PvpHudClient implements ClientModInitializer {
     }
 
     private void tick(Minecraft client) {
+        SaturationState.tick(client);
         performance.initialize(client);
         cps.tick(client);
         WaypointManager.getInstance().tick(client);

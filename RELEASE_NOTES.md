@@ -1,3 +1,13 @@
+# PVPSE v3.3.0 — Vanilla HUD integration
+
+- Potion timers sit inside the existing vanilla effect icons, following vanilla ordering, beneficial/harmful rows and visibility. Infinite effects show infinity; short durations turn amber/red.
+- Saturation appears as a yellow outline on the existing hunger icons, with half icons for odd values. Exact integrated-server values in singleplayer; no false saturation overlay on multiplayer servers that do not synchronize it.
+- Removed the separate Food & Saturation and Potions cards. Other HUD visibility/layout choices stay intact.
+- Settings > GENERAL: independent Potion timers and Yellow saturation switches, searchable in English and Dutch, saved between sessions.
+- World checks cover integrated-server saturation, hunger-bar pixels and persistent toggles. Existing GUI, HUD, hitbox, fullbright and pack checks retained.
+
+---
+
 # PVPSE v3.2.0 — Food and general hitboxes
 
 - Optional Food & Saturation card in HUD editor > HUDs. Move, scale or hide it. Exact saturation is available in singleplayer; multiplayer servers do not normally synchronize it, so unknown is shown there.

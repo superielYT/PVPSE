@@ -4,9 +4,9 @@ import java.util.Set;
 
 /** Only HUD cards change; utility switches, keybinds and themes are preserved. */
 public enum PvpPreset {
-    SWORD(Set.of("watermark", "fps", "ping", "cps", "armor", "target", "potions", "combo", "reach", "inventory")),
-    CRYSTAL(Set.of("watermark", "fps", "ping", "armor", "coordinates", "target", "potions", "inventory")),
-    MACE(Set.of("watermark", "fps", "ping", "cps", "armor", "target", "potions", "combo", "keystrokes", "inventory"));
+    SWORD(Set.of("watermark", "fps", "ping", "cps", "armor", "target", "combo", "reach", "inventory")),
+    CRYSTAL(Set.of("watermark", "fps", "ping", "armor", "coordinates", "target", "inventory")),
+    MACE(Set.of("watermark", "fps", "ping", "cps", "armor", "target", "combo", "keystrokes", "inventory"));
 
     private final Set<String> cards;
     PvpPreset(Set<String> cards) { this.cards = cards; }

@@ -2,7 +2,7 @@
 import base64
 from pathlib import Path
 root = Path("build/run/clientGameTest/screenshots")
-for name in ("pvpse-fullbright-off", "pvpse-fullbright-on"):
+for name in ("pvpse-native-hud-on", "pvpse-native-hud-off"):
     matches = sorted(root.glob("*_" + name + ".png"))
     if not matches:
         continue

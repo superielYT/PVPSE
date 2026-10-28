@@ -26,9 +26,7 @@ public final class HudManager {
         register(new CoordinatesHUD());
         register(new TargetHUD());
         register(new HealthIndicatorHUD());
-        register(new FoodHUD());
         register(new SessionHUD());
-        register(new PotionHUD());
         register(new ComboHUD());
         register(new ReachHUD());
         register(new FeatureModule(FeatureModule.Type.WAYPOINT, "Waypoint", 198, 250, 0));
@@ -143,6 +141,6 @@ public final class HudManager {
     }
 
     private static int layoutHeight(HudElement element, Minecraft client) {
-        return element instanceof PotionHUD ? 72 : element.height(client);
+        return element.height(client);
     }
 }

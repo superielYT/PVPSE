@@ -21,6 +21,8 @@ final class HudConfig {
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("pvp-hud-client.json");
 
     boolean enabled = true;
+    boolean nativePotionTimers = true;
+    boolean nativeSaturation = true;
     PerformanceMode performanceMode = PerformanceMode.OFF;
     boolean performanceLightHud = true;
     PerformanceController.Snapshot performanceBefore;
