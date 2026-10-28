@@ -30,7 +30,8 @@ final class HudConfig {
     boolean hideOnDebug = false;
     boolean hitboxSwords = true;
     boolean hitboxMace = true;
-    boolean hitboxTargetOnly = true;
+    boolean hitboxTargetOnly = false;
+    boolean generalHitboxesMigrated;
     boolean hitboxEyeLine = true;
     boolean hitboxStateColors = true;
     int hitboxLineWidth = 2;
@@ -92,6 +93,7 @@ final class HudConfig {
     static HudConfig load() {
         if (!Files.exists(PATH)) {
             HudConfig config = new HudConfig();
+            config.ensureWidgets();
             config.save();
             return config;
         }
@@ -111,6 +113,7 @@ final class HudConfig {
     }
 
     void ensureWidgets() {
+        if (!generalHitboxesMigrated) { hitboxTargetOnly = false; generalHitboxesMigrated = true; }
         if (performanceMode == null) performanceMode = PerformanceMode.OFF;
         if (theme == null) theme = Theme.CYBER;
         if (crosshairStyle == null) crosshairStyle = CrosshairStyle.DIAMOND;

@@ -152,6 +152,16 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testReforgedPack(context, world.getServer());
             testRangeAndFullbright(context, world.getServer());
             testAuditFixes(context, world.getServer());
+            context.runOnClient(mc -> {
+                var food = PvpHudClient.getInstance().hudManager().find("food_saturation").orElseThrow();
+                if (food.enabled()) throw new AssertionError("Food HUD must be optional");
+                food.setEnabled(true); food.setPosition(8, 65); food.setScale(1);
+                var settings = new HudConfig(); settings.ensureWidgets();
+                settings.hitboxTargetOnly = true; settings.ensureWidgets();
+                if (!settings.hitboxTargetOnly) throw new AssertionError("Later target-only choice was overwritten");
+            });
+            context.waitTicks(12); context.takeScreenshot("pvpse-food-saturation");
+            context.runOnClient(mc -> PvpHudClient.getInstance().hudManager().find("food_saturation").orElseThrow().setEnabled(false));
         }
     }
 
