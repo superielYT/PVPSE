@@ -26,6 +26,7 @@ public final class HudManager {
         register(new CoordinatesHUD());
         register(new TargetHUD());
         register(new HealthIndicatorHUD());
+        register(new FoodHUD());
         register(new SessionHUD());
         register(new PotionHUD());
         register(new ComboHUD());
