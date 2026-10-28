@@ -9,7 +9,8 @@ import net.minecraft.server.level.ParticleStatus;
 /** Explicit, persistent presets. Restore only fields still equal to the value we applied. */
 final class PerformanceController {
     static final class Snapshot {
-        int view, simulation;
+        int view, simulation, biomeBlend;
+        double entityDistance;
         boolean shadows;
         CloudStatus clouds;
         ParticleStatus particles;
@@ -17,7 +18,10 @@ final class PerformanceController {
             var s = new Snapshot();
             s.view = mc.options.renderDistance().get(); s.simulation = mc.options.simulationDistance().get();
             s.shadows = mc.options.entityShadows().get(); s.clouds = mc.options.cloudStatus().get();
-            s.particles = mc.options.particles().get(); return s;
+            s.particles = mc.options.particles().get();
+            s.entityDistance = mc.options.entityDistanceScaling().get();
+            s.biomeBlend = mc.options.biomeBlendRadius().get();
+            return s;
         }
     }
 
@@ -52,6 +56,8 @@ final class PerformanceController {
         mc.options.cloudStatus().set(CloudStatus.OFF);
         mc.options.particles().set(mode == PerformanceMode.MAX ? ParticleStatus.MINIMAL
                 : config.performanceBefore.particles == ParticleStatus.ALL ? ParticleStatus.DECREASED : config.performanceBefore.particles);
+        mc.options.entityDistanceScaling().set(Math.min(config.performanceBefore.entityDistance, mode.entityDistance));
+        mc.options.biomeBlendRadius().set(Math.min(config.performanceBefore.biomeBlend, mode.biomeBlend));
         config.performanceApplied = Snapshot.capture(mc);
         mc.options.save(); config.save();
     }
@@ -64,6 +70,8 @@ final class PerformanceController {
             if (Objects.equals(mc.options.entityShadows().get(), applied.shadows)) mc.options.entityShadows().set(before.shadows);
             if (before.clouds != null && mc.options.cloudStatus().get() == applied.clouds) mc.options.cloudStatus().set(before.clouds);
             if (before.particles != null && mc.options.particles().get() == applied.particles) mc.options.particles().set(before.particles);
+            if (Objects.equals(mc.options.entityDistanceScaling().get(), applied.entityDistance)) mc.options.entityDistanceScaling().set(before.entityDistance);
+            if (Objects.equals(mc.options.biomeBlendRadius().get(), applied.biomeBlend)) mc.options.biomeBlendRadius().set(before.biomeBlend);
         }
         config.performanceBefore = null; config.performanceApplied = null;
     }

@@ -42,6 +42,9 @@ public final class RegressionTest {
         com.codex.pvphud.render.RenderBudget.configure(PerformanceMode.OFF, true);
         require(!com.codex.pvphud.render.RenderBudget.lightweight(), "OFF must restore full HUD rendering");
         require(SettingsSearch.find("fps verbeteren").stream().anyMatch(r -> r.tab().equals("FPS")), "Dutch FPS search");
+        require(SettingsSearch.find("schild uitgeschakeld").stream().anyMatch(r -> r.label().equals("Shield cooldown")), "Shield cooldown search");
+        require(PerformanceMode.MAX.viewCap == 6 && PerformanceMode.MAX.simulationCap == 5
+                && PerformanceMode.MAX.entityDistance == .5 && PerformanceMode.MAX.biomeBlend == 0, "Max FPS preset");
         var gate = new ArmorAlertGate();
         require(gate.update(true, 0), "First armor warning missing");
         require(!gate.update(true, 1) && !gate.update(true, 199), "Armor sound spam");

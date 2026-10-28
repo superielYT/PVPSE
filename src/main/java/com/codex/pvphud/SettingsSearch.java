@@ -28,6 +28,7 @@ public final class SettingsSearch {
             new Result("Crystal preset", "GENERAL", "kristal profiel hud"),
             new Result("Mace preset", "GENERAL", "profiel hud"),
             new Result("Attack cooldown bar", "COMBAT", "aanval balk"),
+            new Result("Shield cooldown", "COMBAT", "schild shield cooldown uitgeschakeld"),
             new Result("Low health alert", "COMBAT", "hp levens waarschuwing"),
             new Result("HP threshold", "COMBAT", "health drempel"),
             new Result("Armor alert", "COMBAT", "armor armour uitrusting waarschuwing"),

@@ -1,0 +1,1 @@
+Realistic daytime clouds require an OptiFine-format custom-sky loader. Fabric 26.1.2: install a matching Skyboxify release from https://modrinth.com/mod/skyboxify. Vanilla safely ignores the custom sky and uses the upgraded native sun and eight moon textures. No sky mod is bundled. Native clouds can be disabled separately to reveal the photographic cloud layer.

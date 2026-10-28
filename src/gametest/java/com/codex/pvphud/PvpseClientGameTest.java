@@ -405,6 +405,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             mc.options.renderDistance().set(16); mc.options.simulationDistance().set(12);
             mc.options.entityShadows().set(true); mc.options.cloudStatus().set(net.minecraft.client.CloudStatus.FANCY);
             mc.options.particles().set(net.minecraft.server.level.ParticleStatus.ALL);
+            mc.options.entityDistanceScaling().set(1.0); mc.options.biomeBlendRadius().set(5);
             PvpHudClient.getInstance().openMenu(null);
         });
         context.clickScreenButton("Settings & profiles"); context.clickScreenButton("FPS");
@@ -412,22 +413,25 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.runOnClient(mc -> {
             if (mc.options.renderDistance().get() != 12 || mc.options.simulationDistance().get() != 8
                     || mc.options.entityShadows().get() || mc.options.cloudStatus().get() != net.minecraft.client.CloudStatus.OFF
-                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.DECREASED)
+                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.DECREASED
+                    || mc.options.entityDistanceScaling().get() > .75 || mc.options.biomeBlendRadius().get() > 2)
                 throw new AssertionError("Balanced did not apply real video settings");
         });
         context.takeScreenshot("pvpse-fps-balanced-settings");
         context.clickScreenButton("Max FPS");
         context.runOnClient(mc -> {
-            if (mc.options.renderDistance().get() != 8 || mc.options.simulationDistance().get() != 5
-                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.MINIMAL)
+            if (mc.options.renderDistance().get() != 6 || mc.options.simulationDistance().get() != 5
+                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.MINIMAL
+                    || mc.options.entityDistanceScaling().get() > .5 || mc.options.biomeBlendRadius().get() != 0)
                 throw new AssertionError("Max FPS preset is incorrect");
             var saved = HudConfig.load();
             var restarted = new PerformanceController(saved); restarted.initialize(mc);
-            mc.options.renderDistance().set(6);
+            mc.options.renderDistance().set(7);
             restarted.setMode(mc, PerformanceMode.OFF);
-            if (mc.options.renderDistance().get() != 6 || mc.options.simulationDistance().get() != 12
+            if (mc.options.renderDistance().get() != 7 || mc.options.simulationDistance().get() != 12
                     || !mc.options.entityShadows().get() || mc.options.cloudStatus().get() != net.minecraft.client.CloudStatus.FANCY
-                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.ALL)
+                    || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.ALL
+                    || mc.options.entityDistanceScaling().get() != 1.0 || mc.options.biomeBlendRadius().get() != 5)
                 throw new AssertionError("Restart/restore overwrote user changes or lost previous settings");
             PvpHudClient.getInstance().performance().refreshBudget();
         });
@@ -445,7 +449,8 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             if (com.codex.pvphud.render.RenderBudget.lightweight()) throw new AssertionError("Restore left the light HUD active");
             mc.options.renderDistance().set(original.view); mc.options.simulationDistance().set(original.simulation);
             mc.options.entityShadows().set(original.shadows); mc.options.cloudStatus().set(original.clouds);
-            mc.options.particles().set(original.particles); mc.options.save();
+            mc.options.particles().set(original.particles); mc.options.entityDistanceScaling().set(original.entityDistance);
+            mc.options.biomeBlendRadius().set(original.biomeBlend); mc.options.save();
         });
         context.setScreen(() -> null);
     }

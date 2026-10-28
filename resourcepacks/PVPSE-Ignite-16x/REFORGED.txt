@@ -1,0 +1,2 @@
+PVPSE Ignite Reforged 3.1
+149 upgraded block textures, 43 illustrated enchantment covers, native enchanted mace variants, blue diamond gear, lower banner-compatible shield, animated low fire and soul fire, round sun and eight detailed moons. Original generated cloud sky: see SKY.txt for the separate loader requirement. Reference images guide the style; no third-party pack assets are redistributed.

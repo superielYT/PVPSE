@@ -60,21 +60,18 @@ public final class MeleeHitboxRenderer {
                     .sorted(Comparator.comparingDouble(entity -> distanceSquared(eye, entity.getBoundingBox())))
                     .limit(16).toList();
         float tick = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        double attackRange = client.player.entityInteractionRange();
+        boolean ready = client.player.getAttackStrengthScale(tick) >= 0.95F;
         var outlines = new ArrayList<Outline>();
         for (Entity target : targets) {
             if (!eligible(target, client, eye, range)) continue;
             Vec3 smooth = target.getPosition(tick);
             AABB box = target.getBoundingBox().move(smooth.x - target.getX(),
                     smooth.y - target.getY(), smooth.z - target.getZ());
-            int color = 0x6691A6BA;
-            if (target == selected) {
-                color = 0xFF46E0A0;
-                if (config.hitboxStateColors) {
-                    boolean ready = client.player.getAttackStrengthScale(tick) >= 0.95F;
-                    color = !ready ? 0xFFFFB454
-                            : mace && client.player.fallDistance > 1.5 ? 0xFFD89CFF : 0xFF46E0A0;
-                }
-            }
+            boolean inReach = distanceSquared(eye, target.getBoundingBox()) <= attackRange * attackRange;
+            int color = target == selected ? 0xFF46E0A0 : 0x6691A6BA;
+            if (config.hitboxStateColors) color = stateColor(inReach, ready,
+                    mace && client.player.fallDistance > 1.5);
             outlines.add(new Outline(box, color, target == selected ? config.hitboxLineWidth : 1.0F));
             if (config.hitboxEyeLine && target == selected) {
                 double eyeY = smooth.y + target.getEyeY() - target.getY();
@@ -138,5 +135,12 @@ public final class MeleeHitboxRenderer {
         double dy = point.y - Math.clamp(point.y, box.minY, box.maxY);
         double dz = point.z - Math.clamp(point.z, box.minZ, box.maxZ);
         return dx * dx + dy * dy + dz * dz;
+    }
+
+    /** Gray outside attack reach, amber while cooling down, green when ready, purple for a ready mace smash. */
+    static int stateColor(boolean inReach, boolean ready, boolean maceSmash) {
+        if (!inReach) return 0x6691A6BA;
+        if (!ready) return 0xFFFFB454;
+        return maceSmash ? 0xFFD89CFF : 0xFF46E0A0;
     }
 }

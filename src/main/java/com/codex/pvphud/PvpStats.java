@@ -2,7 +2,12 @@ package com.codex.pvphud;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public final class PvpStats {
     private static final PvpStats INSTANCE = new PvpStats();
@@ -16,6 +21,7 @@ public final class PvpStats {
     private int combo;
     private double lastReach;
     private long lastHitAt;
+    private final Map<UUID, Integer> totemPops = new HashMap<>();
 
     private PvpStats() {}
 
@@ -58,6 +64,11 @@ public final class PvpStats {
 
     public int combo() { return combo; }
     public double lastReach() { return lastReach; }
+    public int totemPops(UUID player) { return totemPops.getOrDefault(player, 0); }
+    public void recordTotemPop(Entity entity) {
+        if (entity instanceof Player player && Minecraft.getInstance().player != player)
+            totemPops.merge(player.getUUID(), 1, Integer::sum);
+    }
 
     private void reset() {
         pendingTarget = null;
@@ -68,5 +79,6 @@ public final class PvpStats {
         attackWasDown = false;
         combo = 0;
         lastReach = 0;
+        totemPops.clear();
     }
 }

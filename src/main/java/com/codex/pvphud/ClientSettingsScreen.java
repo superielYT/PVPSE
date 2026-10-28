@@ -99,12 +99,13 @@ final class ClientSettingsScreen extends Screen {
             }
             case COMBAT -> {
                 toggle(x(), y, w(), "Attack cooldown bar", () -> config.showAttackCooldown, v -> config.showAttackCooldown = v);
-                toggle(x(), y + 25, half, "Low health alert", () -> config.showLowHealthWarning, v -> config.showLowHealthWarning = v);
-                number(x() + half + 6, y + 25, half, "HP threshold", () -> config.lowHealthThreshold, v -> config.lowHealthThreshold = v, 2, 16, 2);
-                toggle(x(), y + 50, half, "Armor alert", () -> config.showArmorWarning, v -> config.showArmorWarning = v);
-                number(x() + half + 6, y + 50, half, "Durability %", () -> config.armorWarningPercent, v -> config.armorWarningPercent = v, 5, 50, 5);
-                toggle(x(), y + 75, half, "Armor sound", () -> config.armorWarningSound, v -> config.armorWarningSound = v);
-                number(x() + half + 6, y + 75, half, "Sound volume %", () -> config.armorSoundVolume, v -> config.armorSoundVolume = v, 0, 100, 10);
+                toggle(x(), y + 25, w(), "Shield cooldown", () -> config.showShieldCooldown, v -> config.showShieldCooldown = v);
+                toggle(x(), y + 50, half, "Low health alert", () -> config.showLowHealthWarning, v -> config.showLowHealthWarning = v);
+                number(x() + half + 6, y + 50, half, "HP threshold", () -> config.lowHealthThreshold, v -> config.lowHealthThreshold = v, 2, 16, 2);
+                toggle(x(), y + 75, half, "Armor alert", () -> config.showArmorWarning, v -> config.showArmorWarning = v);
+                number(x() + half + 6, y + 75, half, "Durability %", () -> config.armorWarningPercent, v -> config.armorWarningPercent = v, 5, 50, 5);
+                toggle(x(), y + 100, half, "Armor sound", () -> config.armorWarningSound, v -> config.armorWarningSound = v);
+                number(x() + half + 6, y + 100, half, "Sound volume %", () -> config.armorSoundVolume, v -> config.armorSoundVolume = v, 0, 100, 10);
             }
             case AIM -> {
                 toggle(x(), y, w(), "Cooldown circle", () -> config.cooldownRing, v -> config.cooldownRing = v);

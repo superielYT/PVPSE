@@ -1,3 +1,23 @@
+# PVPSE v3.4.0 — Clean combat HUD and performance
+
+- Enemy name tags now show synchronized health as hearts, with the session totem-pop count directly beside it.
+- Added an optional blue shield-disable cooldown bar below the crosshair.
+- Armor HUD is shorter and removes the redundant ARMOR heading; durability percentages and warnings remain clear.
+- Balanced and Max FPS now also reduce entity render distance and biome blending. Max FPS uses 6/5 view/simulation distance. Every managed option is restored only when the user has not changed it afterward.
+- Includes the 3.3.1 saturation, general hitbox range colors, lower first-person fire and lower shields.
+
+---
+
+# PVPSE v3.3.1 — Combat range colors
+
+- Sword and mace hitboxes now show actual attack range for every visible target: gray outside reach, amber in reach while the attack is cooling down, and green when the hit is ready.
+- Ready mace-smash targets remain purple. The existing target-only, weapon, wall-visibility, view-distance and state-color settings are preserved.
+- Saturation remains integrated as a yellow outline on the vanilla hunger bar.
+- Ignite 16x and 32x now keep the upper 52% of every animated fire and soul-fire frame transparent, reducing first-person obstruction further while keeping the burning state obvious.
+- First-person shields sit slightly lower both idle and blocking, preserving vanilla banner rendering while opening more of the center view.
+
+---
+
 # PVPSE v3.3.0 — Vanilla HUD integration
 
 - Potion timers sit inside the existing vanilla effect icons, following vanilla ordering, beneficial/harmful rows and visibility. Infinite effects show infinity; short durations turn amber/red.

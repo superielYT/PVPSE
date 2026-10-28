@@ -38,6 +38,7 @@ final class HudConfig {
     boolean hitboxStateColors = true;
     int hitboxLineWidth = 2;
     boolean showAttackCooldown = true;
+    boolean showShieldCooldown = true;
     boolean cooldownRing = true;
     boolean crosshairReactions = true;
     int cooldownRingRadius = 13;

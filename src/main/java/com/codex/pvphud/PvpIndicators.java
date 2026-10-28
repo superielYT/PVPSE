@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Items;
 
 /** Local player information only; no target scanning or server actions. */
 final class PvpIndicators {
@@ -22,6 +23,11 @@ final class PvpIndicators {
                 c.fill(cx - 12, cy + 14, cx + 12, cy + 17, 0xB0181D26);
                 c.fill(cx - 12, cy + 14, cx - 12 + Math.round(24 * cooldown), cy + 17, config.accentColor());
             }
+        }
+        if (config.showShieldCooldown && client.player.getCooldowns().isOnCooldown(Items.SHIELD.getDefaultInstance())) {
+            float remaining = client.player.getCooldowns().getCooldownPercent(Items.SHIELD.getDefaultInstance(), 0);
+            c.fill(cx - 12, cy + 19, cx + 12, cy + 22, 0xB0181D26);
+            c.fill(cx - 12, cy + 19, cx - 12 + Math.round(24 * (1 - remaining)), cy + 22, 0xFF60A5FA);
         }
         int y = Math.max(8, c.guiHeight() / 5);
         if (config.showLowHealthWarning && client.player.isAlive()
