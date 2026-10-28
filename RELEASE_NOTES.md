@@ -1,3 +1,10 @@
+# PVPSE v3.2.0 — Food and general hitboxes
+
+- Optional Food & Saturation card in HUD editor > HUDs. Move, scale or hide it. Exact saturation is available in singleplayer; multiplayer servers do not normally synchronize it, so unknown is shown there.
+- Existing configs switch once from target-only to general hitbox visibility. The Target only setting remains available; later choices are preserved. Weapon filters and wall visibility checks remain active.
+
+---
+
 # PVPSE Client v3.1.2 — Bug audit
 
 - Failed HUD auto-arrange attempts now leave existing positions and scales intact. The HUD picker keeps a newly enabled card off if even auto-arrange cannot make room.

@@ -93,6 +93,7 @@ final class HudConfig {
     static HudConfig load() {
         if (!Files.exists(PATH)) {
             HudConfig config = new HudConfig();
+            config.ensureWidgets();
             config.save();
             return config;
         }
