@@ -241,7 +241,8 @@ final class ClientSettingsScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, theme.background());
-        c.fill(x() - 8, top() - 32, x() + w() + 8, Math.min(height - 34, top() + 122), theme.panel());
+        c.fill(x() - 8, top() - 32, x() + w() + 8,
+                Math.min(height - 34, top() + (tab == Tab.GENERAL ? 147 : 122)), theme.panel());
         c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 80, theme.accent());
         String helper = switch (tab) {
             case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
@@ -260,7 +261,7 @@ final class ClientSettingsScreen extends Screen {
         if (!query.isBlank() && SettingsSearch.find(query).isEmpty()) {
             c.text(font, Component.literal("No settings found. Try armor, HUD or geluid."), x(), top() + 8, theme.mutedText());
         }
-        int footer = top() + 103;
+        int footer = top() + (tab == Tab.GENERAL ? 128 : 103);
         if (query.isBlank() && footer < height - 39) {
             String message = status.isBlank() ? helper : status;
             c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());
