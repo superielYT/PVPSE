@@ -152,17 +152,74 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testReforgedPack(context, world.getServer());
             testRangeAndFullbright(context, world.getServer());
             testAuditFixes(context, world.getServer());
-            context.runOnClient(mc -> {
-                var food = PvpHudClient.getInstance().hudManager().find("food_saturation").orElseThrow();
-                if (food.enabled()) throw new AssertionError("Food HUD must be optional");
-                food.setEnabled(true); food.setPosition(8, 65); food.setScale(1);
-                var settings = new HudConfig(); settings.ensureWidgets();
-                settings.hitboxTargetOnly = true; settings.ensureWidgets();
-                if (!settings.hitboxTargetOnly) throw new AssertionError("Later target-only choice was overwritten");
-            });
-            context.waitTicks(12); context.takeScreenshot("pvpse-food-saturation");
-            context.runOnClient(mc -> PvpHudClient.getInstance().hudManager().find("food_saturation").orElseThrow().setEnabled(false));
+            testNativeHud(context, world.getServer());
         }
+    }
+
+    private static void testNativeHud(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        server.runCommand("gamemode survival");
+        server.runCommand("effect clear @p");
+        server.runCommand("effect give @p minecraft:speed 60 0 false");
+        server.runCommand("effect give @p minecraft:strength infinite 0 false");
+        server.runCommand("effect give @p minecraft:weakness 9 0 false");
+        context.runOnClient(mc -> {
+            var mod = PvpHudClient.getInstance();
+            if (mod.hudManager().find("food_saturation").isPresent() || mod.hudManager().find("potions").isPresent())
+                throw new AssertionError("Obsolete duplicate HUD cards are still registered");
+            mod.hudManager().elements().forEach(e -> e.setEnabled(false));
+            mc.options.hideGui = false;
+            mc.getSingleplayerServer().execute(() -> {
+                for (var player : mc.getSingleplayerServer().getPlayerList().getPlayers()) {
+                    player.setHealth(player.getMaxHealth());
+                    player.getFoodData().setFoodLevel(20);
+                    player.getFoodData().setSaturation(11);
+                }
+            });
+            var settings = new HudConfig(); settings.ensureWidgets();
+            settings.hitboxTargetOnly = true; settings.ensureWidgets();
+            if (!settings.hitboxTargetOnly) throw new AssertionError("Later target-only choice overwritten");
+            if (!NativeHudOverlays.duration(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.SPEED, 1201)).equals("1:01"))
+                throw new AssertionError("Potion time rounding incorrect");
+        });
+        context.waitTicks(12);
+        context.runOnClient(mc -> {
+            if (Math.abs(SaturationState.value(mc) - 11) > .1F || !Float.isFinite(SaturationState.value(mc)))
+                throw new AssertionError("Integrated server saturation unavailable or incorrect");
+            if (!PvpHudClient.getInstance().nativePotionTimersEnabled() || !PvpHudClient.getInstance().nativeSaturationEnabled())
+                throw new AssertionError("Native overlays should default on");
+        });
+        var on = context.takeScreenshot("pvpse-native-hud-on");
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles");
+        context.clickScreenButton("Potion timers: ON");
+        context.clickScreenButton("Yellow saturation: ON");
+        context.runOnClient(mc -> {
+            var saved = HudConfig.load();
+            if (saved.nativePotionTimers || saved.nativeSaturation) throw new AssertionError("Native HUD choices not saved");
+        });
+        context.setScreen(() -> null); context.waitTicks(2);
+        var off = context.takeScreenshot("pvpse-native-hud-off");
+        try {
+            var a = javax.imageio.ImageIO.read(on.toFile());
+            var b = javax.imageio.ImageIO.read(off.toFile());
+            int yellowOn = 0, yellowOff = 0;
+            for (int y = a.getHeight() * 3 / 4; y < a.getHeight(); y++) {
+                for (int x = a.getWidth() / 2; x < a.getWidth() * 3 / 4; x++) {
+                    int av = a.getRGB(x,y), bv = b.getRGB(x,y);
+                    if ((av & 0xFFFFFF) == 0xFFD34A) yellowOn++;
+                    if ((bv & 0xFFFFFF) == 0xFFD34A) yellowOff++;
+                }
+            }
+            if (yellowOn <= yellowOff + 25) throw new AssertionError("Yellow saturation is missing on the actual hunger bar");
+        } catch (java.io.IOException e) { throw new AssertionError(e); }
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles");
+        context.clickScreenButton("Potion timers: OFF");
+        context.clickScreenButton("Yellow saturation: OFF");
+        context.setScreen(() -> null);
+        server.runCommand("effect clear @p");
     }
 
     private static void testCombatUpdate(ClientGameTestContext context) {

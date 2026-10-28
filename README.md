@@ -186,3 +186,7 @@ If a new optional card has no free space, choose Yes to arrange shown cards to f
 F8 > Settings & profiles > FPS offers Balanced (view/simulation caps 12/8, decreased particles) and Max FPS (8/5, minimal particles). Both disable clouds/entity shadows without raising already-lower distances. Mode starts OFF. Restore previous settings restores unchanged managed values; later manual changes are kept. The snapshot persists across restarts. VSync and frame limits stay under your control.
 
 Light HUD removes layered panel shadows and glass decorations while preserving your theme, card selection and layout. You can disable Light HUD while keeping a video preset active. Balanced limits PVPSE kill particles to eight; Max disables those cosmetic particles. The default renderer also reuses rounded geometry and inventory snapshots, and unchanged profiles avoid disk rewrites. FPS gain depends on hardware and scene.
+
+## Vanilla HUD additions
+
+PVPSE 3.3 adds potion durations inside vanilla status-effect icons and yellow saturation outlines on the hunger bar. Toggle each under Settings > GENERAL (Potion timers / Yellow saturation). Separate Potions and Food & Saturation cards have been removed. Exact saturation is available in singleplayer; vanilla multiplayer does not synchronize it, so PVPSE does not invent a value or draw a misleading overlay there.

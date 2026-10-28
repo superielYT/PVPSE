@@ -7,6 +7,8 @@ import java.util.Locale;
 public final class SettingsSearch {
     public record Result(String label, String tab, String aliases) {}
     private static final List<Result> ENTRIES = List.of(
+            new Result("Potion timers", "GENERAL", "potion potions effect timer tijd vanilla drankjes"),
+            new Result("Yellow saturation", "GENERAL", "saturatie saturation eten food hunger honger geel vanilla"),
             new Result("Cooldown circle", "AIM", "cooldown cirkel aanval crosshair"),
             new Result("Crosshair reactions", "AIM", "reacties vizier klaar opgeladen"),
             new Result("Circle radius", "AIM", "cirkel grootte"),
