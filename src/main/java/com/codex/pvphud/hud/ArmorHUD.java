@@ -1,7 +1,6 @@
 package com.codex.pvphud.hud;
 
 import com.codex.pvphud.theme.Theme;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -30,7 +29,7 @@ public final class ArmorHUD extends HudElement {
             if (!stack.isEmpty()) {
                 c.item(stack, x + 6, 18);
                 int percent = durabilityPercent(stack.getDamageValue(), stack.getMaxDamage());
-                int color = percent <= threshold ? t.danger() : percent <= 30 ? 0xFFFFC56B : t.text();
+                int color = !stack.isDamageableItem() ? t.mutedText() : percent <= threshold ? t.danger() : percent <= 30 ? 0xFFFFC56B : t.text();
                 String value = stack.isDamageableItem() ? percent + "%" : "--";
                 c.centeredText(mc.font, Component.literal(value), x + 14, 43, color);
                 if (stack.isDamageableItem()) {

@@ -1,6 +1,5 @@
 package com.codex.pvphud.hud;
 
-import com.codex.pvphud.render.ColorUtil;
 import com.codex.pvphud.render.RenderUtil;
 import com.codex.pvphud.theme.Theme;
 import net.minecraft.client.Minecraft;

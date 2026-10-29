@@ -5,7 +5,7 @@
 - Shulker hover previews preserve all 27 slots. Bundle previews show actual contents, selected stack and capacity. Hidden tooltip components remain hidden; normal bundle interactions stay vanilla.
 - Held-food forecasts appear directly on the hunger bar: cyan hunger outlines, dashed pale-gold saturation preview, solid yellow current saturation and a numeric gain label. Uses actual food components and caps; unavailable multiplayer saturation stays unknown.
 - Block Overlay is now a world-space outline and light tint on the actual selected block shape, with no extra HUD card. Toggle under GENERAL.
-- One clear waypoint route cue shows distance, height difference and direction. Shift+B marks a temporary visible block target up to 128m away, expiring after five minutes or leaving the world/dimension. B still saves your current position.
+- The movable waypoint HUD shows distance, height difference and direction, without an extra floating card. Shift+B marks a temporary visible block target up to 128m away, expiring after five minutes or leaving the world/dimension. B still saves your current position.
 - Armor shows per-slot percentage, exact remaining durability and a calm low-durability warning using the configured threshold.
 - Clean hotbar frame, readable counts, durability strips and real cooldown seconds. Toggle under ITEMS.
 - General hitboxes are clearer while not aiming, work with any held item by default and have adjustable background opacity. Target-only and weapon filters remain optional; normal visibility/depth checks remain active. Visual bounds do not change attack reach.

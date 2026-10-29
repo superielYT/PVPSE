@@ -1,11 +1,9 @@
 package com.codex.pvphud.waypoint;
 
-import com.codex.pvphud.render.RenderUtil;
 import com.codex.pvphud.theme.Theme;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.network.chat.Component;
 
 public final class WaypointOverlay {
     private WaypointOverlay() {}
@@ -29,7 +27,6 @@ public final class WaypointOverlay {
         String turn = route.arrived() ? "Arrived" : Math.cos(route.angle()) < 0
                 ? (route.angle() < 0 ? "Behind left" : "Behind right")
                 : Math.abs(route.angle()) < .15 ? "Ahead" : route.angle() < 0 ? "Left" : "Right";
-        String name = mc.font.plainSubstrByWidth(point.name(), Math.max(1, Math.min(160, c.guiWidth()-60)));
         String detail = String.format(Locale.ROOT, "%s  %.0fm  %+dY", turn, route.distance(), route.height());
         // Local coordinates inside the movable waypoint HUD, not a floating screen overlay.
         c.pose().pushMatrix();

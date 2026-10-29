@@ -96,6 +96,10 @@ public final class MeleeHitboxRenderer {
             var buffer = context.bufferSource().getBuffer(RenderTypes.lines());
             for (Outline outline : current.outlines()) {
                 ShapeRenderer.renderShape(context.poseStack(), buffer, Shapes.create(outline.box()),
+                        0, 0, 0, 0xBB0A1018, outline.width()+2);
+            }
+            for (Outline outline : current.outlines()) {
+                ShapeRenderer.renderShape(context.poseStack(), buffer, Shapes.create(outline.box()),
                         0, 0, 0, outline.color(), outline.width());
             }
             context.bufferSource().endBatch(RenderTypes.lines());

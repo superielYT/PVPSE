@@ -7,7 +7,6 @@ import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.MeleeHitboxRenderer;
 import com.codex.pvphud.notification.NotificationManager;
 import com.codex.pvphud.waypoint.WaypointManager;
-import com.codex.pvphud.waypoint.WaypointOverlay;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
