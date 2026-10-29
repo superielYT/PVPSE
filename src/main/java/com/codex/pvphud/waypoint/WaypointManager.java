@@ -25,6 +25,8 @@ public final class WaypointManager {
     private boolean labels = true;
     private boolean deathMarkers = true;
     private transient boolean wasDead;
+    private transient Waypoint temporary;
+    private transient long temporaryUntil;
     public static final int[] COLORS = {0xFF36D399, 0xFF60A5FA, 0xFFFBBF24, 0xFFFB7185, 0xFFBF5AF2, 0xFFFF7043};
 
     private WaypointManager() {}
@@ -39,8 +41,8 @@ public final class WaypointManager {
     public void toggleNorth() { northUp = !northUp; save(); }
     public void toggleLabels() { labels = !labels; save(); }
     public void toggleDeaths() { deathMarkers = !deathMarkers; save(); }
-    public synchronized void track(int index) { tracked = tracked == index ? -1 : index; save(); }
-    public synchronized boolean tracked(Waypoint point) { return tracked >= 0 && tracked < waypoints.size() && waypoints.get(tracked).equals(point); }
+    public synchronized void track(int index) { temporary = null; tracked = tracked == index ? -1 : index; save(); }
+    public synchronized boolean tracked(Waypoint point) { return point.equals(temporary) || tracked >= 0 && tracked < waypoints.size() && waypoints.get(tracked).equals(point); }
     public synchronized void toggleHidden(int index) { edit(index, false); }
     public synchronized void cycleColor(int index) { edit(index, true); }
     private void edit(int index, boolean color) {
@@ -59,12 +61,16 @@ public final class WaypointManager {
     public synchronized List<Waypoint> visible(Minecraft client) {
         if (client.player == null || client.level == null) return List.of();
         String dimension = client.level.dimension().identifier().toString(), world = worldKey(client);
-        return waypoints.stream().filter(p -> !p.hidden() && dimension.equals(p.dimension()) && (p.world() == null || p.world().equals(world)))
-                .sorted(Comparator.<Waypoint>comparingInt(p -> tracked(p) ? 0 : 1).thenComparingDouble(p -> client.player.distanceToSqr(p.x(), p.y(), p.z())))
+        var candidates = new ArrayList<>(waypoints);
+        if (temporary != null && System.nanoTime() < temporaryUntil) candidates.addFirst(temporary);
+        return candidates.stream().filter(p -> !p.hidden() && dimension.equals(p.dimension()) && (p.world() == null || p.world().equals(world)))
+                .sorted(Comparator.<Waypoint>comparingInt(p -> p.equals(temporary) ? -1 : tracked(p) ? 0 : 1).thenComparingDouble(p -> client.player.distanceToSqr(p.x(), p.y(), p.z())))
                 .toList();
     }
     public void tick(Minecraft client) {
-        if (client.player == null || client.level == null) { wasDead = false; return; }
+        if (client.player == null || client.level == null) { wasDead = false; temporary = null; return; }
+        if (temporary != null && (System.nanoTime() >= temporaryUntil || !temporary.world().equals(worldKey(client))
+                || !temporary.dimension().equals(client.level.dimension().identifier().toString()))) temporary = null;
         boolean dead = client.player.isDeadOrDying();
         if (dead && !wasDead && deathMarkers) {
             addCurrent(client, "Death " + java.time.LocalTime.now().withNano(0));
@@ -75,6 +81,19 @@ public final class WaypointManager {
 
     public synchronized Waypoint addCurrent(Minecraft client) {
         return addCurrent(client, "");
+    }
+
+    /** Shift+B marks the first visible block along a separate ray; never changes attack targeting. */
+    public synchronized Waypoint addLookTarget(Minecraft client) {
+        if (client.player == null || client.level == null || client.screen != null) return null;
+        var hit = client.player.pick(128, 1, false);
+        if (!(hit instanceof net.minecraft.world.phys.BlockHitResult block)
+                || hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK) return null;
+        var pos = block.getBlockPos();
+        temporary = new Waypoint("Look target", pos.getX(), pos.getY(), pos.getZ(),
+                client.level.dimension().identifier().toString(), worldKey(client), COLORS[2], false);
+        temporaryUntil = System.nanoTime() + 300_000_000_000L;
+        return temporary;
     }
 
     public synchronized Waypoint addCurrent(Minecraft client, String requestedName) {
@@ -110,6 +129,7 @@ public final class WaypointManager {
 
     public synchronized void clear() {
         waypoints.clear();
+        temporary = null;
         tracked = -1;
         save();
     }

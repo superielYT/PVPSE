@@ -19,20 +19,38 @@ public final class NativeHudOverlays {
     public static void food(GuiGraphicsExtractor graphics, Player player, int y, int right) {
         Minecraft mc = Minecraft.getInstance();
         var mod = PvpHudClient.getInstance();
-        if (mod == null || !mod.nativeSaturationEnabled() || player != mc.player) return;
+        if (mod == null || player != mc.player) return;
         float saturation = SaturationState.value(mc);
-        if (!Float.isFinite(saturation) || saturation <= 0) return;
-        int halves = (int) Math.ceil(saturation);
-        for (int i = 0; i < 10 && i * 2 < halves; i++) {
-            int x = right - i * 8 - 9;
-            int columns = i * 2 + 1 < halves ? 9 : 4;
-            for (int row = 0; row < GOLD_OUTLINE.length; row++) {
-                for (int col = 0; col < columns; col++) {
-                    if (GOLD_OUTLINE[row].charAt(col) == '#')
-                        graphics.fill(x + col, y + row, x + col + 1, y + row + 1, 0xFFFFD34A);
-                }
+        var forecast = mod.foodPreviewEnabled() ? FoodForecast.held(player, saturation) : null;
+        if (forecast != null) {
+            for (int half = player.getFoodData().getFoodLevel(); half < forecast.hunger(); half++)
+                outlineHalf(graphics, right, y, half, 0xFF80E5FF, false);
+            if (mod.nativeSaturationEnabled() && Float.isFinite(forecast.saturation())) {
+                for (int half = (int)Math.ceil(saturation); half < (int)Math.ceil(forecast.saturation()); half++)
+                    outlineHalf(graphics, right, y, half, 0xFFFFE699, true);
             }
+            String text = !forecast.canEat() ? "Full - cannot eat yet" : "+" + forecast.foodGain() + " food  "
+                    + (Float.isFinite(saturation) ? "+" : "up to ")
+                    + String.format(Locale.ROOT, "%.1f", forecast.saturationGain()) + " sat";
+            graphics.pose().pushMatrix();
+            try {
+                float scale = Math.min(.9F, 88F / Math.max(1, mc.font.width(text)));
+                graphics.pose().translate(right - 1F, y - 10F);
+                graphics.pose().scale(scale, scale);
+                graphics.text(mc.font, text, -mc.font.width(text), 0, 0xFFFFE699, true);
+            } finally { graphics.pose().popMatrix(); }
         }
+        if (mod.nativeSaturationEnabled() && Float.isFinite(saturation))
+            for (int half = 0; half < (int)Math.ceil(saturation); half++)
+                outlineHalf(graphics, right, y, half, 0xFFFFD34A, false);
+    }
+
+    private static void outlineHalf(GuiGraphicsExtractor c, int right, int y, int half, int color, boolean dashed) {
+        int x = right - (half / 2) * 8 - 9;
+        int from = half % 2 == 0 ? 0 : 4, to = half % 2 == 0 ? 4 : 9;
+        for (int row = 0; row < GOLD_OUTLINE.length; row++) for (int col = from; col < to; col++)
+            if (GOLD_OUTLINE[row].charAt(col) == '#' && (!dashed || (row + col) % 2 == 0))
+                c.fill(x + col, y + row, x + col + 1, y + row + 1, color);
     }
 
     public static void potions(GuiGraphicsExtractor graphics) {

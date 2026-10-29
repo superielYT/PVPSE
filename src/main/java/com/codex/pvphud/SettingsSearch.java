@@ -7,6 +7,11 @@ import java.util.Locale;
 public final class SettingsSearch {
     public record Result(String label, String tab, String aliases) {}
     private static final List<Result> ENTRIES = List.of(
+            new Result("Clean hotbar", "ITEMS", "hotbar slots cooldown durability aantallen"),
+            new Result("Background opacity %", "HITBOX", "hitbox zichtbaar visibility andere spelers"),
+            new Result("Container previews", "ITEMS", "shulker bundle bundel inhoud preview voorvertoning"),
+            new Result("Held food preview", "ITEMS", "eten food hunger saturatie vasthouden voorvertoning"),
+            new Result("MIDNIGHT EMBER", "ITEMS", "dark donker midnight thema theme"),
             new Result("Potion timers", "GENERAL", "potion potions effect timer tijd vanilla drankjes"),
             new Result("Yellow saturation", "GENERAL", "saturatie saturation eten food hunger honger geel vanilla"),
             new Result("Cooldown circle", "AIM", "cooldown cirkel aanval crosshair"),

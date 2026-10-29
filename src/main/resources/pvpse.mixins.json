@@ -2,6 +2,6 @@
   "required": true,
   "package": "com.codex.pvphud.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["FullbrightEffectMixin", "FullbrightVisionMixin", "NativeHudMixin"],
+  "client": ["FullbrightEffectMixin", "FullbrightVisionMixin", "NativeHudMixin", "ContainerTooltipMixin", "ClientTooltipMixin", "CooldownsAccessor", "CooldownEntryAccessor"],
   "injectors": {"defaultRequire": 1}
 }

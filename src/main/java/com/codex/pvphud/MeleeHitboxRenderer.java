@@ -29,6 +29,7 @@ public final class MeleeHitboxRenderer {
     private record Outline(AABB box, int color, float width) {}
     private record Frame(Vec3 camera, List<Outline> outlines) {}
     private MeleeHitboxRenderer() {}
+    static int outlineCount() { return frame.outlines().size(); }
 
     public static void register(HudManager manager, HudConfig settings) {
         hudManager = manager; config = settings;
@@ -58,15 +59,15 @@ public final class MeleeHitboxRenderer {
                 : client.level.getEntities(client.player, client.player.getBoundingBox().inflate(range),
                     entity -> eligible(entity, client, eye, range)).stream()
                     .sorted(Comparator.comparingDouble(entity -> distanceSquared(eye, entity.getBoundingBox())))
-                    .limit(16).toList();
+                    .limit(32).toList();
         float tick = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         var outlines = new ArrayList<Outline>();
         for (Entity target : targets) {
             if (!eligible(target, client, eye, range)) continue;
             Vec3 smooth = target.getPosition(tick);
             AABB box = target.getBoundingBox().move(smooth.x - target.getX(),
-                    smooth.y - target.getY(), smooth.z - target.getZ());
-            int color = 0x6691A6BA;
+                    smooth.y - target.getY(), smooth.z - target.getZ()).inflate(.008);
+            int color = (Math.round(config.hitboxBackgroundOpacity * 2.55F) << 24) | 0x94BEDD;
             if (target == selected) {
                 color = 0xFF46E0A0;
                 if (config.hitboxStateColors) {
@@ -75,7 +76,7 @@ public final class MeleeHitboxRenderer {
                             : mace && client.player.fallDistance > 1.5 ? 0xFFD89CFF : 0xFF46E0A0;
                 }
             }
-            outlines.add(new Outline(box, color, target == selected ? config.hitboxLineWidth : 1.0F));
+            outlines.add(new Outline(box, color, target == selected ? config.hitboxLineWidth : 1.5F));
             if (config.hitboxEyeLine && target == selected) {
                 double eyeY = smooth.y + target.getEyeY() - target.getY();
                 outlines.add(new Outline(new AABB(box.minX, eyeY - 0.002, box.minZ,
@@ -93,6 +94,10 @@ public final class MeleeHitboxRenderer {
             Vec3 camera = current.camera();
             context.poseStack().translate(-camera.x, -camera.y, -camera.z);
             var buffer = context.bufferSource().getBuffer(RenderTypes.lines());
+            for (Outline outline : current.outlines()) {
+                ShapeRenderer.renderShape(context.poseStack(), buffer, Shapes.create(outline.box()),
+                        0, 0, 0, 0xBB0A1018, outline.width()+2);
+            }
             for (Outline outline : current.outlines()) {
                 ShapeRenderer.renderShape(context.poseStack(), buffer, Shapes.create(outline.box()),
                         0, 0, 0, outline.color(), outline.width());

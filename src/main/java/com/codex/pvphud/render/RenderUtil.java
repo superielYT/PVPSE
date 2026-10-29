@@ -13,16 +13,24 @@ public final class RenderUtil {
     public static void panel(GuiGraphicsExtractor context, int x, int y, int width, int height,
                              Theme theme, int tint, boolean accents, boolean shadows) {
         if (width <= 0 || height <= 0) return;
+        int opacity = tint >>> 24;
         if (RenderBudget.lightweight()) {
             context.fill(x, y, x + width, y + height, tint);
-            if (accents && width > 12) context.fill(x + 6, y, x + width - 6, y + 1, ColorUtil.withAlpha(theme.accent(), 100));
-            return;
+        } else {
+            if (shadows) RoundedRenderer.fill(context, x, y + 2, width, height, 5,
+                    ColorUtil.withAlpha(0, opacity / 5));
+            RoundedRenderer.fill(context, x, y, width, height, 5, tint);
         }
-        if (shadows) ShadowRenderer.draw(context, x, y, width, height, 6,
-                ColorUtil.withAlpha(theme.glow(), (theme.glow() >>> 24) / 3));
-        BlurRenderer.drawGlass(context, x, y, width, height, 6, tint);
-        if (accents && width > 12) context.fill(x + 6, y, x + width - 6, y + 1,
-                ColorUtil.withAlpha(theme.accent(), 100));
+        if (width > 12) {
+            context.fill(x + 5, y, x + width - 5, y + 1, ColorUtil.withAlpha(0xFFFFFF, opacity / 14));
+            if (accents) {
+                // A short ember signature instead of two full-width decorative lines.
+                context.fill(x + 6, y, x + Math.min(width - 6, 22), y + 1,
+                        ColorUtil.withAlpha(theme.accent(), Math.round(opacity * .8F)));
+                context.fill(x + width - 9, y, x + width - 6, y + 1,
+                        ColorUtil.withAlpha(theme.accentSecondary(), opacity / 3));
+            }
+        }
     }
 
     public static boolean hovered(double mouseX, double mouseY, int x, int y, int width, int height) {

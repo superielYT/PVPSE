@@ -29,7 +29,9 @@ final class PvpIndicators {
             warning(c, client, "LOW HEALTH", cx, y, config.dangerColor());
             y += 19;
         }
-        if (config.showArmorWarning) {
+        boolean armorCardVisible = PvpHudClient.getInstance().hudManager().find("armor")
+                .map(com.codex.pvphud.hud.HudElement::enabled).orElse(false);
+        if (config.showArmorWarning && !armorCardVisible) {
             int lowest = 101;
             for (EquipmentSlot slot : ARMOR) {
                 var stack = client.player.getItemBySlot(slot);

@@ -7,7 +7,6 @@ import com.codex.pvphud.hud.FeatureModule;
 import com.codex.pvphud.MeleeHitboxRenderer;
 import com.codex.pvphud.notification.NotificationManager;
 import com.codex.pvphud.waypoint.WaypointManager;
-import com.codex.pvphud.waypoint.WaypointOverlay;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -32,6 +31,11 @@ public final class PvpHudClient implements ClientModInitializer {
     }
     public boolean nativePotionTimersEnabled() { return nativeHudVisible() && config.nativePotionTimers; }
     public boolean nativeSaturationEnabled() { return nativeHudVisible() && config.nativeSaturation; }
+    public boolean foodPreviewEnabled() { return nativeHudVisible() && config.foodPreview; }
+    public boolean containerPreviewsEnabled() { return config != null && config.containerPreviews; }
+    public boolean cleanHotbarEnabled() { return nativeHudVisible() && config.cleanHotbar; }
+    public int armorWarningThreshold() { return config == null ? 15 : config.armorWarningPercent; }
+    public boolean armorWarningsEnabled() { return config != null && config.showArmorWarning; }
 
     private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath("pvp_hud_client", "hud");
     private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("pvp_hud_client", "controls"));
@@ -211,8 +215,10 @@ public final class PvpHudClient implements ClientModInitializer {
 
         while (waypointKey.consumeClick()) {
             hudManager.feature(FeatureModule.Type.WAYPOINT).filter(FeatureModule::enabled).ifPresent(feature -> {
-                if (client.player != null) {
-                    var waypoint = WaypointManager.getInstance().addCurrent(client);
+                if (client.player != null && client.screen == null) {
+                        var waypoint = client.options.keyShift.isDown()
+                                ? WaypointManager.getInstance().addLookTarget(client)
+                                : WaypointManager.getInstance().addCurrent(client);
                     if (waypoint != null) NotificationManager.getInstance().push("Waypoint added", waypoint.name());
                 }
             });
@@ -236,9 +242,6 @@ public final class PvpHudClient implements ClientModInitializer {
         if (config.enabled) {
             hudManager.render(context, client, false);
             PvpIndicators.render(context, client, config);
-            if (hudManager.feature(FeatureModule.Type.WAYPOINT).map(FeatureModule::enabled).orElse(false)) {
-                WaypointOverlay.render(context, client, com.codex.pvphud.theme.ThemeManager.getInstance().getTheme());
-            }
         }
         if (config.enabled && client.player != null && client.level != null && client.screen == null) {
             combatFeedback.render(context, config);
