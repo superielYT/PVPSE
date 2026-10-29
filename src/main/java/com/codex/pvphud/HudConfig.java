@@ -27,7 +27,6 @@ final class HudConfig {
     boolean containerPreviews = true;
     boolean blockOverlay = true;
     boolean cleanHotbar = true;
-    boolean hitboxAnyItem = true;
     int hitboxBackgroundOpacity = 80;
     PerformanceMode performanceMode = PerformanceMode.OFF;
     boolean performanceLightHud = true;

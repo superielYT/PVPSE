@@ -8,7 +8,6 @@ public final class SettingsSearch {
     public record Result(String label, String tab, String aliases) {}
     private static final List<Result> ENTRIES = List.of(
             new Result("Clean hotbar", "ITEMS", "hotbar slots cooldown durability aantallen"),
-            new Result("Any held item", "HITBOX", "hitbox altijd unarmed hand algemeen vasthouden"),
             new Result("Background opacity %", "HITBOX", "hitbox zichtbaar visibility andere spelers"),
             new Result("Container previews", "ITEMS", "shulker bundle bundel inhoud preview voorvertoning"),
             new Result("Held food preview", "ITEMS", "eten food hunger saturatie vasthouden voorvertoning"),

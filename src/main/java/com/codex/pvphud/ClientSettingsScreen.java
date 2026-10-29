@@ -131,8 +131,7 @@ final class ClientSettingsScreen extends Screen {
                 });
             }
             case HITBOX -> {
-                toggle(x(), y + 100, half, "Any held item", () -> config.hitboxAnyItem, v -> config.hitboxAnyItem = v);
-                number(x() + half + 6, y + 100, half, "Background opacity %", () -> config.hitboxBackgroundOpacity,
+                number(x(), y + 100, w(), "Background opacity %", () -> config.hitboxBackgroundOpacity,
                         v -> config.hitboxBackgroundOpacity = v, 40, 100, 10);
                 toggle(x(), y, half, "Melee hitboxes", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> e.enabled()).orElse(false),
                         v -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).ifPresent(e -> e.setEnabled(v)));
@@ -259,7 +258,7 @@ final class ClientSettingsScreen extends Screen {
             case GENERAL -> "Yellow hunger outline = saturation (singleplayer).";
             case ITEMS -> "Hover shulkers/bundles. Cyan: food preview. Gold: saturation.";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
-            case HITBOX -> "Any held item overrides weapon filters. Target only is optional.";
+            case HITBOX -> "Sword/mace only. Other visible targets keep their outlines.";
             case EFFECTS -> "Click a value to increase it; maximum wraps to minimum";
             case STYLE -> "HUD appearance is saved per profile. Clear Glass is optional.";
             case PROFILES -> "Profiles store HUD, utilities and theme. Alerts are global.";

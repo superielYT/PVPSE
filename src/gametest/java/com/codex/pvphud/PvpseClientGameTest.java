@@ -217,8 +217,13 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         });
         context.waitTicks(10);
         context.runOnClient(mc -> {
+            if(MeleeHitboxRenderer.outlineCount()!=0) throw new AssertionError("Hitboxes must stay off while holding food");
+        });
+        server.runCommand("item replace entity @p weapon.mainhand with minecraft:diamond_sword");
+        context.waitTicks(5);
+        context.runOnClient(mc -> {
             if(MeleeHitboxRenderer.selectedTarget(mc,12)!=null) throw new AssertionError("General-hitbox fixture must be off the crosshair");
-            if(MeleeHitboxRenderer.outlineCount()==0) throw new AssertionError("Off-crosshair hitboxes disappeared while holding food");
+            if(MeleeHitboxRenderer.outlineCount()==0) throw new AssertionError("Off-crosshair hitboxes disappeared while holding a sword");
         });
         context.takeScreenshot("pvpse-clean-general-hitboxes");
         server.runCommand("kill @e[tag=pvpse_general_box]");

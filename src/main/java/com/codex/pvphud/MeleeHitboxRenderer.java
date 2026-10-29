@@ -50,7 +50,7 @@ public final class MeleeHitboxRenderer {
         if (module == null || !module.enabled()) return;
         var held = client.player.getMainHandItem();
         boolean mace = held.getItem() instanceof MaceItem;
-        if (!config.hitboxAnyItem && !(mace && config.hitboxMace) && !(held.is(ItemTags.SWORDS) && config.hitboxSwords)) return;
+        if (!(mace && config.hitboxMace) && !(held.is(ItemTags.SWORDS) && config.hitboxSwords)) return;
         double range = module.value();
         Entity selected = selectedTarget(client, range);
         Vec3 eye = client.player.getEyePosition();

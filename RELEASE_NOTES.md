@@ -8,7 +8,7 @@
 - The movable waypoint HUD shows distance, height difference and direction, without an extra floating card. Shift+B marks a temporary visible block target up to 128m away, expiring after five minutes or leaving the world/dimension. B still saves your current position.
 - Armor shows per-slot percentage, exact remaining durability and a calm low-durability warning using the configured threshold.
 - Clean hotbar frame, readable counts, durability strips and real cooldown seconds. Toggle under ITEMS.
-- General hitboxes are clearer while not aiming, work with any held item by default and have adjustable background opacity. Target-only and weapon filters remain optional; normal visibility/depth checks remain active. Visual bounds do not change attack reach.
+- General hitboxes are clearer while not aiming and have adjustable background opacity. They appear only while holding an enabled sword or mace; food, empty hands and other items do not activate them. Target-only stays optional and normal visibility/depth checks remain active. Visual bounds do not change attack reach.
 - Build, startup and world regression checks include previews, exact saturation forecasts, route math, non-aimed hitboxes, native tooltip composition and persistent controls.
 
 ---
