@@ -242,9 +242,6 @@ public final class PvpHudClient implements ClientModInitializer {
         if (config.enabled) {
             hudManager.render(context, client, false);
             PvpIndicators.render(context, client, config);
-            if (hudManager.feature(FeatureModule.Type.WAYPOINT).map(FeatureModule::enabled).orElse(false)) {
-                WaypointOverlay.render(context, client, com.codex.pvphud.theme.ThemeManager.getInstance().getTheme());
-            }
         }
         if (config.enabled && client.player != null && client.level != null && client.screen == null) {
             combatFeedback.render(context, config);

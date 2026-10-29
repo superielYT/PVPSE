@@ -55,6 +55,7 @@ public final class WaypointRadar {
             detail = (manager.tracked(p) ? "> " : "") + detail + String.format(Locale.ROOT, " %.0fm", distance);
         }
         c.text(mc.font, Component.literal(mc.font.plainSubstrByWidth(detail, 130)), 7, 20, points.isEmpty() ? t.mutedText() : points.getFirst().tint());
-        c.centeredText(mc.font, Component.literal(manager.mapRange() + "m | " + points.size() + " points"), cx, 137, t.mutedText());
+        if(!points.isEmpty() && manager.labels()) WaypointOverlay.render(c,mc,t);
+        else c.centeredText(mc.font, Component.literal(manager.mapRange() + "m | " + points.size() + " points"), cx, 137, t.mutedText());
     }
 }

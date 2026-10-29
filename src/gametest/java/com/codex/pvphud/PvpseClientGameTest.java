@@ -171,8 +171,9 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             var manager = PvpHudClient.getInstance().hudManager();
             if (manager.find("block_overlay").isPresent()) throw new AssertionError("Block overlay is still a card");
             for (String id : new String[]{"watermark","armor","inventory","health_indicator"}) manager.find(id).orElseThrow().setEnabled(true);
-            manager.arrange(mc);
             manager.feature(com.codex.pvphud.hud.FeatureModule.Type.WAYPOINT).orElseThrow().setEnabled(true);
+            manager.layoutElements().forEach(e -> e.setScale(1));
+            if(!manager.tryArrange(mc)) throw new AssertionError("Clean HUD fixture could not be arranged");
             var waypoints = com.codex.pvphud.waypoint.WaypointManager.getInstance();
             waypoints.clear();
             mc.getSingleplayerServer().execute(() -> {
@@ -261,12 +262,12 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
     }
 
     private static void previewScreenshot(ClientGameTestContext context, net.minecraft.world.item.ItemStack stack,String name) {
-        context.runOnClient(mc -> mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player) {
-            @Override public void extractRenderState(net.minecraft.client.gui.GuiGraphicsExtractor c,int mx,int my,float delta) {
-                super.extractRenderState(c,mx,my,delta);
-                c.setTooltipForNextFrame(mc.font,stack,width-10,height-10);
-            }
-        }));
+        context.runOnClient(mc -> {
+            mc.player.getInventory().setItem(9,stack);
+            mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+        });
+        int[] size=context.computeOnClient(mc -> new int[]{mc.getWindow().getGuiScaledWidth(),mc.getWindow().getGuiScaledHeight()});
+        moveTo(context,(size[0]-176)/2.0+16,(size[1]-166)/2.0+92);
         context.waitTicks(4); context.takeScreenshot(name); context.setScreen(() -> null);
     }
 

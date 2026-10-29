@@ -31,20 +31,13 @@ public final class WaypointOverlay {
                 : Math.abs(route.angle()) < .15 ? "Ahead" : route.angle() < 0 ? "Left" : "Right";
         String name = mc.font.plainSubstrByWidth(point.name(), Math.max(1, Math.min(160, c.guiWidth()-60)));
         String detail = String.format(Locale.ROOT, "%s  %.0fm  %+dY", turn, route.distance(), route.height());
-        int width = Math.min(c.guiWidth()-8, Math.max(mc.font.width(name), mc.font.width(detail)) + 30);
-        int x = (c.guiWidth()-width)/2, y=38;
-        var style = com.codex.pvphud.theme.ThemeManager.getInstance().appearance();
-        RenderUtil.panel(c,x,y,width,30,theme,style.panelColor(theme.panel(),1),style.accents,false);
-        c.text(mc.font,name,x+23,y+5,theme.text(),false);
-        c.text(mc.font,detail,x+23,y+17,theme.mutedText(),false);
+        // Local coordinates inside the movable waypoint HUD, not a floating screen overlay.
         c.pose().pushMatrix();
         try {
-            c.pose().translate(x+12F,y+15F);
-            c.pose().rotate((float)route.angle());
-            for(int i=0;i<5;i++) {
-                c.fill(-i,-4+i,-i+1,-2+i,point.tint());
-                c.fill(i,-4+i,i+1,-2+i,point.tint());
-            }
+            c.pose().translate(7F,137F);
+            float scale=Math.min(1F,130F/Math.max(1,mc.font.width(detail)));
+            c.pose().scale(scale,scale);
+            c.text(mc.font,detail,0,0,point.tint(),false);
         } finally { c.pose().popMatrix(); }
     }
 }
