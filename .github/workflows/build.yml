@@ -51,6 +51,13 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Set up original sound encoding
+        run: |
+          if ! command -v ffmpeg > /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+
       - name: Generate and validate PvP resource pack
         run: |
           node tools/build-pvp-pack.mjs

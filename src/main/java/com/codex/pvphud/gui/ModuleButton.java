@@ -48,12 +48,14 @@ public final class ModuleButton {
         this.x = x; this.y = y; this.width = width;
         expansion.animateTo(expanded ? 1 : 0);
         boolean hover = RenderUtil.hovered(mouseX, mouseY, x, y, width, 24);
-        RoundedRenderer.fill(context, x, y, width, totalHeight(), 5, hover ? com.codex.pvphud.render.ColorUtil.lerp(theme.panelHeader(), theme.accent(), 0.13F) : theme.panelHeader());
-        context.text(client.font, Component.literal(client.font.plainSubstrByWidth(element.name(), Math.max(1, width - 56))), x + 8, y + 8,
+        RoundedRenderer.fill(context, x, y, width, totalHeight(), 5, hover ? com.codex.pvphud.render.ColorUtil.lerp(theme.panelHeader(), theme.accent(), 0.09F) : theme.panelHeader());
+        RoundedRenderer.fill(context,x+5,y+10,3,3,1,element.enabled()?theme.accent():theme.mutedText());
+        context.text(client.font, Component.literal(client.font.plainSubstrByWidth(element.name(), Math.max(1, width - 62))), x + 13, y + 8,
                 element.enabled() ? theme.text() : theme.mutedText(), false);
         RoundedRenderer.fill(context, x + width - 26, y + 7, 18, 10, 5, element.enabled() ? com.codex.pvphud.render.ColorUtil.withAlpha(theme.accent(), 145) : 0xFF3A414B);
         RoundedRenderer.fill(context, x + width - (element.enabled() ? 17 : 25), y + 8, 8, 8, 4,
                 element.enabled() ? 0xFFF8FAFF : theme.mutedText());
+        RoundedRenderer.fill(context,x+width-44,y+4,16,16,4,0x24000000);
         context.text(client.font, Component.literal(expanded ? "–" : "+"), x + width - 40, y + 7, theme.mutedText(), false);
         int visible = Math.round(settings.size() * 22 * expansion.value());
         renderedHeight = 24 + visible;

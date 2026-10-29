@@ -154,7 +154,69 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testAuditFixes(context, world.getServer());
             testNativeHud(context, world.getServer());
             testCleanUpdate(context, world.getServer());
+            testRadiantPack(context, world.getServer());
         }
+    }
+
+    private static void testRadiantPack(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        context.runOnClient(mc -> {
+            for(String path:new String[]{"textures/item/diamond_sword_fire_aspect.png","textures/item/diamond_axe_efficiency.png",
+                    "textures/particle/critical_hit.png","models/block/diamond_ore.json","textures/gui/container/shulker_box.png"}) {
+                var resource=mc.getResourceManager().getResource(net.minecraft.resources.Identifier.withDefaultNamespace(path)).orElseThrow();
+                if(!resource.sourcePackId().contains("PVPSE-Ignite")) throw new AssertionError("Radiant asset not active: "+path);
+            }
+            for(String cue:new String[]{"totem","pearl","break"})
+                if(!mc.getResourceManager().getResource(net.minecraft.resources.Identifier.fromNamespaceAndPath("pvpse","sounds/combat/"+cue+".ogg")).orElseThrow().sourcePackId().contains("PVPSE-Ignite"))
+                    throw new AssertionError("Custom sound not loaded: "+cue);
+            for(String cue:new String[]{"item.totem.use","entity.ender_pearl.throw","entity.item.break"})
+                if(mc.getSoundManager().getSoundEvent(net.minecraft.resources.Identifier.withDefaultNamespace(cue))==null)
+                    throw new AssertionError("Sound event missing: "+cue);
+            PvpHudClient.getInstance().openMenu(null);
+        });
+        context.clickScreenButton("Settings & profiles");context.clickScreenButton("HUD: ON");context.setScreen(() -> null);
+        server.runCommand("effect clear @p");server.runCommand("gamemode creative");server.runCommand("time set midnight");
+        server.runCommand("item replace entity @p weapon.mainhand with minecraft:air");server.runCommand("item replace entity @p weapon.offhand with minecraft:air");
+        server.runCommand("fill -4 -61 -8 4 -54 1 minecraft:stone");server.runCommand("fill -3 -60 -7 3 -55 0 minecraft:air");
+        String[] ores={"diamond_ore","deepslate_emerald_ore","gold_ore","deepslate_redstone_ore","lapis_ore"};
+        for(int i=0;i<ores.length;i++)server.runCommand("setblock "+(i-2)+" -59 1 minecraft:"+ores[i]);
+        server.runCommand("tp @p 0 -60 -4 0 0");context.waitTicks(22);
+        var glow=context.takeScreenshot("pvpse-radiant-ores-dark");
+        try {
+            var image=javax.imageio.ImageIO.read(glow.toFile());int bright=0,dark=0;
+            for(int y=image.getHeight()/4;y<image.getHeight()*3/4;y++)for(int x=image.getWidth()/5;x<image.getWidth()*4/5;x++){
+                int rgb=image.getRGB(x,y),r=(rgb>>16)&255,g=(rgb>>8)&255,b=rgb&255;
+                if(g>90&&g>r*1.1&&b>r*1.05)bright++;
+                if(r+g+b<45)dark++;
+            }
+            if(bright<100||dark<1000)throw new AssertionError("Ore facets did not glow in the actual unlit room: bright="+bright+" dark="+dark);
+        }catch(java.io.IOException e){throw new AssertionError(e);}
+        server.runCommand("fill -12 -60 -8 12 -52 9 minecraft:air");
+        server.runCommand("fill -12 -61 -8 12 -61 9 minecraft:polished_deepslate");server.runCommand("time set noon");
+        String[] palette={"oak_planks","quartz_bricks","prismarine_bricks","purpur_block","light_blue_stained_glass","diamond_ore","cut_copper","sandstone","dark_prismarine"};
+        for(int i=0;i<palette.length;i++)server.runCommand("fill "+(i*2-8)+" -60 2 "+(i*2-7)+" -58 2 minecraft:"+palette[i]);
+        server.runCommand("tp @p 0 -60 -5 0 -4");context.waitTicks(14);context.takeScreenshot("pvpse-radiant-terrain");
+        context.runOnClient(mc -> {
+            var registry=mc.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+            for(int i=0;i<36;i++)mc.player.getInventory().setItem(i,net.minecraft.world.item.ItemStack.EMPTY);
+            String[] names={"fire_aspect","sharpness","smite","bane_of_arthropods","efficiency","sharpness","flame","power"};
+            for(int i=0;i<names.length;i++){
+                var item=i<4?net.minecraft.world.item.Items.DIAMOND_SWORD:i<6?net.minecraft.world.item.Items.DIAMOND_AXE:net.minecraft.world.item.Items.BOW;
+                var stack=new net.minecraft.world.item.ItemStack(item);
+                var values=new net.minecraft.world.item.enchantment.ItemEnchantments.Mutable(net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
+                var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENCHANTMENT,net.minecraft.resources.Identifier.withDefaultNamespace(names[i]));
+                values.set(registry.getOrThrow(key),1);stack.set(net.minecraft.core.component.DataComponents.ENCHANTMENTS,values.toImmutable());
+                mc.player.getInventory().setItem(9+i,stack);
+            }
+            mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+        });
+        context.getInput().setCursorPos(0,0);context.waitTicks(5);context.takeScreenshot("pvpse-radiant-weapon-variants");context.setScreen(() -> null);
+        for(String cue:new String[]{"item.totem.use","entity.ender_pearl.throw","entity.item.break"})
+            server.runCommand("playsound minecraft:"+cue+" master @p ~ ~ ~ .5 1");
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.waitTicks(4);context.takeScreenshot("pvpse-radiant-menu");
+        context.clickScreenButton("Settings & profiles");context.waitTicks(4);context.takeScreenshot("pvpse-radiant-settings");
+        context.clickScreenButton("HUD: OFF");context.setScreen(() -> null);
     }
 
     private static void testCleanUpdate(ClientGameTestContext context,

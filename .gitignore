@@ -2,3 +2,8 @@
 build/
 run/
 *.log
+
+# Rebuilt and shipped as release assets.
+/dist/
+/resourcepacks/
+/assets/sounds/*.ogg.b64

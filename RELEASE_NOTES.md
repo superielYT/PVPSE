@@ -1,3 +1,17 @@
+# PVPSE v3.5.0 — Ignite Radiant
+
+- 60 native enchantment variants across swords, axes and bows. Fire Aspect, Sharpness, Smite, Bane, Efficiency, Flame and Power have distinct accents. Existing mace/book variants and full bow charge stages remain.
+- 18 ore models have native emissive mineral facets; surrounding stone stays normally shaded. No shader or extra mod required for ore glow. Covered ores remain covered, and the effect does not cast light.
+- 200 coordinated block textures include sandstone, quartz, prismarine, purpur, polished stone, copper and clearer glass.
+- 27 smaller combat/potion/totem particle sprites preserve vanilla timing and colors.
+- Three original quiet sound cues replace totem use, pearl throws and item breaks (tools and armor).
+- Darker inventory, chest, crafting, shulker and furnace-family GUI, with readable native title chips.
+- Refined mod backdrop, sidebar, module rows and button accents. Settings use two readable tab rows and compact spacing.
+- Previous HUD layouts, visibility choices, previews and sword/mace-only hitboxes remain intact. Photographic sky still needs its separate custom-sky loader; native ore glow does not.
+- Pack generation validates PNG/JSON/OGG data and enchantment predicates. World tests verify loaded assets, sound events, rendered ore glow in an unlit room, terrain, weapon variants and menu screenshots.
+
+---
+
 # PVPSE v3.4.0 - Clean Ember
 
 - Cleaner HUD cards and key tiles with restrained PVPSE ember accents, flatter surfaces and lighter shadows. Existing layouts, scales, hidden cards and theme choices stay intact.

@@ -36,13 +36,13 @@ final class ClientSettingsScreen extends Screen {
 
     private int x() { return (width - w()) / 2; }
     private int w() { return Math.min(420, width - 24); }
-    private int top() { return Math.max(88, (height - 240) / 2 + 88); }
+    private int top() { return Math.max(94, (height - 260) / 2 + 100); }
 
     protected void init() {
         profileName = null;
         boolean typing = restoreSearchFocus || (search != null && search.isFocused());
         restoreSearchFocus = false;
-        search = addRenderableWidget(new EditBox(font, x(), top() - 55, w(), 20, Component.literal("Search settings")));
+        search = addRenderableWidget(new EditBox(font, x(), top() - 76, w(), 20, Component.literal("Search settings")));
         search.setHint(Component.literal("Find settings: armor, geluid, HUD..."));
         search.setMaxLength(80); search.setValue(query);
         search.setResponder(value -> {
@@ -50,11 +50,13 @@ final class ClientSettingsScreen extends Screen {
             rememberDraft(); query = value; searchPage = 0; status = ""; restoreSearchFocus = true; rebuildWidgets();
         });
         if (typing) setFocused(search);
-        int gap = 4, tw = (w() - gap * (Tab.values().length - 1)) / Tab.values().length;
+        int gap = 4;
         for (Tab next : Tab.values()) {
+            int row=next.ordinal()/5,column=next.ordinal()%5;
+            int columns=Math.min(5,Tab.values().length-row*5),tw=(w()-gap*(columns-1))/columns;
             var button = addRenderableWidget(com.codex.pvphud.gui.PvpButton.styled(Component.literal(next == Tab.PROFILES ? "PROFILE" : next.name()), b -> {
                 rememberDraft(); tab = next; query = ""; status = ""; rebuildWidgets();
-            }).bounds(x() + next.ordinal() * (tw + gap), top() - 25, tw, 20).build());
+            }).bounds(x() + column * (tw + gap), top() - 50 + row*24, tw, 20).build());
             button.active = next != tab || !query.isBlank();
         }
         int half = (w() - 6) / 2, y = top();
@@ -64,31 +66,31 @@ final class ClientSettingsScreen extends Screen {
             searchPage = Math.clamp(searchPage, 0, pages - 1);
             for (int i = searchPage * 4; i < Math.min(matches.size(), searchPage * 4 + 4); i++) {
                 var result = matches.get(i);
-                action(x(), y + (i % 4) * 25, w(), result.label() + "  > " + result.tab(), () -> {
+                action(x(), y + (i % 4) * 22, w(), result.label() + "  > " + result.tab(), () -> {
                     query = ""; tab = Tab.valueOf(result.tab()); focusLabel = result.label(); rebuildWidgets();
                 });
             }
             if (pages > 1) {
-                action(x(), y + 100, half, "Previous", () -> { searchPage = (searchPage + pages - 1) % pages; rebuildWidgets(); });
-                action(x() + half + 6, y + 100, half, "Next", () -> { searchPage = (searchPage + 1) % pages; rebuildWidgets(); });
+                action(x(), y + 88, half, "Previous", () -> { searchPage = (searchPage + pages - 1) % pages; rebuildWidgets(); });
+                action(x() + half + 6, y + 88, half, "Next", () -> { searchPage = (searchPage + 1) % pages; rebuildWidgets(); });
             }
             action(x(), height - 28, w(), "Done", this::onClose);
             return;
         }
         switch (tab) {
             case GENERAL -> {
-                toggle(x(), y + 100, half, "Potion timers", () -> config.nativePotionTimers, v -> config.nativePotionTimers = v);
-                toggle(x() + half + 6, y + 100, half, "Yellow saturation", () -> config.nativeSaturation, v -> config.nativeSaturation = v);
+                toggle(x(), y + 88, half, "Potion timers", () -> config.nativePotionTimers, v -> config.nativePotionTimers = v);
+                toggle(x() + half + 6, y + 88, half, "Yellow saturation", () -> config.nativeSaturation, v -> config.nativeSaturation = v);
                 toggle(x(), y, half, "HUD", () -> config.enabled, v -> config.enabled = v);
                 toggle(x() + half + 6, y, half, "Notifications", () -> config.notifications, v -> config.notifications = v);
-                toggle(x(), y + 25, half, "Hide on F3", () -> config.hideOnDebug, v -> config.hideOnDebug = v);
-                toggle(x() + half + 6, y + 25, half, "No damage tilt", () -> config.suppressDamageTilt, v -> config.suppressDamageTilt = v);
-                toggle(x(), y + 50, half, "Custom crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v);
-                toggle(x() + half + 6, y + 50, half, "Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v);
+                toggle(x(), y + 22, half, "Hide on F3", () -> config.hideOnDebug, v -> config.hideOnDebug = v);
+                toggle(x() + half + 6, y + 22, half, "No damage tilt", () -> config.suppressDamageTilt, v -> config.suppressDamageTilt = v);
+                toggle(x(), y + 44, half, "Custom crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v);
+                toggle(x() + half + 6, y + 44, half, "Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v);
                 int presetWidth = (w() - 8) / 3;
                 for (var preset : com.codex.pvphud.hud.PvpPreset.values()) {
                     String label = preset.name().substring(0, 1) + preset.name().substring(1).toLowerCase(java.util.Locale.ROOT) + " preset";
-                    action(x() + preset.ordinal() * (presetWidth + 4), y + 75, presetWidth, label, () -> {
+                    action(x() + preset.ordinal() * (presetWidth + 4), y + 66, presetWidth, label, () -> {
                         if (minecraft.player == null) { status = "Join a world first"; return; }
                         preset.apply(hud); config.enabled = true; minecraft.options.hideGui = false;
                         hud.arrange(minecraft); config.save(); profiles.save(hud);
@@ -98,26 +100,26 @@ final class ClientSettingsScreen extends Screen {
             }
             case ITEMS -> {
                 toggle(x(), y, w(), "Container previews", () -> config.containerPreviews, v -> config.containerPreviews = v);
-                toggle(x(), y + 25, w(), "Held food preview", () -> config.foodPreview, v -> config.foodPreview = v);
-                toggle(x(), y + 75, w(), "Clean hotbar", () -> config.cleanHotbar, v -> config.cleanHotbar = v);
-                action(x(), y + 50, w(), "MIDNIGHT EMBER", () -> {
+                toggle(x(), y + 22, w(), "Held food preview", () -> config.foodPreview, v -> config.foodPreview = v);
+                toggle(x(), y + 66, w(), "Clean hotbar", () -> config.cleanHotbar, v -> config.cleanHotbar = v);
+                action(x(), y + 44, w(), "MIDNIGHT EMBER", () -> {
                     ThemeManager.getInstance().setTheme("midnight"); profiles.save(hud); rebuildWidgets();
                 });
             }
             case COMBAT -> {
                 toggle(x(), y, w(), "Attack cooldown bar", () -> config.showAttackCooldown, v -> config.showAttackCooldown = v);
-                toggle(x(), y + 25, half, "Low health alert", () -> config.showLowHealthWarning, v -> config.showLowHealthWarning = v);
-                number(x() + half + 6, y + 25, half, "HP threshold", () -> config.lowHealthThreshold, v -> config.lowHealthThreshold = v, 2, 16, 2);
-                toggle(x(), y + 50, half, "Armor alert", () -> config.showArmorWarning, v -> config.showArmorWarning = v);
-                number(x() + half + 6, y + 50, half, "Durability %", () -> config.armorWarningPercent, v -> config.armorWarningPercent = v, 5, 50, 5);
-                toggle(x(), y + 75, half, "Armor sound", () -> config.armorWarningSound, v -> config.armorWarningSound = v);
-                number(x() + half + 6, y + 75, half, "Sound volume %", () -> config.armorSoundVolume, v -> config.armorSoundVolume = v, 0, 100, 10);
+                toggle(x(), y + 22, half, "Low health alert", () -> config.showLowHealthWarning, v -> config.showLowHealthWarning = v);
+                number(x() + half + 6, y + 22, half, "HP threshold", () -> config.lowHealthThreshold, v -> config.lowHealthThreshold = v, 2, 16, 2);
+                toggle(x(), y + 44, half, "Armor alert", () -> config.showArmorWarning, v -> config.showArmorWarning = v);
+                number(x() + half + 6, y + 44, half, "Durability %", () -> config.armorWarningPercent, v -> config.armorWarningPercent = v, 5, 50, 5);
+                toggle(x(), y + 66, half, "Armor sound", () -> config.armorWarningSound, v -> config.armorWarningSound = v);
+                number(x() + half + 6, y + 66, half, "Sound volume %", () -> config.armorSoundVolume, v -> config.armorSoundVolume = v, 0, 100, 10);
             }
             case AIM -> {
                 toggle(x(), y, w(), "Cooldown circle", () -> config.cooldownRing, v -> config.cooldownRing = v);
-                toggle(x(), y + 25, w(), "Crosshair reactions", () -> config.crosshairReactions, v -> config.crosshairReactions = v);
-                number(x(), y + 50, w(), "Circle radius", () -> config.cooldownRingRadius, v -> config.cooldownRingRadius = v, 10, 24, 2);
-                toggle(x(), y + 75, w(), "Health indicator", () -> hud.find("health_indicator").map(e -> e.enabled()).orElse(false), v -> {
+                toggle(x(), y + 22, w(), "Crosshair reactions", () -> config.crosshairReactions, v -> config.crosshairReactions = v);
+                number(x(), y + 44, w(), "Circle radius", () -> config.cooldownRingRadius, v -> config.cooldownRingRadius = v, 10, 24, 2);
+                toggle(x(), y + 66, w(), "Health indicator", () -> hud.find("health_indicator").map(e -> e.enabled()).orElse(false), v -> {
                     hud.find("health_indicator").ifPresent(e -> e.setEnabled(v));
                     if (v && minecraft.player != null && hud.find("health_indicator").map(e -> e.needsInitialPlacement()).orElse(false))
                         {
@@ -131,28 +133,28 @@ final class ClientSettingsScreen extends Screen {
                 });
             }
             case HITBOX -> {
-                number(x(), y + 100, w(), "Background opacity %", () -> config.hitboxBackgroundOpacity,
+                number(x(), y + 88, w(), "Background opacity %", () -> config.hitboxBackgroundOpacity,
                         v -> config.hitboxBackgroundOpacity = v, 40, 100, 10);
                 toggle(x(), y, half, "Melee hitboxes", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> e.enabled()).orElse(false),
                         v -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).ifPresent(e -> e.setEnabled(v)));
                 number(x() + half + 6, y, half, "View range", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> (int)e.value()).orElse(12), v -> {
                     hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).ifPresent(e -> e.setValue(v)); profiles.save(hud);
                 }, 2, 32, 1);
-                toggle(x(), y + 25, half, "Swords", () -> config.hitboxSwords, v -> config.hitboxSwords = v);
-                toggle(x() + half + 6, y + 25, half, "Mace", () -> config.hitboxMace, v -> config.hitboxMace = v);
-                toggle(x(), y + 50, half, "Target only", () -> config.hitboxTargetOnly, v -> config.hitboxTargetOnly = v);
-                toggle(x() + half + 6, y + 50, half, "Eye-level ring", () -> config.hitboxEyeLine, v -> config.hitboxEyeLine = v);
-                number(x(), y + 75, half, "Line width", () -> config.hitboxLineWidth, v -> config.hitboxLineWidth = v, 1, 4, 1);
-                toggle(x() + half + 6, y + 75, half, "State colors", () -> config.hitboxStateColors, v -> config.hitboxStateColors = v);
+                toggle(x(), y + 22, half, "Swords", () -> config.hitboxSwords, v -> config.hitboxSwords = v);
+                toggle(x() + half + 6, y + 22, half, "Mace", () -> config.hitboxMace, v -> config.hitboxMace = v);
+                toggle(x(), y + 44, half, "Target only", () -> config.hitboxTargetOnly, v -> config.hitboxTargetOnly = v);
+                toggle(x() + half + 6, y + 44, half, "Eye-level ring", () -> config.hitboxEyeLine, v -> config.hitboxEyeLine = v);
+                number(x(), y + 66, half, "Line width", () -> config.hitboxLineWidth, v -> config.hitboxLineWidth = v, 1, 4, 1);
+                toggle(x() + half + 6, y + 66, half, "State colors", () -> config.hitboxStateColors, v -> config.hitboxStateColors = v);
             }
             case EFFECTS -> {
                 toggle(x(), y, half, "Hit marker", () -> config.showHitMarker, v -> config.showHitMarker = v);
                 number(x() + half + 6, y, half, "Marker size", () -> config.hitMarkerSize, v -> config.hitMarkerSize = v, 3, 10, 1);
-                toggle(x(), y + 25, half, "Damage flash", () -> config.showDamageFlash, v -> config.showDamageFlash = v);
-                number(x() + half + 6, y + 25, half, "Flash %", () -> config.damageFlashOpacity, v -> config.damageFlashOpacity = v, 10, 100, 10);
-                toggle(x(), y + 50, half, "Kill particles", () -> config.showKillParticles, v -> config.showKillParticles = v);
-                number(x() + half + 6, y + 50, half, "Particles", () -> config.particleAmount, v -> config.particleAmount = v, 4, 48, 4);
-                action(x(), y + 75, w(), "MINIMAL EFFECTS", () -> {
+                toggle(x(), y + 22, half, "Damage flash", () -> config.showDamageFlash, v -> config.showDamageFlash = v);
+                number(x() + half + 6, y + 22, half, "Flash %", () -> config.damageFlashOpacity, v -> config.damageFlashOpacity = v, 10, 100, 10);
+                toggle(x(), y + 44, half, "Kill particles", () -> config.showKillParticles, v -> config.showKillParticles = v);
+                number(x() + half + 6, y + 44, half, "Particles", () -> config.particleAmount, v -> config.particleAmount = v, 4, 48, 4);
+                action(x(), y + 66, w(), "MINIMAL EFFECTS", () -> {
                     config.showDamageFlash = false; config.showKillParticles = false;
                     config.showHitMarker = true; config.save(); rebuildWidgets();
                 });
@@ -162,15 +164,15 @@ final class ClientSettingsScreen extends Screen {
                 action(x(), y, w(), "Theme: " + ThemeManager.getInstance().getTheme().displayName() + " >", () -> {
                     ThemeManager.getInstance().cycle(); profiles.save(hud); rebuildWidgets();
                 });
-                number(x(), y + 25, half, "HUD opacity %", () -> style.opacity, v -> style.opacity = v, 20, 100, 10);
-                toggle(x() + half + 6, y + 25, half, "Accent lines", () -> style.accents, v -> style.accents = v);
-                toggle(x(), y + 50, half, "Panel shadows", () -> style.shadows, v -> style.shadows = v);
-                toggle(x() + half + 6, y + 50, half, "Text shadow", () -> style.textShadow, v -> style.textShadow = v);
-                action(x(), y + 75, half, "MINIMAL HUD", () -> {
+                number(x(), y + 22, half, "HUD opacity %", () -> style.opacity, v -> style.opacity = v, 20, 100, 10);
+                toggle(x() + half + 6, y + 22, half, "Accent lines", () -> style.accents, v -> style.accents = v);
+                toggle(x(), y + 44, half, "Panel shadows", () -> style.shadows, v -> style.shadows = v);
+                toggle(x() + half + 6, y + 44, half, "Text shadow", () -> style.textShadow, v -> style.textShadow = v);
+                action(x(), y + 66, half, "MINIMAL HUD", () -> {
                     style.opacity = 60; style.accents = false; style.shadows = false;
                     style.textShadow = true; profiles.save(hud); rebuildWidgets();
                 });
-                action(x() + half + 6, y + 75, half, "RESET STYLE", () -> {
+                action(x() + half + 6, y + 66, half, "RESET STYLE", () -> {
                     ThemeManager.getInstance().setAppearance(null); profiles.save(hud); rebuildWidgets();
                 });
             }
@@ -179,10 +181,10 @@ final class ClientSettingsScreen extends Screen {
                 action(x(), y, w(), "FPS mode: " + config.performanceMode.label + " >", () -> {
                     performance.setMode(minecraft, config.performanceMode.next()); rebuildWidgets();
                 });
-                action(x(), y + 25, half, "Balanced", () -> { performance.setMode(minecraft, PerformanceMode.BALANCED); rebuildWidgets(); });
-                action(x() + half + 6, y + 25, half, "Max FPS", () -> { performance.setMode(minecraft, PerformanceMode.MAX); rebuildWidgets(); });
-                action(x(), y + 50, w(), "Restore previous settings", () -> { performance.setMode(minecraft, PerformanceMode.OFF); rebuildWidgets(); });
-                toggle(x(), y + 75, w(), "Light HUD", () -> config.performanceLightHud, v -> {
+                action(x(), y + 22, half, "Balanced", () -> { performance.setMode(minecraft, PerformanceMode.BALANCED); rebuildWidgets(); });
+                action(x() + half + 6, y + 22, half, "Max FPS", () -> { performance.setMode(minecraft, PerformanceMode.MAX); rebuildWidgets(); });
+                action(x(), y + 44, w(), "Restore previous settings", () -> { performance.setMode(minecraft, PerformanceMode.OFF); rebuildWidgets(); });
+                toggle(x(), y + 66, w(), "Light HUD", () -> config.performanceLightHud, v -> {
                     config.performanceLightHud = v; performance.refreshBudget();
                 });
             }
@@ -194,17 +196,17 @@ final class ClientSettingsScreen extends Screen {
                     status = profiles.switchProfile(names.get(next), hud) ? "Profile loaded" : "Could not load profile";
                     rebuildWidgets();
                 });
-                profileName = addRenderableWidget(new EditBox(font, x(), y + 25, half, 20, Component.literal("New profile name")));
+                profileName = addRenderableWidget(new EditBox(font, x(), y + 22, half, 20, Component.literal("New profile name")));
                 profileName.setHint(Component.literal("New profile name..."));
                 profileName.setMaxLength(32); profileName.setValue(draftName);
-                action(x() + half + 6, y + 25, half, "COPY CURRENT", () -> {
+                action(x() + half + 6, y + 22, half, "COPY CURRENT", () -> {
                     rememberDraft();
                     boolean created = profiles.createProfile(draftName, hud);
                     status = created ? "Current HUD and theme copied" : "Use a new name (letters/numbers)";
                     if (created) draftName = "";
                     rebuildWidgets();
                 });
-                action(x(), y + 50, w(), "Reset HUD positions & scales", () -> {
+                action(x(), y + 44, w(), "Reset HUD positions & scales", () -> {
                     rememberDraft();
                     minecraft.setScreen(new ConfirmScreen(yes -> {
                         if (yes) {
@@ -215,7 +217,7 @@ final class ClientSettingsScreen extends Screen {
                         minecraft.setScreen(this);
                     }, Component.literal("Reset HUD layout?"), Component.literal("Your module switches and other profiles are kept.")));
                 });
-                action(x(), y + 75, w(), "AUTO ARRANGE", () -> {
+                action(x(), y + 66, w(), "AUTO ARRANGE", () -> {
                     if (minecraft.player == null) { status = "Join a world first"; return; }
                     hud.arrange(minecraft); profiles.save(hud);
                     status = "HUD arranged; module switches kept";
@@ -249,10 +251,10 @@ final class ClientSettingsScreen extends Screen {
 
     public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
-        c.fill(0, 0, width, height, theme.background());
-        c.fill(x() - 8, top() - 32, x() + w() + 8,
-                Math.min(height - 34, top() + (tab == Tab.GENERAL || tab == Tab.HITBOX ? 147 : 122)), theme.panel());
-        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 80, theme.accent());
+        com.codex.pvphud.gui.MenuBackdrop.draw(c,width,height,theme);
+        int bottom=Math.min(height-34,top()+122);
+        com.codex.pvphud.render.RoundedRenderer.fill(c,x()-8,top()-54,w()+16,bottom-top()+54,7,theme.panel());
+        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 90, theme.accent());
         String helper = switch (tab) {
             case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
             case GENERAL -> "Yellow hunger outline = saturation (singleplayer).";
