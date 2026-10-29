@@ -24,7 +24,7 @@ public final class FeatureModule extends HudElement {
 
     protected void renderElement(GuiGraphicsExtractor context, Minecraft client, Theme theme, boolean editorMode, float alpha) {
         if (type != Type.WAYPOINT && !editorMode) return;
-        if (type == Type.WAYPOINT && !editorMode && WaypointManager.getInstance().waypoints().isEmpty()) return;
+        if (type == Type.WAYPOINT && !editorMode && WaypointManager.getInstance().visible(client).isEmpty()) return;
         HudStyles.card(context, theme, width(client), height(client), alpha);
         context.text(client.font, Component.literal(nameText()), 7, 7, theme.text());
         if (type == Type.WAYPOINT) {

@@ -1,4 +1,19 @@
-# PVPSE v3.3.0 — Vanilla HUD integration
+# PVPSE v3.4.0 - Clean Ember
+
+- Cleaner HUD cards and key tiles with restrained PVPSE ember accents, flatter surfaces and lighter shadows. Existing layouts, scales, hidden cards and theme choices stay intact.
+- Midnight becomes Midnight Ember: charcoal panels, warm accents, cool secondary details and more readable muted text. Select it through the theme picker or Settings > ITEMS > MIDNIGHT EMBER.
+- Shulker hover previews preserve all 27 slots. Bundle previews show actual contents, selected stack and capacity. Hidden tooltip components remain hidden; normal bundle interactions stay vanilla.
+- Held-food forecasts appear directly on the hunger bar: cyan hunger outlines, dashed pale-gold saturation preview, solid yellow current saturation and a numeric gain label. Uses actual food components and caps; unavailable multiplayer saturation stays unknown.
+- Block Overlay is now a world-space outline and light tint on the actual selected block shape, with no extra HUD card. Toggle under GENERAL.
+- One clear waypoint route cue shows distance, height difference and direction. Shift+B marks a temporary visible block target up to 128m away, expiring after five minutes or leaving the world/dimension. B still saves your current position.
+- Armor shows per-slot percentage, exact remaining durability and a calm low-durability warning using the configured threshold.
+- Clean hotbar frame, readable counts, durability strips and real cooldown seconds. Toggle under ITEMS.
+- General hitboxes are clearer while not aiming, work with any held item by default and have adjustable background opacity. Target-only and weapon filters remain optional; normal visibility/depth checks remain active. Visual bounds do not change attack reach.
+- Build, startup and world regression checks include previews, exact saturation forecasts, route math, non-aimed hitboxes, native tooltip composition and persistent controls.
+
+---
+
+# PVPSE v3.3.0 - Vanilla HUD integration
 
 - Potion timers sit inside the existing vanilla effect icons, following vanilla ordering, beneficial/harmful rows and visibility. Infinite effects show infinity; short durations turn amber/red.
 - Saturation appears as a yellow outline on the existing hunger icons, with half icons for odd values. Exact integrated-server values in singleplayer; no false saturation overlay on multiplayer servers that do not synchronize it.
@@ -8,14 +23,14 @@
 
 ---
 
-# PVPSE v3.2.0 — Food and general hitboxes
+# PVPSE v3.2.0 - Food and general hitboxes
 
 - Optional Food & Saturation card in HUD editor > HUDs. Move, scale or hide it. Exact saturation is available in singleplayer; multiplayer servers do not normally synchronize it, so unknown is shown there.
 - Existing configs switch once from target-only to general hitbox visibility. The Target only setting remains available; later choices are preserved. Weapon filters and wall visibility checks remain active.
 
 ---
 
-# PVPSE Client v3.1.2 — Bug audit
+# PVPSE Client v3.1.2 - Bug audit
 
 - Failed HUD auto-arrange attempts now leave existing positions and scales intact. The HUD picker keeps a newly enabled card off if even auto-arrange cannot make room.
 - Fullbright remains stable while a real Night Vision effect fades; disabling fullbright preserves the actual potion effect.
@@ -24,7 +39,7 @@
 
 ---
 
-# PVPSE Client v3.1.1 — Fullbright and hitbox distance fixes
+# PVPSE Client v3.1.1 - Fullbright and hitbox distance fixes
 
 - Fix Target-only hitboxes using vanilla attack picking: independently select visible entities up to the configured view distance, stopping at blocks. Range now goes up to 32 blocks and is available in Settings > HITBOX. Actual attack reach is unchanged.
 - Replace ordinary brightness adjustment with client rendering night vision. Does not create or remove potion effects or change the saved gamma option. Toggle with V or the Brightness module; strength remains adjustable.
@@ -32,7 +47,7 @@
 
 ---
 
-# PVPSE Client v3.1.0 — Ignite Reforged
+# PVPSE Client v3.1.0 - Ignite Reforged
 
 Minecraft 26.1.2 / Fabric / Java 25.
 
@@ -47,7 +62,7 @@ Minecraft 26.1.2 / Fabric / Java 25.
 - Choose either Smooth 32x or Lite 16x. All HUD options and profiles from 3.0 remain available.
 
 ---
-# PVPSE Client v3.0.0 — Combat polish
+# PVPSE Client v3.0.0 - Combat polish
 
 For Minecraft 26.1.2 / Fabric, Java 25.
 
@@ -177,7 +192,7 @@ Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not ins
 ## HUD themes and style
 - Optional Clear Glass theme alongside every existing theme.
 - Refined shared panel surfaces, softer glow, subtle accent lines and readable text.
-- New STYLE tab: HUD opacity (20–100%), accent lines, panel shadows and text shadows.
+- New STYLE tab: HUD opacity (20-100%), accent lines, panel shadows and text shadows.
 - Minimal HUD preset and one-click style reset.
 - Appearance preferences are saved per profile and copied with the current profile.
 - Fixed overlapping translucent rounded panels and forced glass opacity.
@@ -243,7 +258,7 @@ Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not ins
 
 ## Bow and melee follow-up
 - Orange/gold/green bow charge textures, with green at full 20-tick draw.
-- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1–4 line width.
+- Interpolated sword/mace hitbox outlines, optional eye-level rings and 1-4 line width.
 - Separate sword/mace switches, cooldown/falling colors and optional nearby-visible mode.
 - Hitboxes respect HUD visibility and use eye-to-box display distance.
 
@@ -255,8 +270,8 @@ Install PVPSE-2.4.0.jar in mods. Texturepack ZIPs remain optional and do not ins
 
 ## PvP visibility and settings
 - Optional attack cooldown bar beneath the crosshair, visible only while recharging.
-- Optional low-health alert (2–16 HP; two HP per heart, excluding absorption).
-- Optional equipped-armor alert (5–50% remaining durability).
+- Optional low-health alert (2-16 HP; two HP per heart, excluding absorption).
+- Optional equipped-armor alert (5-50% remaining durability).
 - Adjustable hit marker size, damage-flash opacity and kill-particle count.
 - Minimal Effects preset turns off flash and particles while keeping hit markers.
 - Combat feedback respects the HUD toggle and hides while menus are open.
@@ -326,7 +341,7 @@ Final PvP HUD release for Fabric 1.21.11 and Java 21.
 - New **Melee Hitboxes** module in the scrollable HUD elements panel
 - Shows a precise 3D wireframe only for the living entity under the crosshair
 - Activates only while holding a sword or mace
-- Adjustable visual range (2–12 blocks) in the module settings
+- Adjustable visual range (2-12 blocks) in the module settings
 - Client-side visualization only: no reach, attack, aiming, or packet changes
 
 ## Settings and polish

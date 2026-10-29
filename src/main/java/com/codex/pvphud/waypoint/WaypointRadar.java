@@ -48,7 +48,7 @@ public final class WaypointRadar {
         double heading = manager.northUp() ? Math.toRadians(mc.player.getYRot()) : Math.PI;
         int hx = cx - (int) Math.round(Math.sin(heading) * 6), hy = cy + (int) Math.round(Math.cos(heading) * 6);
         c.fill(hx - 1, hy - 1, hx + 2, hy + 2, t.accent());
-        String detail = points.isEmpty() ? "B: add waypoint" : points.getFirst().name();
+        String detail = points.isEmpty() ? "B: here / Shift+B: aim" : points.getFirst().name();
         if (!points.isEmpty()) {
             var p = points.getFirst();
             double distance = Math.hypot(p.x() + .5 - mc.player.getX(), p.z() + .5 - mc.player.getZ());

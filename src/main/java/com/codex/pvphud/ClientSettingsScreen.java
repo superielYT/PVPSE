@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 final class ClientSettingsScreen extends Screen {
-    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES, FPS, AIM }
+    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES, FPS, AIM, ITEMS }
     private final Screen parent;
     private final HudConfig config;
     private final ConfigManager profiles;
@@ -84,8 +84,7 @@ final class ClientSettingsScreen extends Screen {
                 toggle(x(), y + 25, half, "Hide on F3", () -> config.hideOnDebug, v -> config.hideOnDebug = v);
                 toggle(x() + half + 6, y + 25, half, "No damage tilt", () -> config.suppressDamageTilt, v -> config.suppressDamageTilt = v);
                 toggle(x(), y + 50, half, "Custom crosshair", () -> config.showCrosshair, v -> config.showCrosshair = v);
-                toggle(x() + half + 6, y + 50, half, "Block Overlay", () -> hud.find("block_overlay").map(e -> e.enabled()).orElse(false),
-                        v -> { hud.find("block_overlay").ifPresent(e -> e.setEnabled(v)); profiles.save(hud); });
+                toggle(x() + half + 6, y + 50, half, "Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v);
                 int presetWidth = (w() - 8) / 3;
                 for (var preset : com.codex.pvphud.hud.PvpPreset.values()) {
                     String label = preset.name().substring(0, 1) + preset.name().substring(1).toLowerCase(java.util.Locale.ROOT) + " preset";
@@ -96,6 +95,14 @@ final class ClientSettingsScreen extends Screen {
                         status = label + " applied to this profile";
                     });
                 }
+            }
+            case ITEMS -> {
+                toggle(x(), y, w(), "Container previews", () -> config.containerPreviews, v -> config.containerPreviews = v);
+                toggle(x(), y + 25, w(), "Held food preview", () -> config.foodPreview, v -> config.foodPreview = v);
+                toggle(x(), y + 75, w(), "Clean hotbar", () -> config.cleanHotbar, v -> config.cleanHotbar = v);
+                action(x(), y + 50, w(), "MIDNIGHT EMBER", () -> {
+                    ThemeManager.getInstance().setTheme("midnight"); profiles.save(hud); rebuildWidgets();
+                });
             }
             case COMBAT -> {
                 toggle(x(), y, w(), "Attack cooldown bar", () -> config.showAttackCooldown, v -> config.showAttackCooldown = v);
@@ -124,6 +131,9 @@ final class ClientSettingsScreen extends Screen {
                 });
             }
             case HITBOX -> {
+                toggle(x(), y + 100, half, "Any held item", () -> config.hitboxAnyItem, v -> config.hitboxAnyItem = v);
+                number(x() + half + 6, y + 100, half, "Background opacity %", () -> config.hitboxBackgroundOpacity,
+                        v -> config.hitboxBackgroundOpacity = v, 40, 100, 10);
                 toggle(x(), y, half, "Melee hitboxes", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> e.enabled()).orElse(false),
                         v -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).ifPresent(e -> e.setEnabled(v)));
                 number(x() + half + 6, y, half, "View range", () -> hud.feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).map(e -> (int)e.value()).orElse(12), v -> {
@@ -242,13 +252,14 @@ final class ClientSettingsScreen extends Screen {
         var theme = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, theme.background());
         c.fill(x() - 8, top() - 32, x() + w() + 8,
-                Math.min(height - 34, top() + (tab == Tab.GENERAL ? 147 : 122)), theme.panel());
+                Math.min(height - 34, top() + (tab == Tab.GENERAL || tab == Tab.HITBOX ? 147 : 122)), theme.panel());
         c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 80, theme.accent());
         String helper = switch (tab) {
             case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
             case GENERAL -> "Yellow hunger outline = saturation (singleplayer).";
+            case ITEMS -> "Hover shulkers/bundles. Cyan: food preview. Gold: saturation.";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
-            case HITBOX -> "Green: ready | Amber: cooldown | Purple: falling mace";
+            case HITBOX -> "Any held item overrides weapon filters. Target only is optional.";
             case EFFECTS -> "Click a value to increase it; maximum wraps to minimum";
             case STYLE -> "HUD appearance is saved per profile. Clear Glass is optional.";
             case PROFILES -> "Profiles store HUD, utilities and theme. Alerts are global.";
@@ -261,7 +272,7 @@ final class ClientSettingsScreen extends Screen {
         if (!query.isBlank() && SettingsSearch.find(query).isEmpty()) {
             c.text(font, Component.literal("No settings found. Try armor, HUD or geluid."), x(), top() + 8, theme.mutedText());
         }
-        int footer = top() + (tab == Tab.GENERAL ? 128 : 103);
+        int footer = top() + (tab == Tab.GENERAL || tab == Tab.HITBOX ? 128 : 103);
         if (query.isBlank() && footer < height - 39) {
             String message = status.isBlank() ? helper : status;
             c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());

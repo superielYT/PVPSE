@@ -50,7 +50,7 @@ public final class WaypointScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var t = ThemeManager.getInstance().getTheme();
         c.fill(0, 0, width, height, t.background());
-        c.centeredText(font, title, width / 2, 15, t.accent());
+        c.centeredText(font, Component.literal("WAYPOINTS / Shift+B: temporary look target (5 min)"), width / 2, 15, t.accent());
         clamp();
         if (height > 174) {
             c.enableScissor(left(), 138, left() + panelWidth(), height - 36);

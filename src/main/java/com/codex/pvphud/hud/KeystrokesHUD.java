@@ -17,7 +17,9 @@ public final class KeystrokesHUD extends HudElement {
     }
     private void key(GuiGraphicsExtractor c, Minecraft mc, Theme t, String label, int x, int y, boolean down) { key(c, mc, t, label, x, y, down, 20); }
     private void key(GuiGraphicsExtractor c, Minecraft mc, Theme t, String label, int x, int y, boolean down, int w) {
-        RoundedRenderer.fill(c, x, y, w, 20, 4, down ? t.accent() : t.panel());
+        var style = com.codex.pvphud.theme.ThemeManager.getInstance().appearance();
+        com.codex.pvphud.render.RenderUtil.panel(c, x, y, w, 20, t,
+                style.panelColor(down ? t.accent() : t.panel(), 1), style.accents, false);
         int color = down ? 0xFF101010 : t.text();
         c.centeredText(mc.font, Component.literal(label), x + w / 2, y + 6, color);
     }

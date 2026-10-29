@@ -1,6 +1,6 @@
 package com.codex.pvphud.waypoint;
 
-import com.codex.pvphud.render.RoundedRenderer;
+import com.codex.pvphud.render.RenderUtil;
 import com.codex.pvphud.theme.Theme;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
@@ -10,35 +10,41 @@ import net.minecraft.network.chat.Component;
 public final class WaypointOverlay {
     private WaypointOverlay() {}
 
-    public static void render(GuiGraphicsExtractor context, Minecraft client, Theme theme) {
-        if (client.player == null || client.level == null || !WaypointManager.getInstance().labels()) return;
-        String dimension = client.level.dimension().identifier().toString();
-        int index = 0;
-        for (var point : WaypointManager.getInstance().visible(client)) {
-            if (!point.dimension().equals(dimension) || index >= Math.min(6, Math.max(1, (context.guiHeight() - 90) / 18))) continue;
-            double dx = point.x() + 0.5 - client.player.getX();
-            double dz = point.z() + 0.5 - client.player.getZ();
-            double distance = Math.sqrt(dx * dx + dz * dz);
-            double bearing = Math.atan2(-dx, dz);
-            double relative = wrap(bearing - Math.toRadians(client.player.getYRot()));
-            int centerX = context.guiWidth() / 2;
-            int x = centerX + (int) Math.clamp(Math.round(Math.sin(relative) * centerX * 0.72), -centerX + 55, centerX - 55);
-            int y = 48 + index++ * 18;
-            String direction = Math.cos(relative) < 0 ? (Math.sin(relative) < 0 ? "< " : "> ") : "";
-            int dy = (int) Math.round(point.y() - client.player.getY());
-            String label = direction + (WaypointManager.getInstance().tracked(point) ? "* " : "") + point.name() + String.format(Locale.ROOT, " %.0fm (%+dY)", distance, dy);
-            label = client.font.plainSubstrByWidth(label, Math.max(1, context.guiWidth() - 28));
-            int width = client.font.width(label) + 14;
-            if (Math.cos(relative) < 0) x = Math.sin(relative) < 0 ? width / 2 + 4 : context.guiWidth() - width / 2 - 4;
-            x = Math.clamp(x, width / 2 + 4, context.guiWidth() - width / 2 - 4);
-            RoundedRenderer.fill(context, x - width / 2, y, width, 15, 4, theme.panel());
-            context.centeredText(client.font, Component.literal(label), x, y + 4, point.tint());
-        }
+    public record Route(double distance, int height, double angle, boolean arrived) {}
+    public static Route route(double dx, double dy, double dz, float yaw) {
+        double angle = Math.atan2(-dx, dz) - Math.toRadians(yaw);
+        angle = Math.atan2(Math.sin(angle), Math.cos(angle));
+        return new Route(Math.sqrt(dx*dx + dy*dy + dz*dz), (int)Math.round(dy), angle,
+                Math.hypot(dx,dz) < 2 && Math.abs(dy) < 3);
     }
 
-    private static double wrap(double angle) {
-        while (angle > Math.PI) angle -= Math.PI * 2;
-        while (angle < -Math.PI) angle += Math.PI * 2;
-        return angle;
+    public static void render(GuiGraphicsExtractor c, Minecraft mc, Theme theme) {
+        var manager = WaypointManager.getInstance();
+        if (mc.player == null || mc.level == null || !manager.labels() || mc.screen != null) return;
+        var points = manager.visible(mc);
+        if (points.isEmpty()) return;
+        var point = points.getFirst();
+        var route = route(point.x()+.5-mc.player.getX(), point.y()-mc.player.getY(),
+                point.z()+.5-mc.player.getZ(), mc.player.getYRot());
+        String turn = route.arrived() ? "Arrived" : Math.cos(route.angle()) < 0
+                ? (route.angle() < 0 ? "Behind left" : "Behind right")
+                : Math.abs(route.angle()) < .15 ? "Ahead" : route.angle() < 0 ? "Left" : "Right";
+        String name = mc.font.plainSubstrByWidth(point.name(), Math.max(1, Math.min(160, c.guiWidth()-60)));
+        String detail = String.format(Locale.ROOT, "%s  %.0fm  %+dY", turn, route.distance(), route.height());
+        int width = Math.min(c.guiWidth()-8, Math.max(mc.font.width(name), mc.font.width(detail)) + 30);
+        int x = (c.guiWidth()-width)/2, y=38;
+        var style = com.codex.pvphud.theme.ThemeManager.getInstance().appearance();
+        RenderUtil.panel(c,x,y,width,30,theme,style.panelColor(theme.panel(),1),style.accents,false);
+        c.text(mc.font,name,x+23,y+5,theme.text(),false);
+        c.text(mc.font,detail,x+23,y+17,theme.mutedText(),false);
+        c.pose().pushMatrix();
+        try {
+            c.pose().translate(x+12F,y+15F);
+            c.pose().rotate((float)route.angle());
+            for(int i=0;i<5;i++) {
+                c.fill(-i,-4+i,-i+1,-2+i,point.tint());
+                c.fill(i,-4+i,i+1,-2+i,point.tint());
+            }
+        } finally { c.pose().popMatrix(); }
     }
 }

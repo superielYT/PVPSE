@@ -23,6 +23,12 @@ final class HudConfig {
     boolean enabled = true;
     boolean nativePotionTimers = true;
     boolean nativeSaturation = true;
+    boolean foodPreview = true;
+    boolean containerPreviews = true;
+    boolean blockOverlay = true;
+    boolean cleanHotbar = true;
+    boolean hitboxAnyItem = true;
+    int hitboxBackgroundOpacity = 80;
     PerformanceMode performanceMode = PerformanceMode.OFF;
     boolean performanceLightHud = true;
     PerformanceController.Snapshot performanceBefore;
@@ -123,6 +129,7 @@ final class HudConfig {
         crosshairSize = Math.clamp(crosshairSize, MIN_CROSSHAIR_SIZE, MAX_CROSSHAIR_SIZE);
         panelOpacity = Math.clamp(panelOpacity, MIN_OPACITY, MAX_OPACITY);
         hitboxLineWidth = Math.clamp(hitboxLineWidth, 1, 4);
+        hitboxBackgroundOpacity = Math.clamp(hitboxBackgroundOpacity, 40, 100);
         lowHealthThreshold = Math.clamp(lowHealthThreshold, 2, 16);
         armorWarningPercent = Math.clamp(armorWarningPercent, 5, 50);
         armorSoundVolume = Math.clamp(armorSoundVolume, 0, 100);

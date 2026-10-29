@@ -10,7 +10,7 @@ public enum PvpPreset {
 
     private final Set<String> cards;
     PvpPreset(Set<String> cards) { this.cards = cards; }
-    public boolean includes(String id) { return "block_overlay".equals(id) || cards.contains(id); }
+    public boolean includes(String id) { return cards.contains(id); }
     public void apply(HudManager manager) {
         manager.elements().stream().filter(e -> !(e instanceof FeatureModule))
                 .forEach(e -> e.setEnabled(includes(e.id())));

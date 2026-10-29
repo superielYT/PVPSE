@@ -20,7 +20,6 @@ public final class HudManager {
         register(new KeystrokesHUD());
         register(new ArmorHUD());
         register(new InventoryHUD());
-        register(new BlockOverlayHUD());
         register(new HeldItemHUD());
         register(new PackDisplayHUD());
         register(new CoordinatesHUD());

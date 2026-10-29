@@ -28,7 +28,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("pvpse-menu-title");
         context.clickScreenButton("Settings & profiles");
         context.waitForScreen(ClientSettingsScreen.class);
-        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILE", "FPS", "AIM", "GENERAL"}) {
+        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILE", "FPS", "AIM", "ITEMS", "GENERAL"}) {
             context.clickScreenButton(tab);
             context.waitTicks(3);
             context.takeScreenshot("pvpse-settings-" + tab.toLowerCase(java.util.Locale.ROOT));
@@ -153,7 +153,121 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testRangeAndFullbright(context, world.getServer());
             testAuditFixes(context, world.getServer());
             testNativeHud(context, world.getServer());
+            testCleanUpdate(context, world.getServer());
         }
+    }
+
+    private static void testCleanUpdate(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        server.runCommand("time set noon");
+        server.runCommand("weather clear");
+        server.runCommand("fill -3 -59 -3 3 -53 6 minecraft:air");
+        server.runCommand("setblock 0 -59 0 minecraft:oak_slab[type=top]");
+        server.runCommand("tp @p 0.5 -60 -3 0 0");
+        server.runCommand("item replace entity @p weapon.mainhand with minecraft:cooked_beef");
+        context.runOnClient(mc -> {
+            var theme = com.codex.pvphud.theme.ThemeManager.getInstance();
+            theme.setTheme("midnight");
+            var manager = PvpHudClient.getInstance().hudManager();
+            if (manager.find("block_overlay").isPresent()) throw new AssertionError("Block overlay is still a card");
+            for (String id : new String[]{"watermark","armor","inventory","health_indicator"}) manager.find(id).orElseThrow().setEnabled(true);
+            manager.arrange(mc);
+            manager.feature(com.codex.pvphud.hud.FeatureModule.Type.WAYPOINT).orElseThrow().setEnabled(true);
+            var waypoints = com.codex.pvphud.waypoint.WaypointManager.getInstance();
+            waypoints.clear();
+            mc.getSingleplayerServer().execute(() -> {
+                for (var player : mc.getSingleplayerServer().getPlayerList().getPlayers()) {
+                    player.setHealth(player.getMaxHealth());
+                    player.getFoodData().setFoodLevel(10); player.getFoodData().setSaturation(2);
+                }
+            });
+            var helmet = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_HELMET);
+            helmet.setDamageValue(helmet.getMaxDamage()-9);
+            mc.player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,helmet);
+        });
+        context.waitTicks(12);
+        context.runOnClient(mc -> {
+            var preview = FoodForecast.held(mc.player,SaturationState.value(mc));
+            if (preview == null || preview.hunger()!=18 || preview.foodGain()!=8 || Math.abs(preview.saturationGain()-12.8F)>.15)
+                throw new AssertionError("Held food prediction incorrect: "+preview);
+            if (FoodForecast.held(mc.player,Float.NaN)==null || Float.isFinite(FoodForecast.held(mc.player,Float.NaN).saturation()))
+                throw new AssertionError("Unknown multiplayer saturation must remain unknown");
+            var manager=com.codex.pvphud.waypoint.WaypointManager.getInstance();
+            var point=manager.addLookTarget(mc);
+            if(point==null || !manager.waypoints().isEmpty() || manager.visible(mc).isEmpty() || !manager.tracked(point))
+                throw new AssertionError("Temporary looked-at waypoint was not tracked separately");
+            var route=com.codex.pvphud.waypoint.WaypointOverlay.route(3,4,0,0);
+            if(Math.abs(route.distance()-5)>.001 || route.height()!=4 || route.arrived()) throw new AssertionError("Route distance/height incorrect");
+        });
+        context.waitTicks(3); context.takeScreenshot("pvpse-clean-food-waypoint");
+        context.runOnClient(mc -> {
+            mc.player.getInventory().setItem(1,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.ENDER_PEARL,16));
+            var sword=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_SWORD);
+            sword.setDamageValue(sword.getMaxDamage()-20); mc.player.getInventory().setItem(2,sword);
+            mc.player.getCooldowns().addCooldown(mc.player.getInventory().getItem(1),100);
+            if(CleanHotbar.remainingTicks(mc.player,mc.player.getInventory().getItem(1))!=100) throw new AssertionError("Cooldown duration readout incorrect");
+        });
+        context.waitTicks(3); context.takeScreenshot("pvpse-clean-armor-hotbar");
+        server.runCommand("setblock 0 -59 0 minecraft:air");
+        server.runCommand("summon minecraft:iron_golem 2 -60 1 {NoAI:1b,Tags:[\"pvpse_general_box\"]}");
+        context.runOnClient(mc -> {
+            var module=PvpHudClient.getInstance().hudManager().feature(com.codex.pvphud.hud.FeatureModule.Type.MELEE_HITBOXES).orElseThrow();
+            module.setEnabled(true); module.setValue(12);
+        });
+        context.waitTicks(10);
+        context.runOnClient(mc -> {
+            if(MeleeHitboxRenderer.selectedTarget(mc,12)!=null) throw new AssertionError("General-hitbox fixture must be off the crosshair");
+            if(MeleeHitboxRenderer.outlineCount()==0) throw new AssertionError("Off-crosshair hitboxes disappeared while holding food");
+        });
+        context.takeScreenshot("pvpse-clean-general-hitboxes");
+        server.runCommand("kill @e[tag=pvpse_general_box]");
+        var shulker=context.computeOnClient(mc -> {
+            var stack=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PURPLE_SHULKER_BOX);
+            var items=net.minecraft.core.NonNullList.withSize(27,net.minecraft.world.item.ItemStack.EMPTY);
+            items.set(0,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND,32));
+            items.set(26,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.EMERALD,7));
+            stack.set(net.minecraft.core.component.DataComponents.CONTAINER,net.minecraft.world.item.component.ItemContainerContents.fromItems(items));
+            var data=ContainerPreview.of(stack).orElseThrow();
+            if(data.items().size()!=27 || !data.items().get(1).isEmpty() || data.items().get(26).getCount()!=7)
+                throw new AssertionError("Shulker preview lost empty slots or last-slot contents");
+            if(!(net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(stack.getTooltipImage().orElseThrow()) instanceof ContainerPreviewRenderer))
+                throw new AssertionError("Tooltip preview renderer was not wired into vanilla");
+            var hidden=stack.copy(); hidden.set(net.minecraft.core.component.DataComponents.TOOLTIP_DISPLAY,
+                    net.minecraft.world.item.component.TooltipDisplay.DEFAULT.withHidden(net.minecraft.core.component.DataComponents.CONTAINER,true));
+            if(ContainerPreview.of(hidden).isPresent()) throw new AssertionError("Hidden container tooltip was revealed");
+            return stack;
+        });
+        previewScreenshot(context,shulker,"pvpse-clean-shulker-preview");
+        var bundle=context.computeOnClient(mc -> {
+            var stack=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BUNDLE);
+            stack.set(net.minecraft.core.component.DataComponents.BUNDLE_CONTENTS,new net.minecraft.world.item.component.BundleContents(java.util.List.of(
+                    new net.minecraft.world.item.ItemStackTemplate(net.minecraft.world.item.Items.APPLE,16),
+                    new net.minecraft.world.item.ItemStackTemplate(net.minecraft.world.item.Items.ENDER_PEARL,4))));
+            var data=ContainerPreview.of(stack).orElseThrow();
+            if(!data.bundle() || data.items().size()!=2 || Math.abs(data.fullness()-.5F)>.001) throw new AssertionError("Bundle contents or capacity incorrect");
+            return stack;
+        });
+        previewScreenshot(context,bundle,"pvpse-clean-bundle-preview");
+        context.runOnClient(mc -> PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles"); context.clickScreenButton("ITEMS");
+        context.clickScreenButton("Container previews: ON"); context.clickScreenButton("Held food preview: ON"); context.clickScreenButton("Clean hotbar: ON");
+        context.runOnClient(mc -> {
+            var saved=HudConfig.load();
+            if(saved.containerPreviews || saved.foodPreview || saved.cleanHotbar || ContainerPreview.of(shulker).isPresent())
+                throw new AssertionError("New controls did not persist or disable previews");
+        });
+        context.clickScreenButton("Container previews: OFF"); context.clickScreenButton("Held food preview: OFF"); context.clickScreenButton("Clean hotbar: OFF");
+        context.setScreen(() -> null);
+    }
+
+    private static void previewScreenshot(ClientGameTestContext context, net.minecraft.world.item.ItemStack stack,String name) {
+        context.runOnClient(mc -> mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player) {
+            @Override public void extractRenderState(net.minecraft.client.gui.GuiGraphicsExtractor c,int mx,int my,float delta) {
+                super.extractRenderState(c,mx,my,delta);
+                c.setTooltipForNextFrame(mc.font,stack,width-10,height-10);
+            }
+        }));
+        context.waitTicks(4); context.takeScreenshot(name); context.setScreen(() -> null);
     }
 
     private static void testNativeHud(ClientGameTestContext context,
