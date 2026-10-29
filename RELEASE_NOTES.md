@@ -2,7 +2,7 @@
 
 - 60 native enchantment variants across swords, axes and bows. Fire Aspect, Sharpness, Smite, Bane, Efficiency, Flame and Power have distinct accents. Existing mace/book variants and full bow charge stages remain.
 - 18 ore models have native emissive mineral facets; surrounding stone stays normally shaded. No shader or extra mod required for ore glow. Covered ores remain covered, and the effect does not cast light.
-- Expanded coordinated building textures include sandstone, quartz, prismarine, purpur, polished stone, copper and clearer glass.
+- 200 coordinated block textures include sandstone, quartz, prismarine, purpur, polished stone, copper and clearer glass.
 - 27 smaller combat/potion/totem particle sprites preserve vanilla timing and colors.
 - Three original quiet sound cues replace totem use, pearl throws and item breaks (tools and armor).
 - Darker inventory, chest, crafting, shulker and furnace-family GUI, with readable native title chips.

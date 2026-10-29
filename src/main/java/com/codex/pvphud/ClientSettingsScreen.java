@@ -254,7 +254,7 @@ final class ClientSettingsScreen extends Screen {
         com.codex.pvphud.gui.MenuBackdrop.draw(c,width,height,theme);
         int bottom=Math.min(height-34,top()+122);
         com.codex.pvphud.render.RoundedRenderer.fill(c,x()-8,top()-54,w()+16,bottom-top()+54,7,theme.panel());
-        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 94, theme.accent());
+        c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 90, theme.accent());
         String helper = switch (tab) {
             case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
             case GENERAL -> "Yellow hunger outline = saturation (singleplayer).";

@@ -44,10 +44,10 @@ export function drawGui() {
         const background=(r,f)=>{
             r(1,1,174,h-2,[18,23,32,255]);f(0,0,176,h,[8,12,19,255]);
             const furnace=['furnace','blast_furnace','smoker'].includes(name);
-            r(furnace?44:6,4,furnace?88:82,11,[158,169,185,255]);r(6,2,22,1,accent);
+            if(name!=='inventory')r(furnace?44:6,4,furnace?88:82,11,[158,169,185,255]);r(6,2,22,1,accent);
             const slot=(x,y)=>{r(x-1,y-1,18,18,[10,15,23,255]);f(x-1,y-1,18,18,[53,67,84,255]);r(x,y,16,1,[6,10,16,255]);};
             const main=chest?140:84;
-            r(6,main-16,60,11,[158,169,185,255]);
+            if(name!=='inventory')r(6,main-16,60,11,[158,169,185,255]);
             for(let row=0;row<3;row++)for(let col=0;col<9;col++)slot(8+col*18,main+row*18);
             for(let col=0;col<9;col++)slot(8+col*18,main+58);
             if(chest)for(let row=0;row<6;row++)for(let col=0;col<9;col++)slot(8+col*18,18+row*18);

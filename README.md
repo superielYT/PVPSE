@@ -197,7 +197,7 @@ PVPSE 3.3 adds potion durations inside vanilla status-effect icons and yellow sa
 
 ## Ignite Radiant 3.5
 
-Use the ZIPs from the latest GitHub release, generated from tools; tracked historical resourcepack files are not the release builds. Radiant adds 60 native enchantment weapon variants, 18 ore models with glowing mineral facets, expanded building/glass textures, 27 smaller particle sprites, three original combat sounds, and a broader dark GUI. Ore glow uses native element light_emission without shaders or another mod; it does not illuminate the cave or reveal covered ores. The photographic custom sky still requires Skyboxify as explained in SKY.txt.
+Use the ZIPs from the latest GitHub release, generated from tools; tracked historical resourcepack files are not the release builds. Radiant adds 60 native enchantment weapon variants, 18 ore models with glowing mineral facets, 200 coordinated block textures, 27 smaller particle sprites, three original combat sounds, and a broader dark GUI. Ore glow uses native element light_emission without shaders or another mod; it does not illuminate the cave or reveal covered ores. The photographic custom sky still requires Skyboxify as explained in SKY.txt.
 
 Sword priority: Fire Aspect > Sharpness > Smite > Bane. Axe: Efficiency > Sharpness. Bow: Flame > Power. Mace priority stays Breach > Density > Wind Burst. Component predicates work at every enchantment level; no CIT or renaming. Full bow-charge tips stay green. Item-break sound covers tools and armor. Pack builders need Node and ffmpeg to regenerate the original OGG sounds; generated packs contain the encoded files and need neither tool to play.
 
