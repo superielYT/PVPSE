@@ -194,3 +194,11 @@ Version 3.4 adds a cleaner shared card style and Midnight Ember (same `midnight`
 Block Overlay highlights the selected block directly in the world and no longer creates an information card. Waypoint routing shows distance, direction and height; Shift+B adds a temporary looked-at block marker (128m ray, five minutes), while B saves your current position. General hitboxes show off-crosshair targets only while holding a sword or mace, and have a separate background-opacity control.
 
 PVPSE 3.3 adds potion durations inside vanilla status-effect icons and yellow saturation outlines on the hunger bar. Toggle each under Settings > GENERAL (Potion timers / Yellow saturation). Separate Potions and Food & Saturation cards have been removed. Exact saturation is available in singleplayer; vanilla multiplayer does not synchronize it, so PVPSE does not invent a value or draw a misleading overlay there.
+
+## Ignite Radiant 3.5
+
+Use the ZIPs from the latest GitHub release, generated from tools; tracked historical resourcepack files are not the release builds. Radiant adds 60 native enchantment weapon variants, 18 ore models with glowing mineral facets, expanded building/glass textures, 27 smaller particle sprites, three original combat sounds, and a broader dark GUI. Ore glow uses native element light_emission without shaders or another mod; it does not illuminate the cave or reveal covered ores. The photographic custom sky still requires Skyboxify as explained in SKY.txt.
+
+Sword priority: Fire Aspect > Sharpness > Smite > Bane. Axe: Efficiency > Sharpness. Bow: Flame > Power. Mace priority stays Breach > Density > Wind Burst. Component predicates work at every enchantment level; no CIT or renaming. Full bow-charge tips stay green. Item-break sound covers tools and armor. Pack builders need Node and ffmpeg to regenerate the original OGG sounds; generated packs contain the encoded files and need neither tool to play.
+
+The mod has a quieter charcoal/ember menu design with clearer controls and two settings-tab rows. Existing themes and saved HUD layout/visibility choices are retained.

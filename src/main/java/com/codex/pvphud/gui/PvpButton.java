@@ -26,11 +26,13 @@ public final class PvpButton extends Button {
         hover.animateTo(active && (isHovered() || isFocused()) ? 1 : 0);
         float t = hover.value();
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
-        int base = ColorUtil.lerp(theme.panelHeader(), theme.accent(), t * 0.22F);
-        RoundedRenderer.fill(c, x, y + 1, w, h, 5, 0x55000000);
+        int base = ColorUtil.lerp(theme.panelHeader(), theme.accent(), t * 0.15F);
+        RoundedRenderer.fill(c, x, y + 1, w, h, 5, 0x33000000);
         RoundedRenderer.fill(c, x, y, w, h, 5, active ? base : ColorUtil.withAlpha(base, 130));
         if (w > 12) {
-            c.fill(x + 5, y, x + w - 5, y + 1, ColorUtil.withAlpha(theme.accent(), Math.round(60 + t * 140)));
+            c.fill(x+5,y,x+w-5,y+1,ColorUtil.withAlpha(0xFFFFFF,active?18:8));
+            if(active)c.fill(x+5,y,x+Math.min(w-5,18+Math.round(t*12)),y+1,ColorUtil.withAlpha(theme.accent(),Math.round(90+t*120)));
+            if(t>.05F)c.fill(x+1,y+5,x+2,y+h-5,ColorUtil.withAlpha(theme.accent(),Math.round(t*170)));
             if (isFocused()) c.fill(x + 5, y + h - 1, x + w - 5, y + h, theme.accent());
         }
         var font = Minecraft.getInstance().font;

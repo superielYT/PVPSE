@@ -1,7 +1,7 @@
 // Original native-size GUI sprites. Geometry follows Minecraft 26.1.2 atlas slots.
 export function drawGui() {
     const result=[];
-    const panel=[19,27,37,220],edge=[63,77,90,240],accent=[246,174,79,255];
+    const panel=[15,19,27,235],edge=[51,63,78,235],accent=[255,157,87,255];
     function sprite(name,w,h,draw,meta) {
         const pixels=Buffer.alloc(w*h*4);
         const rect=(x,y,rw,rh,color)=>{
@@ -39,14 +39,15 @@ export function drawGui() {
         r(3,18,194,1,[10,17,24,170]);
     },{gui:{scaling:{type:'nine_slice',width:200,height:20,border:3}}});
     // Keep vanilla UV positions and slot centers. Pale title strips retain black-label contrast.
-    for(const name of ['inventory','generic_54','crafting_table']){
+    for(const name of ['inventory','generic_54','crafting_table','shulker_box','furnace','blast_furnace','smoker']){
         const chest=name==='generic_54',h=chest?222:166;
         const background=(r,f)=>{
-            r(1,1,174,h-2,[27,36,47,255]);f(0,0,176,h,[13,20,29,255]);
-            r(4,4,168,11,[166,177,185,255]);r(5,15,166,1,[238,174,86,255]);
-            const slot=(x,y)=>{r(x-1,y-1,18,18,[14,23,33,255]);f(x-1,y-1,18,18,[72,87,102,255]);r(x,y,16,1,[10,17,25,255]);};
+            r(1,1,174,h-2,[18,23,32,255]);f(0,0,176,h,[8,12,19,255]);
+            const furnace=['furnace','blast_furnace','smoker'].includes(name);
+            r(furnace?44:6,4,furnace?88:82,11,[158,169,185,255]);r(6,2,22,1,accent);
+            const slot=(x,y)=>{r(x-1,y-1,18,18,[10,15,23,255]);f(x-1,y-1,18,18,[53,67,84,255]);r(x,y,16,1,[6,10,16,255]);};
             const main=chest?140:84;
-            r(5,main-16,166,11,[166,177,185,255]);
+            r(6,main-16,60,11,[158,169,185,255]);
             for(let row=0;row<3;row++)for(let col=0;col<9;col++)slot(8+col*18,main+row*18);
             for(let col=0;col<9;col++)slot(8+col*18,main+58);
             if(chest)for(let row=0;row<6;row++)for(let col=0;col<9;col++)slot(8+col*18,18+row*18);
@@ -54,9 +55,13 @@ export function drawGui() {
                 r(26,18,52,52,[14,23,33,255]);f(25,17,54,54,[72,87,102,255]);
                 for(let row=0;row<4;row++)slot(8,8+row*18);
                 slot(77,62);
-                r(95,5,70,12,[166,177,185,255]);
+                r(95,5,70,12,[158,169,185,255]);
                 for(let row=0;row<2;row++)for(let col=0;col<2;col++)slot(98+col*18,26+row*18);
                 slot(154,36);r(136,35,9,2,accent);r(141,32,2,8,accent);
+            }else if(name==='shulker_box'){
+                for(let row=0;row<3;row++)for(let col=0;col<9;col++)slot(8+col*18,18+row*18);
+            }else if(furnace){
+                slot(56,17);slot(56,53);slot(116,35);r(80,34,22,16,[35,43,55,255]);r(57,37,12,12,[35,43,55,255]);
             }else{
                 for(let row=0;row<3;row++)for(let col=0;col<3;col++)slot(30+col*18,17+row*18);
                 slot(124,35);r(91,34,19,3,accent);r(105,31,3,9,accent);

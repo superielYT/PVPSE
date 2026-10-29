@@ -82,11 +82,11 @@ public final class ClickGuiScreen extends Screen {
     }
     public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
-        c.fill(0, 0, width, height, theme.background());
-        c.fill(0, 0, sidebarWidth() + 24, height, theme.panel());
-        c.fill(sidebarWidth() + 23, 0, sidebarWidth() + 24, height, theme.panelHeader());
+        MenuBackdrop.draw(c,width,height,theme);
+        com.codex.pvphud.render.RoundedRenderer.fill(c,4,6,sidebarWidth()+16,height-12,7,theme.panel());
+        c.fill(15,29,33,30,theme.accent());
         c.text(font, Component.literal("PVPSE"), 16, 15, theme.accent());
-        c.text(font, Component.literal(font.plainSubstrByWidth("CLIENT / HUD / PVP", contentWidth())), contentX(), 16, theme.mutedText());
+        c.text(font, Component.literal(font.plainSubstrByWidth("IGNITE / COMBAT CLIENT", contentWidth())), contentX(), 16, theme.mutedText());
         hudPanel.render(c, minecraft, theme, contentX(), 85, contentWidth(), height - 116, mx, my, query);
         if (height > 225) {
             String hint = minecraft.player == null ? "Join a world to see and edit the HUD" : "Click: toggle   |   Right-click / +: settings";
