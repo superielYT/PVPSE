@@ -20,7 +20,8 @@ public final class ArmorHUD extends HudElement {
             var stack = mc.player.getItemBySlot(slot);
             if (stack.isDamageableItem()) weakest = Math.min(weakest, durabilityPercent(stack.getDamageValue(), stack.getMaxDamage()));
         }
-        if (weakest <= threshold) HudStyles.label(c,mc,Component.literal("LOW " + weakest + "%"),76,5,t.danger());
+        if (weakest <= threshold && com.codex.pvphud.PvpHudClient.getInstance().armorWarningsEnabled())
+            HudStyles.label(c,mc,Component.literal("LOW " + weakest + "%"),76,5,t.danger());
         int x = 5;
         int index = 0;
         for (EquipmentSlot slot : SLOTS) {

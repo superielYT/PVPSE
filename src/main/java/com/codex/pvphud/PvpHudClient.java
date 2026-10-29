@@ -35,6 +35,7 @@ public final class PvpHudClient implements ClientModInitializer {
     public boolean containerPreviewsEnabled() { return config != null && config.containerPreviews; }
     public boolean cleanHotbarEnabled() { return nativeHudVisible() && config.cleanHotbar; }
     public int armorWarningThreshold() { return config == null ? 15 : config.armorWarningPercent; }
+    public boolean armorWarningsEnabled() { return config != null && config.showArmorWarning; }
 
     private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath("pvp_hud_client", "hud");
     private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("pvp_hud_client", "controls"));
