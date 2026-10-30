@@ -1,4 +1,4 @@
-# PVPSE v3.5.0 — Final PvP Edition
+# PVPSE v3.6.0 — Final PvP Edition
 
 - Saturation now uses Minecraft's synchronized food state on multiplayer and an exact integrated-server sample in singleplayer. Regression checks cover fallback, override and safe clamping.
 - Enemy name tags show clean health hearts and the session totem-pop count without fragile embedded formatting codes.

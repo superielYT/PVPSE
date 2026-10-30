@@ -1,4 +1,4 @@
-# PVPSE 3.5 — Final PvP Edition
+# PVPSE 3.6 — Final PvP Edition
 
 Download the current client and ready-to-install resource packs from [GitHub Releases](https://github.com/superielYT/PVPSE/releases/latest).
 Enable **one** Ignite ZIP above other packs: Smooth 32x for detail or Lite 16x for smaller block/item textures.
