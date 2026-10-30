@@ -1,3 +1,13 @@
+# PVPSE v3.5.0 — Final PvP Edition
+
+- Saturation now uses Minecraft's synchronized food state on multiplayer and an exact integrated-server sample in singleplayer. Regression checks cover fallback, override and safe clamping.
+- Enemy name tags show clean health hearts and the session totem-pop count without fragile embedded formatting codes.
+- Ignite 16x Lite and 32x Smooth have redesigned ore families with connected veins, mineral-specific crystal clusters, highlights and sparkles for much faster PvP recognition.
+- Final pack polish covers 149 coordinated blocks, short PvP weapons, lower shields, extra-low animated fire, clean GUI, enchantment books, mace variants, bow stages and celestial textures.
+- The full HUD, settings, performance presets, hitbox colors, resource-pack contents and real in-game rendering are checked before release.
+
+---
+
 # PVPSE v3.4.0 — Clean combat HUD and performance
 
 - Enemy name tags now show synchronized health as hearts, with the session totem-pop count directly beside it.

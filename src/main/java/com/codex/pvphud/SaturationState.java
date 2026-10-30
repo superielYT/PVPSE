@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 
-/** Vanilla does not synchronize saturation to multiplayer clients. */
+/** Uses the synchronized client food state; integrated-server sampling verifies singleplayer exactly. */
 public final class SaturationState {
     private static volatile Sample sample;
     private static WeakReference<Object> lastWorld = new WeakReference<>(null);
@@ -32,11 +32,19 @@ public final class SaturationState {
         });
     }
 
-    /** NaN means unavailable; never use the client's unsynchronized default. */
+    /** Vanilla health/food packets synchronize saturation to the client on multiplayer. */
     public static float value(Minecraft mc) {
         var current = sample;
-        if (mc.player == null || current == null || current.server().get() != mc.getSingleplayerServer()
-                || !current.player().equals(mc.player.getUUID())) return Float.NaN;
-        return Math.clamp(current.value(), 0, mc.player.getFoodData().getFoodLevel());
+        if (mc.player == null) return Float.NaN;
+        float exact = current != null && current.server().get() == mc.getSingleplayerServer()
+                && current.player().equals(mc.player.getUUID())
+                ? current.value() : Float.NaN;
+        return chooseValue(exact, mc.player.getFoodData().getSaturationLevel(),
+                mc.player.getFoodData().getFoodLevel());
+    }
+
+    static float chooseValue(float exact, float synchronizedValue, int foodLevel) {
+        float value = Float.isFinite(exact) ? exact : synchronizedValue;
+        return Math.clamp(value, 0, Math.max(0, foodLevel));
     }
 }

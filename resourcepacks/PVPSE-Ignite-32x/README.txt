@@ -1,6 +1,6 @@
-PVPSE Ignite Reforged 32x Smooth - Minecraft Java 26.1.2
+PVPSE Ignite Final 32x Smooth - Minecraft Java 26.1.2
 
-Original forged short swords and axes, lucky-cat totem, moonstone pearl, cute apples and PvP essentials. Dark hotbar, buttons, inventory, chest and crafting GUI. 149 coordinated block textures, illustrated enchantment books, enchantment-specific maces, animated low fire and soul fire, detailed native sun/moons and a photographic custom sky (see SKY.txt for loader requirements). Unique covers for all 43 vanilla enchantments, including Lunge. Native component predicates work at any level, including combined books (first matching enchantment in BOOKS.txt wins). No CIT, OptiFine or renaming required.
+Original forged short swords and axes, lucky-cat totem, moonstone pearl, cute apples and PvP essentials. Dark hotbar, buttons, inventory, chest and crafting GUI. 149 coordinated block textures with connected-crystal PvP ores, illustrated enchantment books, enchantment-specific maces, animated low fire and soul fire, detailed native sun/moons and a photographic custom sky (see SKY.txt for loader requirements). Unique covers for all 43 vanilla enchantments, including Lunge. Native component predicates work at any level, including combined books (first matching enchantment in BOOKS.txt wins). No CIT, OptiFine or renaming required.
 
 Eight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.
 

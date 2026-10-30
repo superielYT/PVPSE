@@ -187,6 +187,12 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.runOnClient(mc -> {
             if (Math.abs(SaturationState.value(mc) - 11) > .1F || !Float.isFinite(SaturationState.value(mc)))
                 throw new AssertionError("Integrated server saturation unavailable or incorrect");
+            if (Math.abs(SaturationState.chooseValue(Float.NaN, 7.5F, 20) - 7.5F) > .01F)
+                throw new AssertionError("Synchronized multiplayer saturation fallback is incorrect");
+            if (Math.abs(SaturationState.chooseValue(11F, 7.5F, 20) - 11F) > .01F)
+                throw new AssertionError("Integrated server saturation should override the fallback");
+            if (SaturationState.chooseValue(Float.NaN, 18F, 12) != 12F)
+                throw new AssertionError("Saturation must be clamped to the food level");
             if (!PvpHudClient.getInstance().nativePotionTimersEnabled() || !PvpHudClient.getInstance().nativeSaturationEnabled())
                 throw new AssertionError("Native overlays should default on");
         });

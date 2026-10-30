@@ -32,10 +32,24 @@ export function drawBlocks(){
                 c.path([[x,y],[x+6,y+1],[x+8,y+6],[x+3,y+9]],1.2,rgba(highlight||'#675779'));
                 c.line([x+1,y+1],[x+5,y+2],.6,rgba(highlight?'#e4a9f3':'#8d78a0'));
             }
-            if(kind==='ore')for(const [x,y]of [[4,5],[19,4],[12,15],[24,23],[3,25]]){
-                c.poly([[x,y],[x+4,y-1],[x+6,y+2],[x+4,y+5],[x,y+4],[x-1,y+1]],shade);
-                c.poly([[x+.7,y+.6],[x+3.5,y],[x+4.8,y+2],[x+3.5,y+3.8],[x+.5,y+3]],rgba(highlight));
-                c.line([x+1,y+1],[x+3,y+.6],.65,mix(rgba(highlight),rgba('#ffffff'),.5));
+            if(kind==='ore'){
+                const ore=id=>name.includes(id);
+                const nodes=ore('emerald')?[[7,5],[22,12],[11,24]]:
+                    ore('diamond')?[[5,6],[17,4],[25,16],[13,20],[4,27]]:
+                    ore('redstone')?[[3,8],[10,12],[18,9],[25,5],[22,22],[9,26]]:
+                    ore('lapis')?[[6,4],[20,5],[13,15],[26,22],[5,25]]:
+                    [[4,5],[19,4],[12,15],[25,21],[4,26]];
+                const crystal=rgba(highlight),edge=mix(crystal,rgba('#111827'),.58),shine=mix(crystal,rgba('#ffffff'),.68);
+                for(let i=1;i<nodes.length;i++)c.line(nodes[i-1],nodes[i],1.15,edge);
+                for(let i=0;i<nodes.length;i++){
+                    const [x,y]=nodes[i],wide=ore('coal')?4:3+(i%2),tall=3+((i+1)%2);
+                    c.poly([[x-1,y],[x+1,y-2],[x+wide,y-1],[x+wide+2,y+1],[x+wide,y+tall+1],[x,y+tall],[x-2,y+2]],edge);
+                    c.poly([[x,y],[x+1,y-1],[x+wide-1,y],[x+wide,y+1],[x+wide-1,y+tall],[x+1,y+tall-1]],crystal);
+                    if(!ore('coal'))c.line([x+1,y],[x+wide-1,y+.2],.7,shine);
+                }
+                if(!ore('coal'))for(const [x,y]of [[29,3],[2,18]]){
+                    c.line([x-1,y],[x+1,y],.7,shine);c.line([x,y-1],[x,y+1],.7,shine);
+                }
             }
         }
         const pixels=c.data;

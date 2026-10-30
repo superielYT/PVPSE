@@ -1,9 +1,9 @@
-# PVPSE 3.1 — Ignite Reforged
+# PVPSE 3.5 — Final PvP Edition
 
 Download the current client and ready-to-install resource packs from [GitHub Releases](https://github.com/superielYT/PVPSE/releases/latest).
 Enable **one** Ignite ZIP above other packs: Smooth 32x for detail or Lite 16x for smaller block/item textures.
 
-The Reforged pack includes 43 illustrated enchantment books, enchantment-specific maces, 149 upgraded common block textures, low shield, animated low fire/soul fire, a round sun and eight detailed moons.
+The Final pack includes 43 illustrated enchantment books, enchantment-specific maces, 149 upgraded common block textures, redesigned connected-crystal ores, low shields, animated low fire/soul fire, a round sun and eight detailed moons.
 The full photographic cloud sky requires a separate compatible custom-sky loader: [Skyboxify](https://modrinth.com/mod/skyboxify) for Fabric 26.1.2. Vanilla and PVPSE alone show the native sun/moon upgrades and normal sky. Shader sky settings may override resourcepack skies.
 No third-party resourcepack artwork is included. References guide the style; the cloud panorama is an original generated asset.
 
@@ -189,4 +189,4 @@ Light HUD removes layered panel shadows and glass decorations while preserving y
 
 ## Vanilla HUD additions
 
-PVPSE 3.3 adds potion durations inside vanilla status-effect icons and yellow saturation outlines on the hunger bar. Toggle each under Settings > GENERAL (Potion timers / Yellow saturation). Separate Potions and Food & Saturation cards have been removed. Exact saturation is available in singleplayer; vanilla multiplayer does not synchronize it, so PVPSE does not invent a value or draw a misleading overlay there.
+PVPSE adds potion durations inside vanilla status-effect icons and yellow saturation outlines on the hunger bar. Toggle each under Settings > GENERAL (Potion timers / Yellow saturation). Separate Potions and Food & Saturation cards have been removed. Saturation follows Minecraft's synchronized food state in multiplayer and is cross-checked directly against the integrated server in singleplayer.
