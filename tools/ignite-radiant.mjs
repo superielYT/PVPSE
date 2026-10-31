@@ -66,9 +66,14 @@ export function drawRadiantBlocks(){
   ['red_sandstone','#c98252'],['red_sandstone_top','#dc9b66','smooth'],['red_sandstone_bottom','#b9754e'],['cut_red_sandstone','#d4925d'],['chiseled_red_sandstone','#c98252','carved'],
   ['quartz_block_side','#e3e4df','smooth'],['quartz_block_top','#edefe9','smooth'],['quartz_block_bottom','#d4d7d4','smooth'],['quartz_bricks','#e5e6e0'],['quartz_pillar','#e0e3df','carved'],['quartz_pillar_top','#eaede7','carved'],
   ['purpur_block','#bca0bf'],['purpur_pillar','#c2a6c5','carved'],['purpur_pillar_top','#c9afd0','carved'],['prismarine','#6caaa4'],['prismarine_bricks','#84b9ad'],['dark_prismarine','#426a68'],
-  ['deepslate_tiles','#3d4757'],['polished_deepslate','#536074'],['polished_tuff','#828d84'],['tuff_bricks','#768279'],['copper_grate','#b78162','carved'],
+  ['deepslate_tiles','#3d4757'],['polished_deepslate','#536074'],['polished_tuff','#828d84'],['tuff_bricks','#768279'],
   ['cut_copper','#c58d68'],['exposed_cut_copper','#ad9674'],['weathered_cut_copper','#74a394'],['oxidized_cut_copper','#56a698']
  ])natural(id,col,kind);
+ for(const [id,col]of [['copper_grate','#c58d68'],['exposed_copper_grate','#ad9674'],['weathered_copper_grate','#74a394'],['oxidized_copper_grate','#56a698']]){
+  const c=new Canvas(),color=rgba(col);
+  c.paint((x,y)=>x%8<2||y%8<2,(x,y)=>mix(color,rgba('#ffffff'),x%8<1||y%8<1?.14:0));
+  textures.push({name:'block/'+id,label:id.toUpperCase().replaceAll('_',' '),canvas:c});
+ }
  const glass=[['','#c7e2ef'],['white_','#dce9ed'],['orange_','#f3b57b'],['magenta_','#d7a1d9'],['light_blue_','#a6daed'],['yellow_','#eedc91'],['lime_','#bddb99'],['pink_','#e8b6c7'],['gray_','#73839a'],['light_gray_','#c1cbd5'],['cyan_','#81bec8'],['purple_','#b09acb'],['blue_','#819ed4'],['brown_','#b69a86'],['green_','#96b499'],['red_','#d89ba5'],['black_','#566478']];
  for(const [prefix,color]of glass){
   const c=new Canvas(),col=rgba(color);c.paint(()=>true,[...col.slice(0,3),22]);

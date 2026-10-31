@@ -202,3 +202,7 @@ Use the ZIPs from the latest GitHub release, generated from tools; tracked histo
 Sword priority: Fire Aspect > Sharpness > Smite > Bane. Axe: Efficiency > Sharpness. Bow: Flame > Power. Mace priority stays Breach > Density > Wind Burst. Component predicates work at every enchantment level; no CIT or renaming. Full bow-charge tips stay green. Item-break sound covers tools and armor. Pack builders need Node and ffmpeg to regenerate the original OGG sounds; generated packs contain the encoded files and need neither tool to play.
 
 The mod has a quieter charcoal/ember menu design with clearer controls and two settings-tab rows. Existing themes and saved HUD layout/visibility choices are retained.
+
+## Multiplayer saturation (3.6)
+
+Vanilla sends occasional health/saturation snapshots rather than continuously synchronized saturation. PVPSE now displays those real last-known values with a ~ marker. They may be stale; no client-only mod can recover an unreported exact value. For continuously accurate saturation, the server needs AppleSkin or a compatible saturation-sync plugin. PVPSE understands the public appleskin:saturation float payload without a client dependency, and avoids duplicate channel registration when AppleSkin is already installed. Singleplayer stays exact. Values never carry across connections or respawned players, and invalid values are rejected.

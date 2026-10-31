@@ -74,7 +74,7 @@ console.log('Radiant: '+blockCount+' blocks, '+variants.length+' weapon variants
 const sky=cubemap(decodePng(Buffer.from(readFileSync(join(root,'assets/sky-day.png.b64'),'utf8').trim(),'base64')));
 const skyPng=png(sky.width,sky.height,sky.pixels);
 const gui=drawGui();
-assert.equal(gui.length,16);
+assert.equal(gui.length,18);
 const icons=art.find(a=>a.name==='item/totem_of_undying').canvas;
 mkdirSync(join(root,'dist'),{recursive:true});
 for(const size of [32,16]){
@@ -84,6 +84,7 @@ for(const size of [32,16]){
     for(const sprite of art){
         const pixels=sprite.canvas.resolve(size);
         assert.ok(pixels.some((v,i)=>i%4===3&&v>0),'Empty '+sprite.name);
+        if(sprite.name.endsWith('copper_grate'))assert.ok(pixels.some((v,i)=>i%4===3&&v===0),'Grate openings became opaque');
         asset('assets/minecraft/textures/'+sprite.name+'.png',png(size,size,pixels));
     }
     for(const sprite of drawParticles())asset('assets/minecraft/textures/'+sprite.name+'.png',png(size,size,sprite.canvas.resolve(size)));
@@ -160,7 +161,7 @@ for(const size of [32,16]){
         transformation:{left_rotation:[0,0,0,1],right_rotation:[0,0,0,1],scale:[1,-1,-1],translation:[0,0,0]}}});
     asset('LICENSE',readFileSync(join(root,'LICENSE')));
     asset('README.txt','PVPSE Ignite Reforged '+size+'x '+edition+' - Minecraft Java 26.1.2\n\nOriginal forged short swords and axes, lucky-cat totem, moonstone pearl, cute apples and PvP essentials. Dark hotbar, buttons, inventory, chest and crafting GUI. '+blockCount+' coordinated block textures with 18 native glowing ore models, 60 enchantment weapon variants, 27 quieter particle textures and three original sound cues, illustrated enchantment books, enchantment-specific maces, animated low fire and soul fire, detailed native sun/moons and a photographic custom sky (see SKY.txt for loader requirements). Unique covers for all 43 vanilla enchantments, including Lunge. Native component predicates work at any level, including combined books (first matching enchantment in BOOKS.txt wins). No CIT, OptiFine or renaming required.\n\nEight native bow charge stages: green at 20 ticks. Low shields preserve vanilla banners.\n\nInstall the ZIP in resourcepacks and enable ONE Ignite edition above other packs. Smooth 32x has richer detail; Lite 16x uses smaller textures. GUI stays at its native dimensions. No reach, damage or attack timing changes.\n\nCopyright: see LICENSE.\n');
-    asset('RADIANT.txt','PVPSE Ignite Radiant 3.5\n'+blockCount+' block textures, 60 weapon variants and 18 ore models with native light_emission=15 mineral facets. Stone remains normally shaded. No shader/OptiFine/mod is needed for ore glow; it neither casts light nor reveals covered ores. The photographic sky still needs Skyboxify (SKY.txt).\n\nSword priority: Fire Aspect > Sharpness > Smite > Bane. Axe: Efficiency > Sharpness. Bow: Flame > Power, all charge stages retained. Mace: Breach > Density > Wind Burst. Enchantment components work at every level without renaming/CIT.\n\nThree original quiet sound cues replace totem use, pearl throw and item break (tools and armor). Smaller crit, enchanted-hit, damage, potion and totem particles preserve native colors and timing. Dark GUI includes inventory, chest, crafting, shulkers and furnace family.\n');
+    asset('RADIANT.txt','PVPSE Ignite Radiant 3.6\n'+blockCount+' block textures, 60 weapon variants and 18 ore models with native light_emission=15 mineral facets. Stone remains normally shaded. No shader/OptiFine/mod is needed for ore glow; it neither casts light nor reveals covered ores. The photographic sky still needs Skyboxify (SKY.txt).\n\nSword priority: Fire Aspect > Sharpness > Smite > Bane. Axe: Efficiency > Sharpness. Bow: Flame > Power, all charge stages retained. Mace: Breach > Density > Wind Burst. Enchantment components work at every level without renaming/CIT.\n\nThree original quiet sound cues replace totem use, pearl throw and item break (tools and armor). Smaller crit, enchanted-hit, damage, potion and totem particles preserve native colors and timing. Dark GUI includes inventory, chest, crafting, shulkers and furnace family.\n');
     asset('BOOKS.txt','Book cover priority for combined books (top first):\n'+enchantments.map(([id,code])=>code+' - '+id).join('\n')+'\nUnknown/modded enchantments use the generic cover. Levels and tooltips remain vanilla.\n');
     assert.ok(files.size>320);
     asset('REFORGED.txt','PVPSE Ignite Reforged 3.1\n'+blocks.length+' upgraded block textures, 43 illustrated enchantment covers, native enchanted mace variants, blue diamond gear, lower banner-compatible shield, animated low fire and soul fire, round sun and eight detailed moons. Original generated cloud sky: see SKY.txt for the separate loader requirement. Reference images guide the style; no third-party pack assets are redistributed.\n');

@@ -155,7 +155,38 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testNativeHud(context, world.getServer());
             testCleanUpdate(context, world.getServer());
             testRadiantPack(context, world.getServer());
+            testSaturationSync(context);
         }
+    }
+
+    private static void testSaturationSync(ClientGameTestContext context) {
+        context.runOnClient(mc -> {
+            SaturationState.clearNetwork();
+            if(Float.isFinite(SaturationState.networkValue(mc)))throw new AssertionError("Unsynced default saturation was trusted");
+            SaturationState.accept(4,false);
+            if(SaturationState.networkValue(mc)!=4 || SaturationState.networkExact())throw new AssertionError("Vanilla snapshot was not tracked separately");
+            SaturationState.accept(Float.NaN,true);SaturationState.accept(-1,true);SaturationState.accept(21,true);
+            if(SaturationState.networkValue(mc)!=4)throw new AssertionError("Invalid network data poisoned saturation");
+            var buffer=new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
+            try{
+                SaturationNetworking.Sync.CODEC.encode(buffer,new SaturationNetworking.Sync(7.5F));
+                if(SaturationNetworking.Sync.CODEC.decode(buffer).value()!=7.5F)throw new AssertionError("Saturation wire codec incorrect");
+            }finally{buffer.release();}
+            mc.getSingleplayerServer().execute(()->{
+                for(var player:mc.getSingleplayerServer().getPlayerList().getPlayers())
+                    net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,new SaturationNetworking.Sync(7));
+            });
+        });
+        context.waitTicks(8);
+        context.runOnClient(mc -> {
+            if(SaturationState.networkValue(mc)!=7 || !SaturationState.networkExact())throw new AssertionError("Server-to-client saturation packet did not arrive");
+            SaturationState.accept(2,false);
+            if(SaturationState.networkValue(mc)!=7)throw new AssertionError("Vanilla snapshot replaced accurate sync");
+            SaturationState.clearNetwork();
+            if(Float.isFinite(SaturationState.networkValue(mc)))throw new AssertionError("Disconnect cleanup kept stale saturation");
+            if(!mc.getResourceManager().getResource(net.minecraft.resources.Identifier.withDefaultNamespace("textures/gui/sprites/tooltip/frame.png")).orElseThrow().sourcePackId().contains("PVPSE-Ignite"))
+                throw new AssertionError("Dark tooltip frame missing");
+        });
     }
 
     private static void testRadiantPack(ClientGameTestContext context,
