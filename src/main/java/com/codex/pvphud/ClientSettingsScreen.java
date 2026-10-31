@@ -257,7 +257,7 @@ final class ClientSettingsScreen extends Screen {
         c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 90, theme.accent());
         String helper = switch (tab) {
             case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
-            case GENERAL -> "Yellow hunger outline = saturation (singleplayer).";
+            case GENERAL -> "Gold: saturation. ~: last vanilla snapshot; synced servers are exact.";
             case ITEMS -> "Hover shulkers/bundles. Cyan: food preview. Gold: saturation.";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
             case HITBOX -> "Sword/mace only. Other visible targets keep their outlines.";

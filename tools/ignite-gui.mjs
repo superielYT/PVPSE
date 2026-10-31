@@ -69,5 +69,9 @@ export function drawGui() {
         };
         sprite('../container/'+name,256,256,background);
     }
+    for(const frame of [false,true])sprite('tooltip/'+(frame?'frame':'background'),16,16,(r,f)=>{
+        if(!frame){r(2,1,12,14,[12,17,25,244]);r(1,2,14,12,[12,17,25,244]);}
+        else{f(1,1,14,14,[62,77,96,230]);r(4,1,5,1,[255,157,87,220]);}
+    },{gui:{scaling:{type:'nine_slice',width:16,height:16,border:4}}});
     return result;
 }

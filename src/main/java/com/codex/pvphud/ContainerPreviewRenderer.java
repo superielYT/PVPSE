@@ -21,7 +21,8 @@ public final class ContainerPreviewRenderer implements ClientTooltipComponent {
         c.text(font, title, x + 5, y + 5, theme.mutedText(), false);
         for (int i = 0; i < rows() * 9; i++) {
             int sx = x + 4 + i % 9 * 18, sy = y + 17 + i / 9 * 18;
-            c.fill(sx, sy, sx + 17, sy + 17, data.bundle() && i == data.selected() ? 0x886B482D : 0x36000000);
+            c.fill(sx, sy, sx + 17, sy + 17, data.bundle() && i == data.selected()
+                    ? com.codex.pvphud.render.ColorUtil.withAlpha(theme.accent(),80) : 0x36000000);
             if (i < data.items().size() && !data.items().get(i).isEmpty()) {
                 var stack = data.items().get(i);
                 c.item(stack, sx, sy);

@@ -21,6 +21,7 @@ public final class NativeHudOverlays {
         var mod = PvpHudClient.getInstance();
         if (mod == null || player != mc.player) return;
         float saturation = SaturationState.value(mc);
+        boolean approximate=SaturationState.approximate(mc);
         var forecast = mod.foodPreviewEnabled() ? FoodForecast.held(player, saturation) : null;
         if (forecast != null) {
             for (int half = player.getFoodData().getFoodLevel(); half < forecast.hunger(); half++)
@@ -30,7 +31,7 @@ public final class NativeHudOverlays {
                     outlineHalf(graphics, right, y, half, 0xFFFFE699, true);
             }
             String text = !forecast.canEat() ? "Full - cannot eat yet" : "+" + forecast.foodGain() + " food  "
-                    + (Float.isFinite(saturation) ? "+" : "up to ")
+                    + (Float.isFinite(saturation) ? (approximate ? "~+" : "+") : "up to ")
                     + String.format(Locale.ROOT, "%.1f", forecast.saturationGain()) + " sat";
             graphics.pose().pushMatrix();
             try {
@@ -42,7 +43,9 @@ public final class NativeHudOverlays {
         }
         if (mod.nativeSaturationEnabled() && Float.isFinite(saturation))
             for (int half = 0; half < (int)Math.ceil(saturation); half++)
-                outlineHalf(graphics, right, y, half, 0xFFFFD34A, false);
+                outlineHalf(graphics, right, y, half, approximate?0xBBFFD34A:0xFFFFD34A, false);
+        if(mod.nativeSaturationEnabled() && approximate)
+            graphics.text(mc.font,"~",right+3,y,0xFFFFD34A,true);
     }
 
     private static void outlineHalf(GuiGraphicsExtractor c, int right, int y, int half, int color, boolean dashed) {

@@ -50,7 +50,7 @@ public final class CleanHotbar {
         if(stack.isDamageableItem() && stack.getCount()==1) {
             int percent=com.codex.pvphud.hud.ArmorHUD.durabilityPercent(stack.getDamageValue(),stack.getMaxDamage());
             c.fill(x,y+16,x+16,y+18,0xCC07090D);
-            c.fill(x,y+16,x+Math.max(0,Math.round(16*percent/100F)),y+18,
+            c.fill(x,y+16,x+(stack.getDamageValue()<stack.getMaxDamage()?Math.max(1,Math.round(16*percent/100F)):0),y+18,
                     percent<=mod.armorWarningThreshold()?theme.danger():percent<=30?0xFFFFC56B:theme.accentSecondary());
         }
         int ticks=remainingTicks(player,stack);

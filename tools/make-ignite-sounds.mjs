@@ -16,7 +16,7 @@ for(const [name,length,sample]of [
  for(let i=0;i<count;i++){const t=i/rate,edge=Math.min(1,i/192,(count-i)/384),v=Math.max(-.8,Math.min(.8,sample(t)*edge));peak=Math.max(peak,Math.abs(v));data.writeInt16LE(Math.round(v*32767),i*2);}
  head.write('RIFF');head.writeUInt32LE(36+data.length,4);head.write('WAVEfmt ',8);head.writeUInt32LE(16,16);head.writeUInt16LE(1,20);head.writeUInt16LE(1,22);head.writeUInt32LE(rate,24);head.writeUInt32LE(rate*2,28);head.writeUInt16LE(2,32);head.writeUInt16LE(16,34);head.write('data',36);head.writeUInt32LE(data.length,40);
  const wav=join(target,name+'.wav'),ogg=join(target,name+'.ogg');writeFileSync(wav,Buffer.concat([head,data]));
- const r=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',wav,'-c:a','libvorbis','-q:a','4','-map_metadata','-1',ogg],{stdio:'inherit'});
+ const r=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',wav,'-c:a','libvorbis','-q:a','4','-map_metadata','-1','-fflags','+bitexact','-flags:a','+bitexact',ogg],{stdio:'inherit'});
  if(r.status!==0)throw Error('ffmpeg failed: '+name);
  writeFileSync(join(root,'assets/sounds',name+'.ogg.b64'),readFileSync(ogg).toString('base64')+'\n');
  console.log(name+': '+length+'s, peak '+peak.toFixed(3));

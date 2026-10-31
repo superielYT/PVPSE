@@ -1,3 +1,15 @@
+# PVPSE v3.6.0 — Multiplayer saturation and clarity
+
+- Multiplayer now consumes actual vanilla health/saturation snapshots. A ~ marker explicitly means last known, potentially stale data; the client default is never presented as server truth.
+- Exact saturation updates from AppleSkin-compatible servers/plugins are supported without requiring AppleSkin on the client. Existing AppleSkin clients retain ownership of their networking channel. Exact sync is not overwritten by older vanilla snapshots.
+- Network readings are bound to the connection and player, validated and cleared on disconnect. Singleplayer retains exact integrated-server sampling.
+- Critical durability remains visible as a minimum one-pixel hotbar strip. Bundle selection follows the chosen theme instead of a hardcoded brown.
+- Dark tooltip backgrounds/frames now match the pack and mod. Copper grates have real transparent openings, including exposed/weathered/oxidized variants.
+- Original sound generation fixes trailing base64 characters and uses bit-exact encoding flags.
+- Tests cover wire encoding, invalid values, snapshot/exact precedence, real server-to-client delivery, cleanup and the existing complete world/pack regression suite.
+
+---
+
 # PVPSE v3.5.0 — Ignite Radiant
 
 - 60 native enchantment variants across swords, axes and bows. Fire Aspect, Sharpness, Smite, Bane, Efficiency, Flame and Power have distinct accents. Existing mace/book variants and full bow charge stages remain.

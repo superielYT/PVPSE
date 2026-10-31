@@ -63,6 +63,7 @@ public final class PvpHudClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         instance = this;
+        SaturationNetworking.register();
         config = HudConfig.load();
         performance = new PerformanceController(config);
         profileManager.load(hudManager);
