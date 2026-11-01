@@ -214,8 +214,9 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             for (int y = a.getHeight() * 3 / 4; y < a.getHeight(); y++) {
                 for (int x = a.getWidth() / 2; x < a.getWidth() * 3 / 4; x++) {
                     int av = a.getRGB(x,y), bv = b.getRGB(x,y);
-                    if ((av & 0xFFFFFF) == 0xFFD34A) yellowOn++;
-                    if ((bv & 0xFFFFFF) == 0xFFD34A) yellowOff++;
+                    int ac = av & 0xFFFFFF, bc = bv & 0xFFFFFF;
+                    if (ac == 0xFFC928 || ac == 0xFFFFA3 || ac == 0x9A5A08) yellowOn++;
+                    if (bc == 0xFFC928 || bc == 0xFFFFA3 || bc == 0x9A5A08) yellowOff++;
                 }
             }
             if (yellowOn <= yellowOff + 25) throw new AssertionError("Yellow saturation is missing on the actual hunger bar");

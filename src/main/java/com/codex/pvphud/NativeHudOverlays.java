@@ -13,6 +13,9 @@ public final class NativeHudOverlays {
             "  ###    ", " #   #   ", "#     #  ", "#     #  ",
             " #   #   ", "  ### #  ", "     # # ", "      #  ", "         "
     };
+    private static final int SATURATION_GLOW = 0xFF9A5A08;
+    private static final int SATURATION_GOLD = 0xFFFFC928;
+    private static final int SATURATION_HIGHLIGHT = 0xFFFFFFA3;
 
     private NativeHudOverlays() {}
 
@@ -29,10 +32,16 @@ public final class NativeHudOverlays {
             for (int row = 0; row < GOLD_OUTLINE.length; row++) {
                 for (int col = 0; col < columns; col++) {
                     if (GOLD_OUTLINE[row].charAt(col) == '#')
-                        graphics.fill(x + col, y + row, x + col + 1, y + row + 1, 0xFFFFD34A);
+                        drawSaturationPixel(graphics, x + col, y + row, row);
                 }
             }
         }
+    }
+
+    /** High-contrast two-tone edge: readable over both vanilla and dark PvP hunger icons. */
+    private static void drawSaturationPixel(GuiGraphicsExtractor graphics, int x, int y, int row) {
+        graphics.fill(x, y + 1, x + 1, y + 2, SATURATION_GLOW);
+        graphics.fill(x, y, x + 1, y + 1, row <= 2 ? SATURATION_HIGHLIGHT : SATURATION_GOLD);
     }
 
     public static void potions(GuiGraphicsExtractor graphics) {

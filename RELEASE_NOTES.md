@@ -1,3 +1,12 @@
+# PVPSE v4.0.0 — Complete Edition
+
+- Saturation on the vanilla hunger bar now uses a brighter two-tone gold edge with a dark amber contrast shadow, remaining clear over vanilla and dark PvP icons without adding another HUD card.
+- Multiplayer keeps using Minecraft's synchronized food data; singleplayer uses the exact integrated-server value. Half icons and food-level clamping remain covered by the client regression checks.
+- Includes the complete clean combat HUD, enemy health and totem pops, weapon hitbox range colors, shield cooldown, compact armor durability and tuned FPS presets.
+- Ships with the completed Ignite 16x Lite and 32x Smooth packs: unified clean PvP styling, connected-crystal ores, short weapons, lower shields, extra-low fire, dark GUI, illustrated books and custom sky/celestial art.
+
+---
+
 # PVPSE v3.6.0 — Final PvP Edition
 
 - Saturation now uses Minecraft's synchronized food state on multiplayer and an exact integrated-server sample in singleplayer. Regression checks cover fallback, override and safe clamping.
