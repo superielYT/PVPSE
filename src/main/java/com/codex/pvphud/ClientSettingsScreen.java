@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 final class ClientSettingsScreen extends Screen {
-    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES, FPS, AIM, ITEMS }
+    private enum Tab { GENERAL, COMBAT, HITBOX, EFFECTS, STYLE, PROFILES, FPS, AIM, ITEMS, ENEMY }
     private final Screen parent;
     private final HudConfig config;
     private final ConfigManager profiles;
@@ -98,7 +98,14 @@ final class ClientSettingsScreen extends Screen {
                     });
                 }
             }
+            case ENEMY -> {
+                toggle(x(),y,w(),"Enemy health",()->config.enemyHealth,v->config.enemyHealth=v);
+                toggle(x(),y+22,w(),"Enemy totem pops",()->config.enemyTotemPops,v->config.enemyTotemPops=v);
+                toggle(x(),y+44,w(),"Shield cooldown",()->config.showShieldCooldown,v->config.showShieldCooldown=v);
+            }
             case ITEMS -> {
+                toggle(x(),y+88,half,"Fast XP",()->config.fastXp,v->config.fastXp=v);
+                number(x()+half+6,y+88,half,"XP interval ticks",()->config.xpUseInterval,v->config.xpUseInterval=v,1,4,1);
                 toggle(x(), y, w(), "Container previews", () -> config.containerPreviews, v -> config.containerPreviews = v);
                 toggle(x(), y + 22, w(), "Held food preview", () -> config.foodPreview, v -> config.foodPreview = v);
                 toggle(x(), y + 66, w(), "Clean hotbar", () -> config.cleanHotbar, v -> config.cleanHotbar = v);
@@ -177,6 +184,14 @@ final class ClientSettingsScreen extends Screen {
                 });
             }
             case FPS -> {
+                action(x(),y+88,half,"Performance comparison",()->minecraft.setScreen(new PerformanceCompareScreen(this)));
+                toggle(x()+half+6,y+88,half,"Frametime graph",()->hud.find("frame_time").map(e->e.enabled()).orElse(false),v->{
+                    hud.find("frame_time").ifPresent(e->e.setEnabled(v));
+                    if(v && minecraft.player!=null && !hud.placeNewCards(minecraft,java.util.List.of("frame_time"))) {
+                        hud.find("frame_time").ifPresent(e->e.setEnabled(false));status="No space: choose Frametime Graph in HUD editor > HUDs";
+                    }
+                    profiles.save(hud);
+                });
                 var performance = PvpHudClient.getInstance().performance();
                 action(x(), y, w(), "FPS mode: " + config.performanceMode.label + " >", () -> {
                     performance.setMode(minecraft, config.performanceMode.next()); rebuildWidgets();
@@ -210,7 +225,7 @@ final class ClientSettingsScreen extends Screen {
                     rememberDraft();
                     minecraft.setScreen(new ConfirmScreen(yes -> {
                         if (yes) {
-                            hud.elements().forEach(e -> e.resetLayout());
+                            hud.elements().stream().filter(e -> !e.locked()).forEach(e -> e.resetLayout());
                             if (minecraft.player != null) hud.arrange(minecraft);
                             profiles.save(hud); status = "HUD layout restored";
                         }
@@ -252,13 +267,14 @@ final class ClientSettingsScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor c, int mx, int my, float delta) {
         var theme = ThemeManager.getInstance().getTheme();
         com.codex.pvphud.gui.MenuBackdrop.draw(c,width,height,theme);
-        int bottom=Math.min(height-34,top()+122);
+        int bottom=Math.min(height-34,top()+134);
         com.codex.pvphud.render.RoundedRenderer.fill(c,x()-8,top()-54,w()+16,bottom-top()+54,7,theme.panel());
         c.text(font, Component.literal("PVPSE / SETTINGS"), x(), top() - 90, theme.accent());
         String helper = switch (tab) {
             case AIM -> "Subtle attack readiness ring; hidden when fully charged.";
             case GENERAL -> "Gold: saturation. ~: last vanilla snapshot; synced servers are exact.";
-            case ITEMS -> "Hover shulkers/bundles. Cyan: food preview. Gold: saturation.";
+            case ITEMS -> "Fast XP: hold use with XP bottles. 1 tick is fastest; server rules apply.";
+            case ENEMY -> "Health uses hearts (2 HP = 1 heart). Server-visible values only.";
             case COMBAT -> "HP uses health points: 2 HP = 1 heart";
             case HITBOX -> "Sword/mace only. Other visible targets keep their outlines.";
             case EFFECTS -> "Click a value to increase it; maximum wraps to minimum";
@@ -267,13 +283,13 @@ final class ClientSettingsScreen extends Screen {
             case FPS -> switch (config.performanceMode) {
                 case OFF -> "OFF: previous settings. Presets reduce view distance and effects.";
                 case BALANCED -> "View <=12, simulation <=8, fewer particles, clouds/shadows off.";
-                case MAX -> "View <=8, simulation <=5, minimal particles, clouds/shadows off.";
+                case MAX -> "View <=6, simulation <=5, minimal particles, clouds/shadows off.";
             };
         };
         if (!query.isBlank() && SettingsSearch.find(query).isEmpty()) {
             c.text(font, Component.literal("No settings found. Try armor, HUD or geluid."), x(), top() + 8, theme.mutedText());
         }
-        int footer = top() + (tab == Tab.GENERAL || tab == Tab.HITBOX ? 128 : 103);
+        int footer = top() + 116;
         if (query.isBlank() && footer < height - 39) {
             String message = status.isBlank() ? helper : status;
             c.text(font, Component.literal(font.plainSubstrByWidth(message, w())), x(), footer, theme.mutedText());

@@ -29,6 +29,11 @@ public final class PvpHudClient implements ClientModInitializer {
         return config != null && config.enabled && !mc.options.hideGui
                 && !(config.hideOnDebug && mc.getDebugOverlay().showDebugScreen());
     }
+    public boolean enemyHealthEnabled() { return nativeHudVisible() && config.enemyHealth; }
+    public boolean enemyPopsEnabled() { return nativeHudVisible() && config.enemyTotemPops; }
+    public boolean performanceLightHud() { return config != null && config.performanceLightHud; }
+    public boolean fastXpEnabled() { return config != null && config.fastXp; }
+    public int xpUseInterval() { return config == null ? 4 : config.xpUseInterval; }
     public boolean nativePotionTimersEnabled() { return nativeHudVisible() && config.nativePotionTimers; }
     public boolean nativeSaturationEnabled() { return nativeHudVisible() && config.nativeSaturation; }
     public boolean foodPreviewEnabled() { return nativeHudVisible() && config.foodPreview; }
@@ -103,6 +108,7 @@ public final class PvpHudClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+            FrameMonitor.cancel(client);
             config.save();
             profileManager.save(hudManager);
             if (previousFov != null) client.options.fov().set(previousFov);
@@ -137,6 +143,7 @@ public final class PvpHudClient implements ClientModInitializer {
     }
 
     private void tick(Minecraft client) {
+        FrameMonitor.tick(client);
         SaturationState.tick(client);
         performance.initialize(client);
         cps.tick(client);
@@ -191,7 +198,7 @@ public final class PvpHudClient implements ClientModInitializer {
         config.enabled = true;
         config.hideOnDebug = false;
         Minecraft.getInstance().options.hideGui = false;
-        hudManager.layoutElements().forEach(com.codex.pvphud.hud.HudElement::resetLayout);
+        hudManager.layoutElements().stream().filter(e -> !e.locked()).forEach(com.codex.pvphud.hud.HudElement::resetLayout);
         hudManager.arrange(Minecraft.getInstance());
         config.save();
         profileManager.save(hudManager);
@@ -234,6 +241,7 @@ public final class PvpHudClient implements ClientModInitializer {
 
     private void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
+        FrameMonitor.frame(client);
         if (client.options.hideGui || (config.hideOnDebug && client.getDebugOverlay().showDebugScreen())
                 || client.screen instanceof com.codex.pvphud.hud.HudEditor
                 || client.screen instanceof ClickGuiScreen || client.screen instanceof ClientSettingsScreen
@@ -243,6 +251,7 @@ public final class PvpHudClient implements ClientModInitializer {
         if (config.enabled) {
             hudManager.render(context, client, false);
             PvpIndicators.render(context, client, config);
+            if(FrameMonitor.active()) context.text(client.font,FrameMonitor.progress(),8,client.getWindow().getGuiScaledHeight()-78,config.accentColor(),true);
         }
         if (config.enabled && client.player != null && client.level != null && client.screen == null) {
             combatFeedback.render(context, config);

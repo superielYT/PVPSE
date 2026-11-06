@@ -17,6 +17,7 @@ public final class ConfigProfile {
 
     public static final class HudState {
         public boolean enabled = true;
+        public boolean locked;
         public float x;
         public float y;
         public float scale = 1.0F;

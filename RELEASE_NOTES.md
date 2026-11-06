@@ -1,3 +1,16 @@
+# PVPSE v4.1.0 — HUD Editor Pro
+
+- Restores held-food forecasts, shulker/bundle previews, AppleSkin-compatible server saturation sync and the Radiant resource pack improvements alongside 4.0 combat features.
+- Saturation distinguishes exact server sync from approximate vanilla snapshots (~); invalid or previous-connection data is rejected. Exact multiplayer saturation needs server support.
+- Enemy health uses hearts (20 HP = 10 hearts). Health and observed totem pops have separate switches and obey the main HUD/F1/F3 switches.
+- Optional Fast XP: hold right-click with XP bottles. Default off, 2-tick interval; configurable 1–4 ticks. Uses normal item interaction; servers still control accepted throws.
+- HUD Editor Pro: Ctrl+click multi-selection, group dragging, L to lock/unlock, left/top alignment, even gaps and transaction-based Undo/Redo (Ctrl+Z, Ctrl+Y or Ctrl+Shift+Z). Tab hides the toolbar; cards can reach every screen edge. Locks persist per profile and auto-arrange preserves them.
+- Optional live frametime HUD and real current/Balanced/Max comparisons: 3-second warmup plus 15 seconds of gameplay, average FPS, 1% low and p95/p99 frametimes. Temporary options restore after completion/cancellation; moving or changing video settings cancels. Menus pause measurement. Results describe that scene and hardware, without promised FPS gains.
+- Settings use two tab rows with separate space for controls and help, including the minimum 320×240 logical viewport. Enemy controls have their own tab.
+- Preserves 203 refreshed blocks, 60 weapon variants, native glowing ore facets, darker GUIs, lower shield and low fire.
+
+---
+
 # PVPSE v3.6.0 — Multiplayer saturation and clarity
 
 - Multiplayer now consumes actual vanilla health/saturation snapshots. A ~ marker explicitly means last known, potentially stale data; the client default is never presented as server truth.

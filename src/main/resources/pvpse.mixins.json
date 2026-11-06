@@ -2,6 +2,21 @@
   "required": true,
   "package": "com.codex.pvphud.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["FullbrightEffectMixin", "FullbrightVisionMixin", "NativeHudMixin", "ContainerTooltipMixin", "ClientTooltipMixin", "CooldownsAccessor", "CooldownEntryAccessor", "SaturationPacketMixin", "SaturationDataMixin"],
-  "injectors": {"defaultRequire": 1}
+  "client": [
+    "FullbrightEffectMixin",
+    "FullbrightVisionMixin",
+    "NativeHudMixin",
+    "ContainerTooltipMixin",
+    "ClientTooltipMixin",
+    "CooldownsAccessor",
+    "CooldownEntryAccessor",
+    "SaturationPacketMixin",
+    "SaturationDataMixin",
+    "PlayerNameHealthMixin",
+    "TotemPopMixin",
+    "FastXpMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

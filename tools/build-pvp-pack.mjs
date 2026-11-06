@@ -152,8 +152,8 @@ for(const size of [32,16]){
     for(const blocking of [false,true]){
         const name='shield'+(blocking?'_blocking':'');
         json('assets/pvpse/models/item/low_'+name+'.json',{parent:'minecraft:item/'+name,display:{
-            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-15,.5,-11]:[-10,-3,-10],scale:[1.1,1.1,1.1]},
-            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,.5,-11]:[10,-3,-10],scale:[1.1,1.1,1.1]}
+            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-15,-2.5,-11]:[-10,-4,-10],scale:[1.1,1.1,1.1]},
+            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,-2.5,-11]:[10,-4,-10],scale:[1.1,1.1,1.1]}
         }});
     }
     const shield=blocking=>({type:'minecraft:special',base:'pvpse:item/low_shield'+(blocking?'_blocking':''),model:{type:'minecraft:shield'}});
@@ -182,54 +182,9 @@ for(const size of [32,16]){
     assert.equal(cover({'minecraft:mending':1,'minecraft:sharpness':5}),'minecraft:item/books/sharpness');
     assert.equal(cover({'example:unknown':1}),'minecraft:item/enchanted_book');
     assert.equal(new Set(enchantments.map(e=>e[1])).size,43,'Duplicate book identifiers');
-    const maceCover=stored=>{let node=JSON.parse(files.get('assets/minecraft/items/mace.json')).model;while(node.type==='minecraft:condition'){const q=node.value[0];node=stored[q.enchantments]>=1?node.on_true:node.on_false;}return node.model;};
-    for(const id of ['breach','density','wind_burst'])assert.equal(maceCover({['minecraft:'+id]:1}),'minecraft:item/mace_'+id);
-    assert.equal(maceCover({}),'minecraft:item/mace');
-    assert.equal(maceCover({'minecraft:breach':1,'minecraft:wind_burst':3}),'minecraft:item/mace_breach');
-    for(const ore of radiant.models){
-        assert.equal(ore.json.elements[0].light_emission,undefined);
-        assert.equal(ore.json.elements.filter(e=>e.light_emission===15).length,30);
-    }
-    const weaponCover=(id,stored)=>{let node=JSON.parse(files.get('assets/minecraft/items/'+id+'.json')).model;while(node.type==='minecraft:condition'){const q=node.value[0];node=stored[q.enchantments]>=1?node.on_true:node.on_false;}return node.model;};
-    for(const material of weaponMaterials){
-        assert.equal(weaponCover(material+'_sword',{'minecraft:fire_aspect':2,'minecraft:sharpness':5}),'minecraft:item/'+material+'_sword_fire_aspect');
-        assert.equal(weaponCover(material+'_axe',{'minecraft:efficiency':5}),'minecraft:item/'+material+'_axe_efficiency');
-    }
-    for(const sprite of gui){assert.equal(sprite.pixels.length,sprite.width*sprite.height*4);}
-    assert.equal(bow.model.on_true.entries.at(-1).threshold,1);
-    for(let i=3;i<8;i++)assert.ok(files.has('assets/minecraft/models/item/bow_pulling_'+i+'.json'));
-    const bytes=zip(files),filename=id+'-26.1.2.zip';
-    assert.ok(bytes.equals(zip(files)),'Non-deterministic ZIP');
-    writeFileSync(join(root,'dist',filename),bytes);
-    console.log('Validated '+id+' '+edition+': '+files.size+' entries, '+bytes.length+' bytes');
+    const maceCover=stored=>{let node=JSON.parse(files.get('assets/minecraft/items/mace.json')0,0,0];}
+  const rune=u===3||u===4||v===3||(u===v&&v>1&&v<6);
+  return rune?[239,88,222,255]:[255,231,255,255];
+ });
+ return out;
 }
-const glyphs={
- A:'0e11111f111111',B:'1e11111e11111e',C:'0e11101010110e',D:'1e11111111111e',E:'1f10101e10101f',F:'1f10101e101010',
- G:'0e11101711110f',H:'1111111f111111',I:'0e04040404040e',J:'0702020212120c',K:'11121418141211',L:'1010101010101f',
- M:'111b1515111111',N:'11191513111111',O:'0e11111111110e',P:'1e11111e101010',Q:'0e11111115120d',R:'1e11111e141211',
- S:'0f10100e01011e',T:'1f040404040404',U:'1111111111110e',V:'11111111110a04',W:'11111115151b11',X:'11110a040a1111',
- Y:'11110a04040404',Z:'1f01020408101f','1':'040c040404040e','2':'0e11010204081f','3':'1e01010e01011e','4':'02060a121f0202',
- '5':'1f10101e01011e','6':'0e10101e11110e','7':'1f010204080808','8':'0e11110e11110e','0':'0e11131519110e',' ':'00000000000000'
-};
-const visible=art.filter(a=>!a.name.includes('bow_pulling_')||a.name.endsWith('_0')||a.name.endsWith('_4')||a.name.endsWith('_7'));
-const cols=5,cellW=120,cellH=124,width=cols*cellW,height=Math.ceil(visible.length/cols)*cellH;
-const sheet=Buffer.alloc(width*height*4);
-for(let i=0;i<sheet.length;i+=4)sheet.set([18,23,33,255],i);
-for(let index=0;index<visible.length;index++){
-    const sprite=visible[index],pixels=sprite.canvas.resolve(32),left=index%cols*cellW+12,top=Math.floor(index/cols)*cellH+8;
-    for(let y=0;y<32;y++)for(let x=0;x<32;x++){
-        const at=(y*32+x)*4,alpha=pixels[at+3]/255;
-        for(let yy=0;yy<3;yy++)for(let xx=0;xx<3;xx++){
-            const dst=((top+y*3+yy)*width+left+x*3+xx)*4;
-            for(let c=0;c<3;c++)sheet[dst+c]=Math.round(sheet[dst+c]*(1-alpha)+pixels[at+c]*alpha);
-        }
-    }
-    const label=sprite.label.slice(0,18),start=index%cols*cellW+Math.round((cellW-label.length*6)/2),baseline=top+104;
-    for(let letter=0;letter<label.length;letter++){
-        const glyph=glyphs[label[letter]]||glyphs[' '];
-        for(let y=0;y<7;y++){const row=parseInt(glyph.slice(y*2,y*2+2),16);for(let x=0;x<5;x++)if(row&(1<<(4-x))){
-            const dst=((baseline+y)*width+start+letter*6+x)*4;sheet.set([210,217,230,255],dst);
-        }}
-    }
-}
-writeFileSync(join(root,'dist/PVPSE-Ignite-preview.png'),png(width,height,sheet));

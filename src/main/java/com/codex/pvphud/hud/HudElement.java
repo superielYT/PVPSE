@@ -10,6 +10,7 @@ public abstract class HudElement {
     private final String name;
     private final FadeAnimation visibility = new FadeAnimation(true);
     private boolean enabled = true;
+    private boolean locked;
     private float x;
     private float y;
     private float scale = 1.0F;
@@ -53,6 +54,8 @@ public abstract class HudElement {
 
     public String id() { return id; }
     public String name() { return name; }
+    public boolean locked() { return locked; }
+    public void setLocked(boolean locked) { this.locked = locked; }
     public boolean enabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public float x() { return x; }
@@ -61,7 +64,7 @@ public abstract class HudElement {
     public float scale() { return scale; }
     public void setScale(float scale) { this.scale = Float.isFinite(scale) ? Math.clamp(scale, 0.5F, 2.5F) : 1.0F; }
     public void resetLayout() { x = defaultX; y = defaultY; scale = 1.0F; }
-    public void resetSettings() { resetLayout(); enabled = defaultEnabled; }
+    public void resetSettings() { resetLayout(); enabled = defaultEnabled; locked = false; }
     public boolean needsInitialPlacement() { return !defaultEnabled && x == defaultX && y == defaultY && scale == 1; }
     public void keepOnScreen(Minecraft client) {
         setPosition(HudGeometry.coordinate(x, client.getWindow().getGuiScaledWidth(), width(client) * scale),

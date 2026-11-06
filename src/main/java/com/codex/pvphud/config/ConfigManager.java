@@ -64,6 +64,7 @@ public final class ConfigManager {
             ConfigProfile.HudState state = profile.hud.get(element.id());
             if (state == null) { newCards.add(element.id()); continue; }
             element.setEnabled(state.enabled);
+            element.setLocked(state.locked);
             element.setPosition(state.x, state.y);
             element.setScale(state.scale);
             if (element instanceof FeatureModule feature && feature.adjustable() && Double.isFinite(state.value) && state.value >= feature.minimum()) feature.setValue(state.value);
@@ -78,6 +79,7 @@ public final class ConfigManager {
             ConfigProfile.HudState state = new ConfigProfile.HudState(
                     element.enabled(), element.x(), element.y(), element.scale());
             if (element instanceof FeatureModule feature) state.value = feature.value();
+            state.locked = element.locked();
             profile.hud.put(element.id(), state);
         }
         return write(profile);

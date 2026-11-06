@@ -23,6 +23,14 @@ final class PvpIndicators {
                 c.fill(cx - 12, cy + 14, cx - 12 + Math.round(24 * cooldown), cy + 17, config.accentColor());
             }
         }
+        if (config.showShieldCooldown) {
+            var shield = net.minecraft.world.item.Items.SHIELD.getDefaultInstance();
+            if (client.player.getCooldowns().isOnCooldown(shield)) {
+                float remaining = client.player.getCooldowns().getCooldownPercent(shield, 0);
+                c.fill(cx-12,cy+19,cx+12,cy+22,0xB0181D26);
+                c.fill(cx-12,cy+19,cx-12+Math.round(24*(1-remaining)),cy+22,0xFF60A5FA);
+            }
+        }
         int y = Math.max(8, c.guiHeight() / 5);
         if (config.showLowHealthWarning && client.player.isAlive()
                 && client.player.getHealth() <= config.lowHealthThreshold) {

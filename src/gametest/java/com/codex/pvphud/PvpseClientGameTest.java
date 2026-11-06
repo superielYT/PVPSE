@@ -28,7 +28,7 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("pvpse-menu-title");
         context.clickScreenButton("Settings & profiles");
         context.waitForScreen(ClientSettingsScreen.class);
-        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILE", "FPS", "AIM", "ITEMS", "GENERAL"}) {
+        for (String tab : new String[]{"COMBAT", "HITBOX", "EFFECTS", "STYLE", "PROFILE", "FPS", "AIM", "ITEMS", "ENEMY", "GENERAL"}) {
             context.clickScreenButton(tab);
             context.waitTicks(3);
             context.takeScreenshot("pvpse-settings-" + tab.toLowerCase(java.util.Locale.ROOT));
@@ -156,7 +156,107 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
             testCleanUpdate(context, world.getServer());
             testRadiantPack(context, world.getServer());
             testSaturationSync(context);
+            testEditorPro(context);
+            testNewCombatAndBench(context,world.getServer());
         }
+    }
+
+    private static void testEditorPro(ClientGameTestContext context) {
+        var manager=new com.codex.pvphud.hud.HudManager();
+        var cards=manager.layoutElements().stream().limit(3).toList();
+        context.runOnClient(mc->{
+            manager.layoutElements().forEach(e->e.setEnabled(false));
+            for(int i=0;i<cards.size();i++){var e=cards.get(i);e.setEnabled(true);e.setScale(.5F);e.setPosition(20+i*110,100);}
+            mc.setScreen(new HudEditor(manager,null));
+            mc.screen.keyPressed(new net.minecraft.client.input.KeyEvent(org.lwjgl.glfw.GLFW.GLFW_KEY_A,0,org.lwjgl.glfw.GLFW.GLFW_MOD_CONTROL));
+        });
+        context.clickScreenButton("Lock");
+        context.runOnClient(mc->{if(cards.stream().anyMatch(e->!e.locked()))throw new AssertionError("Multi-lock failed");});
+        float x=cards.getFirst().x();
+        context.getInput().pressKey(org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT);
+        if(cards.getFirst().x()!=x)throw new AssertionError("Locked card moved");
+        context.clickScreenButton("Unlock");context.clickScreenButton("Undo");
+        if(cards.stream().anyMatch(e->!e.locked()))throw new AssertionError("Undo lost locks");
+        context.clickScreenButton("Redo");
+        if(cards.stream().anyMatch(com.codex.pvphud.hud.HudElement::locked))throw new AssertionError("Redo lost unlock");
+        context.clickScreenButton("Left");
+        if(cards.stream().anyMatch(e->e.x()!=x))throw new AssertionError("Multi-align failed");
+        context.clickScreenButton("Undo");
+        if(cards.get(1).x()!=130)throw new AssertionError("Undo did not restore group layout");
+        context.clickScreenButton("Gap X");
+        context.takeScreenshot("pvpse-editor-pro");
+        context.setScreen(()->null);
+        context.runOnClient(mc->{
+            cards.getFirst().setLocked(true);float fixedX=cards.getFirst().x(),fixedY=cards.getFirst().y(),scale=cards.getFirst().scale();
+            manager.tryArrange(mc);
+            if(cards.getFirst().x()!=fixedX||cards.getFirst().y()!=fixedY||cards.getFirst().scale()!=scale)throw new AssertionError("Arrange moved locked card");
+        });
+    }
+
+    private static void testNewCombatAndBench(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        context.runOnClient(mc->PvpHudClient.getInstance().openMenu(null));
+        context.clickScreenButton("Settings & profiles");context.clickScreenButton("ENEMY");
+        context.clickScreenButton("Enemy health: ON");context.clickScreenButton("Enemy totem pops: ON");
+        context.runOnClient(mc->{if(PvpHudClient.getInstance().enemyHealthEnabled()||PvpHudClient.getInstance().enemyPopsEnabled())throw new AssertionError("Enemy toggles ignored");});
+        context.clickScreenButton("Enemy health: OFF");context.clickScreenButton("Enemy totem pops: OFF");
+        context.clickScreenButton("GENERAL");context.clickScreenButton("HUD: ON");
+        context.runOnClient(mc->{if(PvpHudClient.getInstance().enemyHealthEnabled()||PvpHudClient.getInstance().enemyPopsEnabled())throw new AssertionError("Enemy text ignored global HUD switch");});
+        context.clickScreenButton("HUD: OFF");
+        // Exercise every settings tab at Minecraft's minimum logical viewport.
+        for(String tab:new String[]{"GENERAL","COMBAT","HITBOX","EFFECTS","STYLE","PROFILE","FPS","AIM","ITEMS","ENEMY"}){
+            context.clickScreenButton(tab);
+            context.runOnClient(mc->{
+                var screen=mc.screen;screen.resize(320,240);
+                var widgets=screen.children().stream().filter(e->e instanceof net.minecraft.client.gui.components.AbstractWidget)
+                    .map(e->(net.minecraft.client.gui.components.AbstractWidget)e).filter(e->e.visible).toList();
+                for(int i=0;i<widgets.size();i++){
+                    var a=widgets.get(i);
+                    if(a.getX()<0||a.getY()<0||a.getRight()>320||a.getBottom()>240)throw new AssertionError("Settings outside viewport: "+a.getMessage().getString());
+                    for(int j=i+1;j<widgets.size();j++){var b=widgets.get(j);
+                        if(a.getX()<b.getRight()&&a.getRight()>b.getX()&&a.getY()<b.getBottom()&&a.getBottom()>b.getY())throw new AssertionError("Settings overlap: "+a.getMessage().getString()+" / "+b.getMessage().getString());
+                    }
+                }
+                screen.resize(mc.getWindow().getGuiScaledWidth(),mc.getWindow().getGuiScaledHeight());
+            });
+        }
+        context.clickScreenButton("ITEMS");context.takeScreenshot("pvpse-clean-items");
+        context.clickScreenButton("FPS");context.takeScreenshot("pvpse-clean-fps");
+        context.clickScreenButton("ITEMS");
+        context.setScreen(()->null);
+        server.runCommand("kill @e[type=minecraft:end_crystal]");server.runCommand("effect clear @p");
+        server.runCommand("gamemode survival");server.runCommand("tp @p 0 -60 -4 180 -70");
+        server.runCommand("item replace entity @p weapon.offhand with minecraft:air");
+        int[] spent=new int[2];
+        for(int trial=0;trial<2;trial++){
+            server.runCommand("item replace entity @p weapon.mainhand with minecraft:experience_bottle 64");context.waitTicks(8);
+            context.getInput().holdMouse(1);context.waitTicks(24);context.getInput().releaseMouse(1);context.waitTicks(3);
+            spent[trial]=context.computeOnClient(mc->64-mc.player.getMainHandItem().getCount());
+            context.runOnClient(mc->PvpHudClient.getInstance().openMenu(null));context.clickScreenButton("Settings & profiles");context.clickScreenButton("ITEMS");
+            context.clickScreenButton(trial==0?"Fast XP: OFF":"Fast XP: ON");context.setScreen(()->null);
+        }
+        if(spent[0]<1||spent[1]<spent[0]+2)throw new AssertionError("Held XP rate did not increase: "+spent[0]+" vs "+spent[1]);
+        server.runCommand("gamemode creative");server.runCommand("item replace entity @p weapon.mainhand with minecraft:air");
+        context.waitTicks(10);
+        var original=context.computeOnClient(PerformanceController.Snapshot::capture);
+        context.runOnClient(mc->{mc.options.renderDistance().set(16);mc.options.simulationDistance().set(12);});
+        for(String label:new String[]{"Current","Balanced","Max"}){
+            var mode=label.equals("Current")?null:label.equals("Balanced")?PerformanceMode.BALANCED:PerformanceMode.MAX;
+            context.runOnClient(mc->FrameMonitor.start(mc,label,mode,0,300_000_000L));
+            context.waitTicks(40);
+            context.runOnClient(mc->{
+                if(FrameMonitor.active()||FrameMonitor.results().stream().noneMatch(r->r.label().equals(label)&&r.stats().count()>0))throw new AssertionError("Actual frame capture failed: "+label);
+                if(mc.options.renderDistance().get()!=16||mc.options.simulationDistance().get()!=12)throw new AssertionError("Temporary benchmark settings not restored");
+            });
+        }
+        context.runOnClient(mc->{
+            FrameMonitor.start(mc,"Cancel",PerformanceMode.MAX,0,15_000_000_000L);
+            mc.options.renderDistance().set(7);FrameMonitor.cancel(mc);
+            if(mc.options.renderDistance().get()!=7||mc.options.simulationDistance().get()!=12)throw new AssertionError("Cancel overwrote manual settings");
+            PerformanceController.restoreSnapshot(mc,original,PerformanceController.Snapshot.capture(mc));
+            mc.setScreen(new PerformanceCompareScreen(null));
+        });
+        context.takeScreenshot("pvpse-performance-comparison");context.setScreen(()->null);
     }
 
     private static void testSaturationSync(ClientGameTestContext context) {
@@ -631,14 +731,14 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("pvpse-fps-balanced-settings");
         context.clickScreenButton("Max FPS");
         context.runOnClient(mc -> {
-            if (mc.options.renderDistance().get() != 8 || mc.options.simulationDistance().get() != 5
+            if (mc.options.renderDistance().get() != 6 || mc.options.simulationDistance().get() != 5
                     || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.MINIMAL)
                 throw new AssertionError("Max FPS preset is incorrect");
             var saved = HudConfig.load();
             var restarted = new PerformanceController(saved); restarted.initialize(mc);
-            mc.options.renderDistance().set(6);
+            mc.options.renderDistance().set(7);
             restarted.setMode(mc, PerformanceMode.OFF);
-            if (mc.options.renderDistance().get() != 6 || mc.options.simulationDistance().get() != 12
+            if (mc.options.renderDistance().get() != 7 || mc.options.simulationDistance().get() != 12
                     || !mc.options.entityShadows().get() || mc.options.cloudStatus().get() != net.minecraft.client.CloudStatus.FANCY
                     || mc.options.particles().get() != net.minecraft.server.level.ParticleStatus.ALL)
                 throw new AssertionError("Restart/restore overwrote user changes or lost previous settings");
