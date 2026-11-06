@@ -53,7 +53,10 @@ public final class NativeHudOverlays {
         int from = half % 2 == 0 ? 0 : 4, to = half % 2 == 0 ? 4 : 9;
         for (int row = 0; row < GOLD_OUTLINE.length; row++) for (int col = from; col < to; col++)
             if (GOLD_OUTLINE[row].charAt(col) == '#' && (!dashed || (row + col) % 2 == 0))
-                c.fill(x + col, y + row, x + col + 1, y + row + 1, color);
+                {
+                    c.fill(x+col,y+row+1,x+col+1,y+row+2,0xCC9A5A08);
+                    c.fill(x+col,y+row,x+col+1,y+row+1,color);
+                }
     }
 
     public static void potions(GuiGraphicsExtractor graphics) {

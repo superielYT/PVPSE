@@ -152,8 +152,8 @@ for(const size of [32,16]){
     for(const blocking of [false,true]){
         const name='shield'+(blocking?'_blocking':'');
         json('assets/pvpse/models/item/low_'+name+'.json',{parent:'minecraft:item/'+name,display:{
-            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-15,.5,-11]:[-10,-3,-10],scale:[1.1,1.1,1.1]},
-            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,.5,-11]:[10,-3,-10],scale:[1.1,1.1,1.1]}
+            firstperson_righthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[-15,-2.5,-11]:[-10,-4,-10],scale:[1.1,1.1,1.1]},
+            firstperson_lefthand:{rotation:[0,180,blocking?-5:5],translation:blocking?[5,-2.5,-11]:[10,-4,-10],scale:[1.1,1.1,1.1]}
         }});
     }
     const shield=blocking=>({type:'minecraft:special',base:'pvpse:item/low_shield'+(blocking?'_blocking':''),model:{type:'minecraft:shield'}});

@@ -1,9 +1,9 @@
-# PVPSE 3.1 - Ignite Reforged
+# PVPSE 4.1 — HUD Editor Pro
 
 Download the current client and ready-to-install resource packs from [GitHub Releases](https://github.com/superielYT/PVPSE/releases/latest).
 Enable **one** Ignite ZIP above other packs: Smooth 32x for detail or Lite 16x for smaller block/item textures.
 
-The Reforged pack includes 43 illustrated enchantment books, enchantment-specific maces, 149 upgraded common block textures, low shield, animated low fire/soul fire, a round sun and eight detailed moons.
+The Reforged pack includes 43 illustrated enchantment books, enchantment-specific maces, 203 upgraded block textures, low shield, animated low fire/soul fire, a round sun and eight detailed moons.
 The full photographic cloud sky requires a separate compatible custom-sky loader: [Skyboxify](https://modrinth.com/mod/skyboxify) for Fabric 26.1.2. Vanilla and PVPSE alone show the native sun/moon upgrades and normal sky. Shader sky settings may override resourcepack skies.
 No third-party resourcepack artwork is included. References guide the style; the cloud panorama is an original generated asset.
 
@@ -29,9 +29,17 @@ Save configurations, change colors, edit layouts, and create your own personal s
 Designed for players who want a clean, powerful, and customizable Minecraft client.
 PVPSE Client - Your Minecraft. Your Style. Your Control. ??
 
-## Installation (v2.7.0)
+## Installation (v4.1.0)
 
-Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-2.7.0.jar in your Minecraft mods folder alongside Fabric API.
+Requires Minecraft **26.1.2**, Fabric Loader **0.19.3+**, Fabric API **0.155.2+26.1.2 or newer for 26.1.2** and Java **25**. Place PVPSE-4.1.0.jar in your Minecraft mods folder alongside Fabric API.
+
+## New in 4.1
+
+Settings > ITEMS includes optional Fast XP (off by default): hold right-click with XP bottles, with a 1–4 tick interval. Servers control accepted uses. Food forecasts and shulker/bundle previews are retained.
+
+Settings > ENEMY separately controls health and observed totem counts. Health is in hearts (20 HP = 10 hearts); all enemy text obeys the main HUD switch. Multiplayer saturation is exact with compatible server synchronization, otherwise ~ marks the last vanilla snapshot.
+
+Settings > FPS > Performance comparison measures actual render intervals: 3 seconds warmup plus 15 seconds per preset. Keep position and view still. Menus pause sampling, moving or changing video settings cancels, and temporary settings restore automatically. Compare the same scene; FPS caps and VSync are reported. The optional Frametime Graph shows recent frame spikes.
 
 ## Controls and settings
 
@@ -57,7 +65,7 @@ New waypoints are isolated by server/world and dimension. Older waypoints stay a
 
 Open Right Shift > SETTINGS & PROFILES for global switches, profile switching, copying your current HUD/theme to a new profile, and resetting HUD positions/scales. Profiles do not include global feedback, waypoint or custom crosshair files. Your active profile is remembered; the former default.json migrates automatically to the profiles folder.
 
-Drag module sliders to adjust them. In HUD EDITOR, select a widget and use arrow keys to move it one pixel, or Shift+arrow for ten. R resets its layout; Ctrl+Z restores positions, scales and visibility from the start of the editor session. Utilities stay in the module list rather than appearing as editor widgets.
+Drag module sliders to adjust them. In HUD EDITOR, select a widget and use arrow keys to move it one pixel, or Shift+arrow for ten. R resets its layout; Ctrl+click selects multiple cards; L locks/unlocks selection. Ctrl+Z undoes the last layout action and Ctrl+Y/Ctrl+Shift+Z redoes it. Left/Top align cards, Gap X/Y evenly distribute at least three cards. Tab hides the toolbar to reach every screen edge. Locks persist per profile and protect cards from movement and auto-arrange. Utilities stay in the module list rather than appearing as editor widgets.
 
 During keybind capture, Escape cancels and Backspace/Delete unbinds. Bindings save when Minecraft closes normally. F1 hides overlays; "Hide on F3" controls debug-screen visibility. "No damage tilt" is now optional.
 

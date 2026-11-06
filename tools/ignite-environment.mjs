@@ -4,7 +4,7 @@ export function drawEnvironment(size){
  for(const soul of [false,true])for(let layer=0;layer<2;layer++){
   image('block/'+(soul?'soul_fire_':'fire_')+layer,size,size*16,(x,yy)=>{
    const y=(yy%size+.5)/size,frame=Math.floor(yy/size),u=(x+.5)/size;
-   const wave=Math.sin(u*25+frame*Math.PI/4+layer*2)*.025+Math.sin(u*47-frame*Math.PI/4)*.015,top=.43+wave;
+   const wave=Math.sin(u*25+frame*Math.PI/4+layer*2)*.02+Math.sin(u*47-frame*Math.PI/4)*.012,top=.56+wave;
    if(y<top)return[0,0,0,0];const heat=Math.min(1,(y-top)/.5);
    return soul?[90+Math.round(150*heat),180+Math.round(65*heat),255,240]:[255,Math.round(83+168*heat),Math.round(20+125*heat),240];
   },{animation:{frametime:2,interpolate:false}});

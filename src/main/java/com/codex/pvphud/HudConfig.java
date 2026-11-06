@@ -21,6 +21,11 @@ final class HudConfig {
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("pvp-hud-client.json");
 
     boolean enabled = true;
+    boolean enemyHealth = true;
+    boolean enemyTotemPops = true;
+    boolean showShieldCooldown = true;
+    boolean fastXp = false;
+    int xpUseInterval = 2;
     boolean nativePotionTimers = true;
     boolean nativeSaturation = true;
     boolean foodPreview = true;
@@ -121,6 +126,7 @@ final class HudConfig {
 
     void ensureWidgets() {
         if (!generalHitboxesMigrated) { hitboxTargetOnly = false; generalHitboxesMigrated = true; }
+        xpUseInterval = Math.clamp(xpUseInterval, 1, 4);
         if (performanceMode == null) performanceMode = PerformanceMode.OFF;
         if (theme == null) theme = Theme.CYBER;
         if (crosshairStyle == null) crosshairStyle = CrosshairStyle.DIAMOND;

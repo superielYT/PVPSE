@@ -7,6 +7,12 @@ import java.util.Locale;
 public final class SettingsSearch {
     public record Result(String label, String tab, String aliases) {}
     private static final List<Result> ENTRIES = List.of(
+            new Result("Enemy health","ENEMY","enemy naam hartjes hp health vijand"),
+            new Result("Enemy totem pops","ENEMY","totem pops teller"),
+            new Result("Shield cooldown","ENEMY","schild cooldown"),
+            new Result("Fast XP","ITEMS","xp experience bottles snel flessen gooien"),
+            new Result("XP interval ticks","ITEMS","xp snelheid interval"),
+            new Result("Performance comparison","FPS","frametime benchmark vergelijken fps prestaties"),
             new Result("Clean hotbar", "ITEMS", "hotbar slots cooldown durability aantallen"),
             new Result("Background opacity %", "HITBOX", "hitbox zichtbaar visibility andere spelers"),
             new Result("Container previews", "ITEMS", "shulker bundle bundel inhoud preview voorvertoning"),

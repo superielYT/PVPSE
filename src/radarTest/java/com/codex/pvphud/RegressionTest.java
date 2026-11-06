@@ -16,6 +16,19 @@ public final class RegressionTest {
         catch (IllegalArgumentException expected) {}
     }
     public static void main(String[] args) throws Exception {
+        require(EnemyInfo.hearts(20)==10 && EnemyInfo.hearts(6)==3 && EnemyInfo.hearts(Float.NaN)==0,"Enemy hearts use two HP each");
+        var history=new com.codex.pvphud.hud.LayoutHistory<String>();
+        history.record("a","b");history.record("b","c");
+        require(history.undo("c").equals("b") && history.undo("b").equals("a"),"Undo steps are individual transactions");
+        require(history.redo("a").equals("b"),"Redo lost a state");history.record("b","d");
+        require(!history.canRedo(),"New edit must invalidate redo");
+        double[] timing=new double[100];java.util.Arrays.fill(timing,10);timing[99]=100;
+        var stats=FrameTimes.summarize(timing);
+        require(stats.count()==100 && Math.abs(stats.fps()-100000.0/1090)<.001 && stats.lowOnePercent()==10 && stats.p95()==10 && stats.p99()==10,"Frame statistics or 1% low incorrect");
+        var buffer=new FrameTimes();for(int i=1;i<=700;i++)buffer.add(i);
+        require(buffer.size()==600 && buffer.last(600)[0]==101 && buffer.last(1)[0]==700,"Frame ring did not bound history");
+        require(FrameTimes.summarize(new double[]{Double.NaN,0,-1}).count()==0,"Invalid frame values accepted");
+
         var overshoot = new com.codex.pvphud.animation.Animation(0, 10_000_000L, progress -> 1);
         overshoot.animateTo(1); overshoot.value();
         require(!overshoot.finished(), "Crossing the target must not end an unfinished animation");

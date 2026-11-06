@@ -15,6 +15,7 @@ public final class HudManager {
         register(new WatermarkHUD());
         register(new ArrayListHUD());
         register(new FPSHUD());
+        register(new FrameTimeHUD());
         register(new PingHUD());
         register(new CPSHUD());
         register(new KeystrokesHUD());
@@ -73,12 +74,15 @@ public final class HudManager {
 
     /** Commit a complete layout only; failed attempts leave user positions intact. */
     public boolean tryArrange(Minecraft client) {
-        var widgets = new ArrayList<>(layoutElements().stream().filter(HudElement::enabled).toList());
+        var widgets = new ArrayList<>(layoutElements().stream().filter(e -> e.enabled() && !e.locked()).toList());
         if (widgets.isEmpty()) return true;
         float viewportWidth = client.getWindow().getGuiScaledWidth();
         float bottom = client.getWindow().getGuiScaledHeight() - 48;
         for (float scale : new float[]{1, 0.9F, 0.8F, 0.7F, 0.6F, 0.5F}) {
             var placed = new ArrayList<Placement>();
+            layoutElements().stream().filter(e -> e.enabled() && e.locked()).forEach(e -> placed.add(
+                    new Placement(e.x(), e.y(), e.width(client)*e.scale(), layoutHeight(e,client)*e.scale())));
+            int fixedCount = placed.size();
             var sorted = new ArrayList<>(widgets);
             sorted.sort(java.util.Comparator.comparingInt((HudElement e) -> layoutHeight(e, client)).reversed());
             HudElement watermark = find("watermark").orElse(null);
@@ -100,7 +104,7 @@ public final class HudManager {
             }
             if (fits) {
                 for (int i = 0; i < sorted.size(); i++) {
-                    var element = sorted.get(i); var placement = placed.get(i);
+                    var element = sorted.get(i); var placement = placed.get(fixedCount+i);
                     element.setScale(scale); element.setPosition(placement.x, placement.y);
                 }
                 return true;
