@@ -109,11 +109,11 @@ public final class HudEditor extends Screen {
         var theme=ThemeManager.getInstance().getTheme();c.fill(0,0,width,height,theme.background());
         if(minecraft!=null){manager.render(c,minecraft,true);
             if(guideX!=null)c.fill(guideX,0,guideX+1,height,theme.accentSecondary());if(guideY!=null)c.fill(0,guideY,width,guideY+1,theme.accentSecondary());
-            for(var e:manager.layoutElements())if(e.enabled())outline(c,e,theme);
+            for(var e:manager.layoutElements())if(e.enabled())outline(c,e,theme,mx,my);
         }
         if(controlsVisible){
             int w=Math.min(420,width-16);RoundedRenderer.fill(c,(width-w)/2,4,w,54,6,theme.panelHeader());
-            String hint=status.isEmpty()?"Ctrl+click: multi | L: lock | Ctrl+Z / Y | Tab: toolbar":status;
+            String hint=status.isEmpty()?(selection.isEmpty()?"Ctrl+click: multi | L: lock | Ctrl+Z / Y | Tab: toolbar":selection.size()+" selected | "+String.format(Locale.ROOT,"%.2fx",selected==null?1:selected.scale())+" | L: lock | Ctrl+Z / Y | Tab: toolbar"):status;
             c.centeredText(font,Component.literal(font.plainSubstrByWidth(hint,width-16)),width/2,61,theme.mutedText());
         }
         super.extractRenderState(c,mx,my,delta);
@@ -192,14 +192,12 @@ public final class HudEditor extends Screen {
     @Override public void onClose(){commitGesture();if(minecraft!=null)minecraft.setScreen(parent);}
     @Override public void removed(){commitGesture();externalBefore=snapshot();save.run();super.removed();}
     @Override public boolean isPauseScreen(){return false;}
-    private void outline(GuiGraphicsExtractor c,HudElement e,com.codex.pvphud.theme.Theme t){
+    private void outline(GuiGraphicsExtractor c,HudElement e,com.codex.pvphud.theme.Theme t,int mx,int my){
         int x=Math.round(e.x()),y=Math.round(e.y()),w=Math.round(e.width(minecraft)*e.scale()),h=Math.round(e.height(minecraft)*e.scale());
         int color=e.locked()?t.mutedText():selection.contains(e)?t.accentSecondary():t.accent();
         c.fill(x,y,x+w,y+1,color);c.fill(x,y+h-1,x+w,y+h,color);c.fill(x,y,x+1,y+h,color);c.fill(x+w-1,y,x+w,y+h,color);
         if(!e.locked())RoundedRenderer.fill(c,x+w-5,y+h-5,9,9,3,color);
-        RoundedRenderer.fill(c,x+w-12,y+2,10,10,2,t.panelHeader());c.centeredText(font,Component.literal("x"),x+w-7,y+3,t.text());
-        if(e.locked())c.text(font,"L",x+2,y+2,t.mutedText(),true);
-        if(selection.contains(e)){String text=String.format(Locale.ROOT,"%.2fx",e.scale());c.text(font,text,Math.clamp(x+w-font.width(text)-3,0,Math.max(0,width-font.width(text))),Math.max(0,y+h-12),t.text(),false);}
+        if(e.contains(mx,my,minecraft)){RoundedRenderer.fill(c,x+w-12,y+2,10,10,2,t.panelHeader());c.centeredText(font,Component.literal("x"),x+w-7,y+3,t.text());}
     }
     private boolean overCloseButton(double x,double y,HudElement e){int right=Math.round(e.x()+e.width(minecraft)*e.scale());return inside(x,y,right-12,Math.round(e.y())+2,10,10);}
     private boolean overResizeHandle(double x,double y,HudElement e){int right=Math.round(e.x()+e.width(minecraft)*e.scale()),bottom=Math.round(e.y()+e.height(minecraft)*e.scale());return inside(x,y,right-7,bottom-7,14,14);}
