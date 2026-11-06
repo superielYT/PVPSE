@@ -2,7 +2,7 @@
 import base64
 from pathlib import Path
 root = Path("build/run/clientGameTest/screenshots")
-for name in ("pvpse-editor-pro", "pvpse-clean-items", "pvpse-clean-fps", "pvpse-performance-comparison", "pvpse-radiant-ores-dark", "pvpse-radiant-terrain", "pvpse-radiant-weapon-variants", "pvpse-radiant-menu", "pvpse-radiant-settings"):
+for name in ("pvpse-frametime-live", "pvpse-editor-pro", "pvpse-clean-items", "pvpse-clean-fps", "pvpse-performance-comparison", "pvpse-radiant-ores-dark", "pvpse-radiant-terrain", "pvpse-radiant-weapon-variants", "pvpse-radiant-menu", "pvpse-radiant-settings"):
     matches = sorted(root.glob("*_" + name + ".png"))
     if not matches:
         continue

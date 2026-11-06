@@ -249,6 +249,14 @@ public final class PvpseClientGameTest implements FabricClientGameTest {
                 if(mc.options.renderDistance().get()!=16||mc.options.simulationDistance().get()!=12)throw new AssertionError("Temporary benchmark settings not restored");
             });
         }
+        var shown=context.computeOnClient(mc->{
+            var states=new java.util.LinkedHashMap<com.codex.pvphud.hud.HudElement,Boolean>();
+            PvpHudClient.getInstance().hudManager().layoutElements().forEach(e->{states.put(e,e.enabled());e.setEnabled(false);});
+            var graph=PvpHudClient.getInstance().hudManager().find("frame_time").orElseThrow();
+            graph.setEnabled(true);graph.setPosition(8,80);graph.setScale(1);return states;
+        });
+        context.waitTicks(10);context.takeScreenshot("pvpse-frametime-live");
+        context.runOnClient(mc->shown.forEach((e,enabled)->e.setEnabled(enabled)));
         context.runOnClient(mc->{
             FrameMonitor.start(mc,"Cancel",PerformanceMode.MAX,0,15_000_000_000L);
             mc.options.renderDistance().set(7);FrameMonitor.cancel(mc);
