@@ -61,7 +61,7 @@ public abstract class SettingComponent {
             c.fill(sx, y + 8, sx + fill, y + 12, t.accent());
         }
         public boolean click(double mx, double my, int button) {
-            if (button == 0 && inside(mx, my)) {
+            if (button == 0 && !element.locked() && inside(mx, my)) {
                 float normalized = (float) Math.clamp((mx - (x + width / 2)) / Math.max(1.0, width - width / 2 - 4.0), 0.0, 1.0);
                 element.setScale(0.5F + normalized * 2.0F);
                 return true;
@@ -98,7 +98,8 @@ public abstract class SettingComponent {
             var binding = FeatureKeybinds.key(feature.type());
             String label = FeatureKeybinds.listening(feature.type()) ? "LISTENING..."
                     : binding == null ? "NONE" : binding.getTranslatedKeyMessage().getString();
-            int buttonWidth = Math.max(68, mc.font.width(label) + 12);
+            int buttonWidth = Math.min(Math.max(24, width / 2), Math.max(68, mc.font.width(label) + 12));
+            label = mc.font.plainSubstrByWidth(label, Math.max(1, buttonWidth - 8));
             RoundedRenderer.fill(c, x + width - buttonWidth, y + 2, buttonWidth, 16, 4,
                     FeatureKeybinds.listening(feature.type()) ? t.accent() : t.panelHeader());
             c.centeredText(mc.font, Component.literal(label),
@@ -118,14 +119,14 @@ public abstract class SettingComponent {
         public Position(HudElement element, boolean horizontal) { super(element); this.horizontal = horizontal; }
         public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
             float position = horizontal ? element.x() : element.y();
-            c.text(mc.font, Component.literal((horizontal ? "X " : "Y ") + Math.round(position)), x, y + 6, t.text(), false);
+            c.text(mc.font, Component.literal(mc.font.plainSubstrByWidth((horizontal ? "X " : "Y ") + Math.round(position), Math.max(1, width / 2 - 3))), x, y + 6, t.text(), false);
             float limit = Math.max(1, (horizontal ? mc.getWindow().getGuiScaledWidth() : mc.getWindow().getGuiScaledHeight()) - (horizontal ? element.width(mc) : element.height(mc)) * element.scale());
             int start = x + width / 2, length = Math.max(1, width - width / 2 - 4);
             c.fill(start, y + 9, start + length, y + 11, t.panelHeader());
             c.fill(start, y + 8, start + Math.round(Math.clamp(position / Math.max(1, limit), 0, 1) * length), y + 12, t.accent());
         }
         public boolean click(double mx, double my, int button) {
-            if (button != 0 || !inside(mx, my)) return false;
+            if (button != 0 || element.locked() || !inside(mx, my)) return false;
             var mc = Minecraft.getInstance();
             float limit = horizontal ? mc.getWindow().getGuiScaledWidth() : mc.getWindow().getGuiScaledHeight();
             float size = horizontal ? element.width(mc) : element.height(mc);
@@ -139,10 +140,10 @@ public abstract class SettingComponent {
         public ResetLayout(HudElement element) { super(element); }
         public void render(GuiGraphicsExtractor c, Minecraft mc, Theme t, int mx, int my) {
             RoundedRenderer.fill(c, x, y + 2, width, 16, 4, inside(mx, my) ? t.accentSecondary() : t.panelHeader());
-            c.centeredText(mc.font, Component.literal("Reset position & scale"), x + width / 2, y + 6, t.text());
+            c.centeredText(mc.font, Component.literal(mc.font.plainSubstrByWidth("Reset position & scale", Math.max(1, width - 8))), x + width / 2, y + 6, t.text());
         }
         public boolean click(double mx, double my, int button) {
-            if (button != 0 || !inside(mx, my)) return false;
+            if (button != 0 || element.locked() || !inside(mx, my)) return false;
             element.resetLayout();
             return true;
         }
